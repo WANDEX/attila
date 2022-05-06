@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <regex>
 
 #include <cmath> // floor
@@ -63,10 +64,26 @@ std::string time_spent(const std::string &s)
     return calculate_time_spent(m[1], m[2]);
 }
 
-int main()
+std::string file_content(const std::string &file_path)
 {
-    std::string s = "Saturday (2022-01-08) 12:01 → 14:00 cleaning sink pipes"; // XXX
-    std::string spent = time_spent(s);
-    std::cout << spent;
+    std::ifstream rfile(file_path, std::ios::in);
+    std::string content((std::istreambuf_iterator<char>(rfile)),
+                        (std::istreambuf_iterator<char>()    ));
+    return content;
+}
+
+void file_time_spent(const std::string &file_path)
+{
+    std::string line;
+    std::istringstream fc(file_content(file_path));
+    while (std::getline(fc, line)) {
+        std::cout << time_spent(line) << std::endl;
+    }
+}
+
+int main(int argc, char* argv[])
+{
+    std::string file_path = "week-01-2022.txt";
+    file_time_spent(file_path);
     return 0;
 }
