@@ -38,7 +38,14 @@ std::string calculate_time_spent(const std::string &fr, const std::string &to)
     std::time_t end = std::mktime(&t2);
 
     int sec_diff = std::floor(std::difftime(end, beg));
-    if (sec_diff < 1) return "00:00";
+    if (sec_diff == 0) return "00:00";
+    // fix: 23:53 -> 00:07 expected time spent: (00:14)
+    // recalculate if the task was ended the next day
+    if (sec_diff < 1) {
+        t2.tm_mday = t2.tm_mday + 1;
+        end = std::mktime(&t2);
+        sec_diff = std::floor(std::difftime(end, beg));
+    }
     int h = sec_diff / 3600;
     int m = sec_diff % 3600 / 60;
     std::string spent = fmt::format("{:02}:{:02}", h, m);
