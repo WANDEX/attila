@@ -1,0 +1,3 @@
+-Wall
+-std=gnu++20
+-lfmt
