@@ -1,3 +1,5 @@
--Wall
 -std=gnu++20
+-Wall
+-Wextra
+-pedantic
 -lfmt
