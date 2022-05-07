@@ -2,11 +2,14 @@
 #include <iostream>
 #include <sstream>
 #include <regex>
+#include <string>
+#include <vector>
 
 #include <cmath> // floor
 #include <ctime> // difftime, mktime
 
 #include <fmt/core.h>
+#include <fmt/format.h> // fmt::join
 
 std::vector<int> split_vi(const std::string &s, char delimiter) {
     std::vector<int> tokens;
@@ -16,6 +19,20 @@ std::vector<int> split_vi(const std::string &s, char delimiter) {
         tokens.push_back(std::stoi(token));
     }
     return tokens;
+}
+
+std::vector<std::string> resplit(const std::string &s, const std::regex &re = std::regex{"\\s+"})
+{
+    std::sregex_token_iterator iter(s.begin(), s.end(), re, -1);
+    std::sregex_token_iterator end;
+    return {iter, end};
+}
+
+std::vector<std::string> split_on_words(const std::string &s)
+{
+    std::regex sep_regex("[ [:punct:]]+", std::regex::extended);
+    std::vector<std::string> words = resplit(s, sep_regex);
+    return words;
 }
 
 std::string calculate_time_spent(const std::string &fr, const std::string &to)
@@ -55,7 +72,7 @@ std::string calculate_time_spent(const std::string &fr, const std::string &to)
 
 std::string time_spent(const std::string &s)
 {
-    std::regex const r{R"((\d\d:\d\d).*(\d\d:\d\d))"}; // time span: from - to (hh:mm)
+    const std::regex r{R"((\d\d:\d\d).*(\d\d:\d\d))"}; // time span: from - to (hh:mm)
     std::smatch m;
     if(!std::regex_search(s, m, r)) {
         std::cerr << "time span was not found in the string:" << '\n' << s << '\n';
