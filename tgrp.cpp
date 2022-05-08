@@ -102,6 +102,17 @@ void file_time_spent(const std::string &file_path)
     }
 }
 
+std::pair<std::string, std::string> dt_and_task(const std::string &s)
+{
+    const std::regex r{R"((^.*\d\d:\d\d.*\d\d:\d\d) (.*$))"}; // time span: from - to (hh:mm)
+    std::smatch m;
+    if(!std::regex_search(s, m, r)) {
+        std::cerr << "time span was not found in the string:" << '\n' << s << '\n';
+        exit(76); // XXX
+    }
+    return std::make_pair(m[1], m[2]);
+}
+
 int main(int argc, char* argv[])
 {
     std::string file_path = "week-01-2022.txt";
