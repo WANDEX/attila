@@ -25,14 +25,18 @@ std::vector<std::string> resplit(const std::string &s, const std::regex &re = st
 {
     std::sregex_token_iterator iter(s.begin(), s.end(), re, -1);
     std::sregex_token_iterator end;
-    return {iter, end};
+    std::vector<std::string> v = {iter, end};
+    auto isEmptyOrBlank = [](const std::string &tmps) {
+        return tmps.find_first_not_of(" \t") == std::string::npos;
+    }; // remove blank string elements from the vector
+    v.erase(std::remove_if(v.begin(), v.end(), isEmptyOrBlank), v.end());
+    return v;
 }
 
 std::vector<std::string> split_on_words(const std::string &s)
 {
     std::regex sep_regex("[ [:punct:]]+", std::regex::extended);
-    std::vector<std::string> words = resplit(s, sep_regex);
-    return words;
+    return resplit(s, sep_regex);
 }
 
 std::string calculate_time_spent(const std::string &fr, const std::string &to)
