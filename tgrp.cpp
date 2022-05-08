@@ -113,6 +113,15 @@ std::pair<std::string, std::string> dt_and_task(const std::string &s)
     return std::make_pair(m[1], m[2]);
 }
 
+std::string task_of_project(const std::string &s)
+{
+    const std::regex r{R"(\[(.*)\])"};
+    std::smatch m;
+    if(std::regex_search(s, m, r))
+        return m[1];
+    return "";
+}
+
 int main(int argc, char* argv[])
 {
     std::string file_path = "week-01-2022.txt";
