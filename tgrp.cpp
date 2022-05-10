@@ -123,6 +123,21 @@ std::vector<std::string> projects_of_task(const std::string &s)
     return resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
 }
 
+void process_file(const std::string &file_path)
+{
+    std::string line;
+    std::istringstream fc(file_content(file_path));
+    while (std::getline(fc, line)) {
+        std::pair<std::string, std::string> dt_text = dt_and_task(line);
+        std::string& dt = dt_text.first;
+        std::string& text = dt_text.second;
+        std::vector<std::string> words = split_on_words(text);
+        std::vector<std::string> pot = projects_of_task(text);
+        if (!pot.empty())
+            fmt::print("\n> task belongs to the projects: {}\n", fmt::join(pot, ", ")); // XXX
+        std::cout << dt << " {" + time_spent(dt) + "} " << text << '\n'; // XXX
+        // fmt::print("[{}]\n", fmt::join(words, ", ")); // XXX
+    }
 }
 
 int main(int argc, char* argv[])
