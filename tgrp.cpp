@@ -113,13 +113,16 @@ std::pair<std::string, std::string> dt_and_task(const std::string &s)
     return std::make_pair(m[1], m[2]);
 }
 
-std::string task_of_project(const std::string &s)
+std::vector<std::string> projects_of_task(const std::string &s)
 {
-    const std::regex r{R"(\[(.*)\])"};
+    const std::regex projects{R"((\[.*\]))"};
     std::smatch m;
-    if(std::regex_search(s, m, r))
-        return m[1];
-    return "";
+    if(!std::regex_search(s, m, projects))
+        return {};
+    const std::regex re{R"(([\[\]]))"};
+    return resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
+}
+
 }
 
 int main(int argc, char* argv[])
