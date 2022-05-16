@@ -13,3 +13,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setTxt(const QString &txt)
+{
+    ui->plainTextEdit->setPlainText(txt);
+}
+
