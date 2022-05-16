@@ -7,6 +7,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <iomanip> // put_time
 
 #include <cmath> // floor
 #include <ctime> // difftime, mktime
@@ -141,6 +142,16 @@ inline void process_file(const std::string &file_path)
         std::cout << dt << " {" + time_spent(dt) + "} " << text << '\n'; // XXX
         // fmt::print("[{}]\n", fmt::join(words, ", ")); // XXX
     }
+}
+
+inline std::string last_week_file_name()
+{
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+    std::cout.imbue(std::locale("en_US.utf8"));
+    std::stringstream buf;
+    buf << std::put_time(&tm, "week-%V-%Y.txt");
+    return buf.str();
 }
 
 #endif // TGRP_H
