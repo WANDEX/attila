@@ -15,6 +15,14 @@
 #include <fmt/core.h>
 #include <fmt/format.h> // fmt::join
 
+struct Task {
+    std::string dt;
+    std::string text;
+    std::string spent;
+    std::vector<std::string> words;
+    std::vector<std::string> tproj;
+};
+
 inline std::vector<int> split_vi(const std::string &s, char delimiter) {
     std::vector<int> tokens;
     std::string token;
@@ -127,21 +135,33 @@ inline std::vector<std::string> projects_of_task(const std::string &s)
     return resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
 }
 
-inline void process_file(const std::string &file_path)
+inline std::vector<Task> file_tasks(const std::string &file_path)
 {
+    std::vector<Task> tasks;
     std::string line;
     std::istringstream fc(file_content(file_path));
     while (std::getline(fc, line)) {
         std::pair<std::string, std::string> dt_text = dt_and_task(line);
         std::string& dt = dt_text.first;
         std::string& text = dt_text.second;
+        std::string spent = time_spent(dt);
         std::vector<std::string> words = split_on_words(text);
-        std::vector<std::string> pot = projects_of_task(text);
-        if (!pot.empty())
-            fmt::print("\n> task belongs to the projects: {}\n", fmt::join(pot, ", ")); // XXX
-        std::cout << dt << " {" + time_spent(dt) + "} " << text << '\n'; // XXX
-        // fmt::print("[{}]\n", fmt::join(words, ", ")); // XXX
+        std::vector<std::string> tproj = projects_of_task(text);
+        Task task = {dt, text, spent, words, tproj};
+        tasks.push_back(task);
     }
+#if 0
+    for (const auto &t : tasks) {
+        std::cout << std::endl
+            << t.dt << std::endl
+            << t.text << std::endl
+            << t.spent << std::endl;
+        fmt::print("[{}]\n", fmt::join(t.words, ", "));
+        if (!t.tproj.empty())
+            fmt::print("> tproj: {}\n", fmt::join(t.tproj, ", "));
+    }
+#endif
+    return tasks;
 }
 
 inline std::string last_week_file_name()
