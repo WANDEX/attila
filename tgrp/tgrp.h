@@ -164,6 +164,15 @@ inline std::vector<Task> file_tasks(const std::string &file_path)
     return tasks;
 }
 
+inline std::string tasks_to_mulstr(std::vector<Task> tasks)
+{
+    std::ostringstream out;
+    for (const auto &t : tasks) {
+        out << t.text << '\n';
+    }
+    return out.str();
+}
+
 inline std::string last_week_file_name()
 {
     std::time_t t = std::time(nullptr);
