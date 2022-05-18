@@ -1,19 +1,24 @@
 #ifndef TGRP_H
 #define TGRP_H
 
+#include <cmath>    // floor
+#include <cstdlib>  // getenv
+#include <ctime>    // difftime, mktime
+
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 #include <regex>
 #include <string>
 #include <vector>
-#include <iomanip> // put_time
-
-#include <cmath> // floor
-#include <ctime> // difftime, mktime
+#include <iomanip>  // put_time
 
 #include <fmt/core.h>
 #include <fmt/format.h> // fmt::join
+
+namespace fs = std::filesystem;
 
 struct Task {
     std::string dt;
@@ -196,6 +201,41 @@ inline std::string last_week_file_name()
     std::stringstream buf;
     buf << std::put_time(&tm, "week-%V-%Y.txt");
     return buf.str();
+}
+
+inline std::vector<std::string> get_all_files_recursive(const fs::path &path)
+{
+    std::vector<std::string> fpaths;
+    for (const auto& p : fs::recursive_directory_iterator(path)) {
+        if (!fs::is_directory(p)) {
+            fs::path path = p.path();
+            fpaths.push_back(path.u8string());
+        }
+    }
+    std::sort(fpaths.begin(), fpaths.end());
+#if 0
+    for (const auto &p : fpaths) {
+        std::cout << p <<  std::endl;
+    }
+#endif
+    return fpaths;
+}
+
+inline std::vector<std::string> find_week_files()
+{
+    std::string POMODORO_DIR = sane_getenv("POMODORO_DIR");
+    std::vector<std::string> fpaths = get_all_files_recursive(POMODORO_DIR);
+    std::vector<std::string>& v = fpaths; // reference for shortness
+    auto match = [](const std::string &tmps) {
+        return tmps.find("week-") == std::string::npos;
+    }; // remove all paths which does not include pattern match
+    v.erase(std::remove_if(v.begin(), v.end(), match), v.end());
+#if 0
+    for (const auto &p : fpaths) {
+        std::cout << p <<  std::endl;
+    }
+#endif
+    return fpaths;
 }
 
 #endif // TGRP_H
