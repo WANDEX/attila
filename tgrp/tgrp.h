@@ -23,6 +23,21 @@ struct Task {
     std::vector<std::string> tproj;
 };
 
+inline std::string sane_getenv(const std::string &env)
+{   // details: https://www.delftstack.com/howto/cpp/cpp-get-environment-variables/
+    const char *tmp = std::getenv(env.c_str());
+    std::string env_var(tmp ? tmp : "");
+    if (env_var.empty()) {
+        std::cerr << "[ERROR] '$" << env << "' env var not found or empty." << '\n';
+        exit(75); // XXX
+    }
+    // env variable value sanitization
+    int pos = env_var.find(' ');
+    if (pos != std::string::npos)
+        env_var = env_var.substr(0, pos);
+    return env_var;
+}
+
 inline std::vector<int> split_vi(const std::string &s, char delimiter) {
     std::vector<int> tokens;
     std::string token;
