@@ -221,13 +221,13 @@ inline std::vector<std::string> get_all_files_recursive(const fs::path &path)
     return fpaths;
 }
 
-inline std::vector<std::string> find_week_files()
+inline std::vector<std::string> find_week_files(const std::string &pmatch = "week-")
 {
     std::string POMODORO_DIR = sane_getenv("POMODORO_DIR");
     std::vector<std::string> fpaths = get_all_files_recursive(POMODORO_DIR);
     std::vector<std::string>& v = fpaths; // reference for shortness
-    auto match = [](const std::string &tmps) {
-        return tmps.find("week-") == std::string::npos;
+    auto match = [=](const std::string &tmps) {
+        return tmps.find(pmatch) == std::string::npos;
     }; // remove all paths which does not include pattern match
     v.erase(std::remove_if(v.begin(), v.end(), match), v.end());
 #if 0
@@ -236,6 +236,11 @@ inline std::vector<std::string> find_week_files()
     }
 #endif
     return fpaths;
+}
+
+inline std::string find_last_week_file()
+{
+    return find_week_files(last_week_file_name())[0];
 }
 
 #endif // TGRP_H
