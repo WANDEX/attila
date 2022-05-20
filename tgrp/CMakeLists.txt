@@ -17,7 +17,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(fmt)
 
 set(PROJECT_SOURCES
-        tgrp.cpp
+        tgrp.h
         main.cpp
         mainwindow.cpp
         mainwindow.h
@@ -48,6 +48,8 @@ else()
 endif()
 
 target_link_libraries(tgrp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+target_link_libraries(tgrp PRIVATE fmt::fmt-header-only)
 
 set_target_properties(tgrp PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
