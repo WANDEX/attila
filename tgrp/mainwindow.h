@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include <QDate>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -17,10 +19,15 @@ public:
 
 void setLastWeekSpan();
 
+std::pair<std::string, std::string> getDateFrTo();
+
 void setTxt(const QString &txt);
     QString txt() const;
 
 private:
     Ui::MainWindow *ui;
+
+    QDate date_fr;
+    QDate date_to;
 };
 #endif // MAINWINDOW_H
