@@ -13,6 +13,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <locale>
 #include <iomanip>  // put_time
 
 #include <fmt/core.h>
@@ -193,16 +194,6 @@ inline std::string tasks_to_mulstr(std::vector<Task> tasks)
     return out.str();
 }
 
-inline std::string last_week_file_name()
-{
-    std::time_t t = std::time(nullptr);
-    std::tm tm = *std::localtime(&t);
-    std::cout.imbue(std::locale("en_US.utf8"));
-    std::stringstream buf;
-    buf << std::put_time(&tm, "week-%V-%Y.txt");
-    return buf.str();
-}
-
 inline std::vector<std::string> get_all_files_recursive(const fs::path &path)
 {
     std::vector<std::string> fpaths;
@@ -238,9 +229,27 @@ inline std::vector<std::string> find_week_files(const std::string &pmatch = "wee
     return fpaths;
 }
 
+inline std::string week_file_name(std::string date_str)
+{
+    std::tm tm = {};
+    if (date_str == "now") {
+        std::time_t t = std::time(nullptr);
+        tm = *std::localtime(&t);
+    } else {
+        std::istringstream ss(date_str);
+        ss.imbue(std::locale("en_US.utf-8"));
+        ss >> std::get_time(&tm, "%Y-%m-%d");
+        // NOTE: without this tm will be incomplete!
+        std::mktime(&tm);
+    }
+    std::ostringstream buf;
+    buf << std::put_time(&tm, "week-%V-%Y.txt");
+    return buf.str();
+}
+
 inline std::string find_last_week_file()
 {
-    return find_week_files(last_week_file_name())[0];
+    return find_week_files(week_file_name("now"))[0];
 }
 
 #endif // TGRP_H
