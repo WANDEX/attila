@@ -247,6 +247,24 @@ inline std::string week_file_name(std::string date_str)
     return buf.str();
 }
 
+/*
+    vector slice by indexes, like the list slicing in python
+*/
+inline std::vector<std::string> vslice(const std::vector<std::string> &v, int start=0, int end=-1) {
+    int oldlen = v.size();
+    int newlen;
+    if (end == -1 or end >= oldlen) {
+        newlen = oldlen - start;
+    } else {
+        newlen = end - start;
+    }
+    std::vector<std::string> nv(newlen);
+    for (int i=0; i<newlen; i++) {
+        nv[i] = v[start + i];
+    }
+    return nv;
+}
+
 inline std::string find_week_file_by_date(std::string date_str)
 {
     return find_week_files(week_file_name(date_str))[0];
