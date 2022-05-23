@@ -247,6 +247,11 @@ inline std::string week_file_name(std::string date_str)
     return buf.str();
 }
 
+inline std::string find_week_file_by_date(std::string date_str)
+{
+    return find_week_files(week_file_name(date_str))[0];
+}
+
 inline std::string find_last_week_file()
 {
     return find_week_files(week_file_name("now"))[0];
