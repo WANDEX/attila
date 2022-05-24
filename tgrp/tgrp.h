@@ -44,7 +44,8 @@ inline std::string sane_getenv(const std::string &env)
     return env_var;
 }
 
-inline std::vector<int> split_vi(const std::string &s, char delimiter) {
+inline std::vector<int> split_vi(const std::string &s, char delimiter)
+{
     std::vector<int> tokens;
     std::string token;
     std::istringstream token_stream(s);
@@ -260,7 +261,8 @@ inline std::string week_file_name(const std::string &date_str)
 /*
     vector slice by indexes, like the list slicing in python
 */
-inline std::vector<std::string> vslice(const std::vector<std::string> &v, int start=0, int end=-1) {
+inline std::vector<std::string> vslice(const std::vector<std::string> &v, int start=0, int end=-1)
+{
     int oldlen = v.size();
     int newlen;
     if (end == -1 or end >= oldlen) {
@@ -275,7 +277,8 @@ inline std::vector<std::string> vslice(const std::vector<std::string> &v, int st
     return nv;
 }
 
-inline int item_index(const std::vector<std::string> &v, const std::string &item) {
+inline int item_index(const std::vector<std::string> &v, const std::string &item)
+{
     auto ret = std::find(v.begin(), v.end(), item);
     if (ret != v.end())
         return ret - v.begin();
