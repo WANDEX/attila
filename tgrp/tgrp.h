@@ -231,21 +231,29 @@ inline std::vector<std::string> find_week_files(const std::string &pmatch = "wee
     return fpaths;
 }
 
+/*
+    construct & return week file name by the date string
+*/
 inline std::string week_file_name(const std::string &date_str)
 {
-    std::tm tm = {};
-    if (date_str == "now") {
-        std::time_t t = std::time(nullptr);
-        tm = *std::localtime(&t);
-    } else {
-        std::istringstream ss(date_str);
-        ss.imbue(std::locale("en_US.utf-8"));
-        ss >> std::get_time(&tm, "%Y-%m-%d");
-        // NOTE: without this tm will be incomplete!
-        std::mktime(&tm);
-    }
+    std::tm tm1 = {}, tm2 = {};
+    const char* wfmt = "week-%V-%Y.txt";
+    const std::time_t now = std::time(nullptr);
+    tm1 = *std::localtime(&now);
     std::ostringstream buf;
-    buf << std::put_time(&tm, "week-%V-%Y.txt");
+    if (date_str == "now") {
+        buf << std::put_time(&tm1, wfmt);
+        return buf.str();
+    }
+    std::istringstream ss(date_str);
+    ss.imbue(std::locale("en_US.utf-8"));
+    ss >> std::get_time(&tm2, "%Y-%m-%d");
+    const std::time_t t = std::mktime(&tm2);
+    // if date str > date now => current week fname
+    if (std::difftime(now, t) < 0)
+        buf << std::put_time(&tm1, wfmt);
+    else
+        buf << std::put_time(&tm2, wfmt);
     return buf.str();
 }
 
