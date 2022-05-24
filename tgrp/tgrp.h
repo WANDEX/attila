@@ -221,6 +221,8 @@ inline std::vector<std::string> find_week_files(const std::string &pmatch = "wee
         return tmps.find(pmatch) == std::string::npos;
     }; // remove all paths which does not include pattern match
     v.erase(std::remove_if(v.begin(), v.end(), match), v.end());
+    if (v.empty())
+        return {};
 #if 0
     for (const auto &p : fpaths) {
         std::cout << p <<  std::endl;
@@ -265,18 +267,43 @@ inline std::vector<std::string> vslice(const std::vector<std::string> &v, int st
     return nv;
 }
 
-inline int closest_week_file_index(const std::vector<std::string> &v, const std::string &item) {
+inline int item_index(const std::vector<std::string> &v, const std::string &item) {
     auto ret = std::find(v.begin(), v.end(), item);
     if (ret != v.end())
         return ret - v.begin();
-    // TODO: try to get closest next existing file and return it's index
     return -1; // return the last element index
 }
 
 inline std::string find_week_file_by_date(const std::string &date_str)
 {
-    // TODO: get closest next found week file if week file by date_str does not exist
-    return find_week_files(week_file_name(date_str))[0];
+    const std::vector<std::string> found = find_week_files(week_file_name(date_str));
+    if (found.empty()) { // find closest next found week file
+        const std::vector<std::string> fpaths = find_week_files();
+        const std::string fake_fname = week_file_name(date_str);
+        std::vector<std::string> fnames;
+        fnames.push_back(fake_fname); // add fake entry week fname
+        for (const fs::path p : fpaths)
+            fnames.push_back(p.filename());
+        // fname example: week-05-2022.txt
+        // substr(8, 4) = year; substr(5, 2) = week_num
+        std::sort(fnames.begin(), fnames.end(),
+            [](const std::string &a, const std::string &b) -> bool
+        {
+            return
+            (
+                (a.substr(8, 4) < b.substr(8, 4)) ||
+                (a.substr(8, 4) == b.substr(8, 4) && a.substr(5, 2) < b.substr(5, 2))
+            );
+        });
+#if 0
+        fmt::print("{}\n", fmt::join(fnames, "\n"));
+        std::cout << "fake_fname: " << fake_fname << '\n';
+#endif
+        // find index of the fake entry & return next week file
+        int index = item_index(fnames, fake_fname);
+        return fpaths[index];
+    }
+    return found[0];
 }
 
 inline std::string find_last_week_file()
@@ -289,8 +316,8 @@ inline std::vector<std::string> find_week_files_in_span(const std::string &fr, c
     const std::string fr_fpath = find_week_file_by_date(fr);
     const std::string to_fpath = find_week_file_by_date(to);
     const std::vector<std::string> fpaths = find_week_files();
-    int fr_index = closest_week_file_index(fpaths, fr_fpath);
-    int to_index = closest_week_file_index(fpaths, to_fpath);
+    int fr_index = item_index(fpaths, fr_fpath);
+    int to_index = item_index(fpaths, to_fpath);
     std::vector<std::string> fpaths_span = vslice(fpaths, fr_index, to_index + 1); // +1 including
 #if 0
     for (const auto &p : fpaths_span) {
