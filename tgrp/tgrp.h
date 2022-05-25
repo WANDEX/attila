@@ -344,23 +344,27 @@ inline std::vector<std::string> find_week_files_in_span(const std::string &fr, c
 /*
     remove lines before line with substring
 */
-inline void remove_lines_before(std::string &str, const std::string &substr)
+inline int remove_lines_before(std::string &str, const std::string &substr)
 {
     std::size_t pos = str.find(substr);
+    if (pos == std::string::npos) return 1; // return if substr not found
     for (; pos > 0; pos--)
         if (str[pos] == '\n') break;
     str.replace(0, pos + 1, "");
+    return 0;
 }
 
 /*
     remove lines after line with substring
 */
-inline void remove_lines_after(std::string &str, const std::string &substr)
+inline int remove_lines_after(std::string &str, const std::string &substr)
 {
     std::size_t pos = str.rfind(substr);
+    if (pos == std::string::npos) return 1; // return if substr not found
     for (; pos < str.size(); pos++)
         if (str[pos] == '\n') break;
     str.replace(pos, std::string::npos, "");
+    return 0;
 }
 
 /*
