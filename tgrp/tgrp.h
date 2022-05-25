@@ -363,4 +363,31 @@ inline void remove_lines_after(std::string &str, const std::string &substr)
     str.replace(pos, std::string::npos, "");
 }
 
+/*
+    concatenate week files removing lines before & after range of dates
+*/
+inline const std::string concat_week_files
+(std::vector<std::string> &fpaths, const std::string &fr, const std::string &to)
+{
+    // if the date range matches one file
+    if (fpaths.size() == 1) {
+        std::string fcontent = file_content(fpaths[0]);
+        remove_lines_before(fcontent, fr);
+        remove_lines_after(fcontent, to);
+        return fcontent;
+    }
+    std::string fcontent_first = file_content(fpaths[0]);
+    std::string fcontent_last = file_content(fpaths.back());
+    // remove lines before & after range of dates
+    remove_lines_before(fcontent_first, fr);
+    remove_lines_after(fcontent_last, to);
+    // DOUBTS: TODO: should we check if files end with a newline?
+    std::ostringstream buf;
+    buf << fcontent_first;
+    for (int i = 1; i < fpaths.size() - 1; i++)
+        buf << file_content(fpaths[i]);
+    buf << fcontent_last;
+    return buf.str();
+}
+
 #endif // TGRP_H
