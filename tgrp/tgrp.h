@@ -342,6 +342,33 @@ inline std::vector<std::string> find_week_files_in_span(const std::string &fr, c
 }
 
 /*
+    vector of all dates of the week found by date string
+    (from first to the last day of the week)
+*/
+inline std::vector<std::string> dates_of_week(const std::string &date_str)
+{
+    std::tm tm = {};
+    std::istringstream ss(date_str);
+    ss.imbue(std::locale("en_US.utf-8"));
+    ss >> std::get_time(&tm, "%Y-%m-%d");
+    std::mktime(&tm); // essential in order to set proper tm_wday
+    int first_wday = tm.tm_mday - tm.tm_wday; // first day of the week
+    tm.tm_mday = first_wday;
+    std::vector<std::string> wdates;
+    std::ostringstream buf;
+    for (int i = 0; i < 7; i++) {
+        // FIXME: HACK: to make sunday last day of the week, not first.
+        if (i == 0 && tm.tm_wday == 0) tm.tm_mday -= 7;
+        tm.tm_mday += 1;
+        std::mktime(&tm);
+        buf.clear(); buf.str(""); // clean buffer before inserting new date
+        buf << std::put_time(&tm, "%Y-%m-%d");
+        wdates.push_back(buf.str());
+    }
+    return wdates;
+}
+
+/*
     remove lines before line with substring
 */
 inline int remove_lines_before(std::string &str, const std::string &substr)
