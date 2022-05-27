@@ -414,6 +414,44 @@ inline bool remove_lines_after(std::string &str, const std::string &substr, bool
     return true;
 }
 
+/*
+    Remove lines before line with date substring.
+    Iterate over the dates of the week if the date substring is not found,
+    to exclude all lines before the date anyway.
+*/
+inline bool remove_lines_before_date(std::string &str, const std::string &date_str)
+{
+    if (remove_lines_before(str, date_str, false))
+        return true;
+
+    const std::vector<std::string> dates = dates_of_week(date_str);
+    int index = item_index(dates, date_str);
+
+    for (int i = index; i >= 0; i--) {
+        if (remove_lines_before(str, dates[i], true))
+            return true;
+    }
+    return false;
+}
+
+/*
+    Remove lines after line with date substring.
+    Iterate over the dates of the week if the date substring is not found,
+    to exclude all lines after the date anyway.
+*/
+inline bool remove_lines_after_date(std::string &str, const std::string &date_str)
+{
+    if (remove_lines_after(str, date_str, true))
+        return true;
+
+    const std::vector<std::string> dates = dates_of_week(date_str);
+    int index = item_index(dates, date_str);
+
+    for (int i = 0; i <= index; i++) {
+        if (remove_lines_after(str, dates[i], true))
+            return true;
+    }
+    return false;
 }
 
 /*
@@ -425,15 +463,14 @@ inline const std::string concat_week_files
     // if the date range matches one file
     if (fpaths.size() == 1) {
         std::string fcontent = file_content(fpaths[0]);
-        remove_lines_before(fcontent, fr);
-        remove_lines_after(fcontent, to);
+        remove_lines_before_date(fcontent, fr);
+        remove_lines_after_date(fcontent, to);
         return fcontent;
     }
     std::string fcontent_first = file_content(fpaths[0]);
     std::string fcontent_last = file_content(fpaths.back());
-    // remove lines before & after range of dates
-    remove_lines_before(fcontent_first, fr);
-    remove_lines_after(fcontent_last, to);
+    remove_lines_before_date(fcontent_first, fr);
+    remove_lines_after_date(fcontent_last, to);
     // DOUBTS: TODO: should we check if files end with a newline?
     std::ostringstream buf;
     buf << fcontent_first;
