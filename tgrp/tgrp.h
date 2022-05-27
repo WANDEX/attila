@@ -392,28 +392,28 @@ inline std::size_t fnl_substr(std::string &str, const std::string &substr, bool 
 
 /*
     remove lines before line with substring
+    return false if substring not found.
 */
-inline int remove_lines_before(std::string &str, const std::string &substr)
+inline bool remove_lines_before(std::string &str, const std::string &substr, bool including_last=false)
 {
-    std::size_t pos = str.find(substr);
-    if (pos == std::string::npos) return 1; // return if substr not found
-    for (; pos > 0; pos--)
-        if (str[pos] == '\n') break;
+    std::size_t pos = fnl_substr(str, substr, including_last);
+    if (pos == std::string::npos) return false; // substr not found
     str.replace(0, pos + 1, "");
-    return 0;
+    return true;
 }
 
 /*
     remove lines after line with substring
+    return false if substring not found.
 */
-inline int remove_lines_after(std::string &str, const std::string &substr)
+inline bool remove_lines_after(std::string &str, const std::string &substr, bool including_last=true)
 {
-    std::size_t pos = str.rfind(substr);
-    if (pos == std::string::npos) return 1; // return if substr not found
-    for (; pos < str.size(); pos++)
-        if (str[pos] == '\n') break;
+    std::size_t pos = fnl_substr(str, substr, including_last);
+    if (pos == std::string::npos) return false; // substr not found
     str.replace(pos, std::string::npos, "");
-    return 0;
+    return true;
+}
+
 }
 
 /*
