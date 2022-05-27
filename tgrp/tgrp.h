@@ -369,6 +369,28 @@ inline std::vector<std::string> dates_of_week(const std::string &date_str)
 }
 
 /*
+    find position of nearest newline in multiline str by substring
+    return std::string::npos if substring not found!
+*/
+inline std::size_t fnl_substr(std::string &str, const std::string &substr, bool including_last=false)
+{
+    std::size_t pos;
+    (including_last) ? pos = str.rfind(substr) : pos = str.find(substr);
+    if (pos == std::string::npos)
+        return std::string::npos; // substr not found!
+    if (including_last) {
+        // including LAST FOUND line with substring
+        for (; pos < str.size(); pos++)
+            if (str[pos] == '\n') break;
+    } else {
+        // excluding FIRST FOUND line with substring
+        for (; pos > 0; pos--)
+            if (str[pos] == '\n') break;
+    }
+    return pos;
+}
+
+/*
     remove lines before line with substring
 */
 inline int remove_lines_before(std::string &str, const std::string &substr)
