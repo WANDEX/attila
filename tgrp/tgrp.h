@@ -447,8 +447,8 @@ inline bool remove_lines_after_date(std::string &str, const std::string &date_st
     const std::vector<std::string> dates = dates_of_week(date_str);
     int index = item_index(dates, date_str);
 
-    for (int i = 0; i <= index; i++) {
-        if (remove_lines_after(str, dates[i], true))
+    for (int i = index; i < dates.size(); i++) {
+        if (remove_lines_after(str, dates[i], false))
             return true;
     }
     return false;
