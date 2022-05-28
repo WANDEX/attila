@@ -29,6 +29,27 @@ struct Task {
     std::vector<std::string> tproj;
 };
 
+/*
+    trim whitespace characters from right (also removes blank lines)
+*/
+inline std::string trim_right(const std::string &s) {
+    return std::regex_replace(s, std::regex("\\s+$"), "");
+}
+
+/*
+    trim whitespace characters from left
+*/
+inline std::string trim_left(const std::string &s) {
+    return std::regex_replace(s, std::regex("^\\s+"), "");
+}
+
+/*
+    trim whitespace characters from left & right (also removes blank lines)
+*/
+inline std::string trim(const std::string &s) {
+    return trim_left(trim_right(s));
+}
+
 inline std::string sane_getenv(const std::string &env)
 {   // details: https://www.delftstack.com/howto/cpp/cpp-get-environment-variables/
     const char *tmp = std::getenv(env.c_str());
@@ -465,19 +486,18 @@ inline const std::string concat_week_files
         std::string fcontent = file_content(fpaths[0]);
         remove_lines_before_date(fcontent, fr);
         remove_lines_after_date(fcontent, to);
-        return fcontent;
+        return trim(fcontent);
     }
     std::string fcontent_first = file_content(fpaths[0]);
     std::string fcontent_last = file_content(fpaths.back());
     remove_lines_before_date(fcontent_first, fr);
     remove_lines_after_date(fcontent_last, to);
-    // DOUBTS: TODO: should we check if files end with a newline?
     std::ostringstream buf;
     buf << fcontent_first;
     for (int i = 1; i < fpaths.size() - 1; i++)
         buf << file_content(fpaths[i]);
     buf << fcontent_last;
-    return buf.str();
+    return trim(buf.str());
 }
 
 #endif // TGRP_H
