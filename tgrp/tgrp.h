@@ -500,4 +500,11 @@ inline const std::string concat_week_files
     return trim(buf.str());
 }
 
+inline std::string concat_span(const std::string &fr, const std::string &to)
+{
+    std::vector<std::string> fpaths = find_week_files_in_span(fr, to);
+    std::string content = concat_week_files(fpaths, fr, to);
+    return content;
+}
+
 #endif // TGRP_H
