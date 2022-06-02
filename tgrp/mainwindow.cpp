@@ -21,9 +21,7 @@ MainWindow::~MainWindow()
 void MainWindow::startup()
 {
     setLastWeekSpan();
-    std::pair<std::string, std::string> datestr_fr_to = getDateFrTo();
-    std::vector<Task> tasks = file_tasks(find_last_week_file());
-    setTxt(QString::fromStdString(tasks_to_mulstr(tasks)));
+    dateSpanChanged();
 }
 
 void MainWindow::setLastWeekSpan()
