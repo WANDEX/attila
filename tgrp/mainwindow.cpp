@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
+    connect(ui->filterInput, &QLineEdit::textChanged, this, &MainWindow::filterChanged);
 }
 
 MainWindow::~MainWindow()
@@ -65,6 +66,28 @@ void MainWindow::dateSpanChanged()
     std::string fr = date_fr.toString("yyyy-MM-dd").toStdString();
     std::string to = date_to.toString("yyyy-MM-dd").toStdString();
     std::string content = concat_span(fr, to);
+    TXT_RAW = QString::fromStdString(content);
+    setTxt(TXT_RAW);
+    // try to apply filter back after changing the date span
+    if (!ui->filterInput->text().isEmpty())
+        filterChanged();
+}
 
-    setTxt(QString::fromStdString(content));
+void MainWindow::filterChanged()
+{
+    const QString pattern = ui->filterInput->text();
+    if (pattern.isEmpty()) {
+        setTxt(TXT_RAW); // set back not filtered text after clearing filter pattern
+        return;
+    }
+
+    re_filter = QRegularExpression(pattern);
+    if (!re_filter.isValid()) {
+        // TODO: indicate not valid regex by the red text color or smth
+        return;
+    }
+
+    std::string filtered = filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
+    TXT_FILTERED = QString::fromStdString(filtered);
+    setTxt(TXT_FILTERED);
 }

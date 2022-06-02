@@ -23,6 +23,7 @@ public:
 
 private slots:
     void dateSpanChanged();
+    void filterChanged();
 
 private:
     Ui::MainWindow *ui;
@@ -34,5 +35,10 @@ private:
 
     QDate date_fr;
     QDate date_to;
+
+    QRegularExpression re_filter;
+
+    QString TXT_RAW;
+    QString TXT_FILTERED;
 };
 #endif // MAINWINDOW_H
