@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include <QDate>
+#include <QRegularExpression>
 
 #include "tgrp.h"
 
