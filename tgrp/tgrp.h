@@ -419,7 +419,7 @@ inline bool remove_lines_before(std::string &str, const std::string &substr, boo
 {
     std::size_t pos = fnl_substr(str, substr, including_last);
     if (pos == std::string::npos) return false; // substr not found
-    str.replace(0, pos + 1, "");
+    str.replace(0, pos, "");
     return true;
 }
 
