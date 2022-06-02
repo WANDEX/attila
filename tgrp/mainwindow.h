@@ -29,6 +29,7 @@ private:
     Ui::MainWindow *ui;
 
     void startup();
+    void setTabbingOrder();
     void setLastWeekSpan();
     void setTxt(const QString &txt);
     std::pair<std::string, std::string> getDateFrTo();

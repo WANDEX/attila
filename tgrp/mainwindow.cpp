@@ -19,8 +19,20 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+/*
+    set order in which we switch between widgets by pressing Tab key
+*/
+void MainWindow::setTabbingOrder()
+{
+    QWidget::setTabOrder(ui->filterInput, ui->dateFr);
+    QWidget::setTabOrder(ui->dateFr, ui->dateTo);
+    QWidget::setTabOrder(ui->dateTo, ui->scrollArea);
+    QWidget::setTabOrder(ui->scrollArea, ui->scrollAreaWidgetContents);
+}
+
 void MainWindow::startup()
 {
+    setTabbingOrder();
     setLastWeekSpan();
     dateSpanChanged();
 }
