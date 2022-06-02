@@ -507,4 +507,20 @@ inline std::string concat_span(const std::string &fr, const std::string &to)
     return content;
 }
 
+/*
+    filter multiline string by lines containing matching pattern
+*/
+inline std::string filter_find(const std::string &str, const std::string &reinput)
+{
+    const std::regex re(reinput, std::regex::ECMAScript|std::regex::icase);
+    std::smatch m;
+    std::string line;
+    std::istringstream iss(str);
+    std::ostringstream oss;
+    while (std::getline(iss, line)) {
+        if(std::regex_search(line, m, re))
+            oss << line << '\n';
+    }
+    return oss.str();
+}
 #endif // TGRP_H
