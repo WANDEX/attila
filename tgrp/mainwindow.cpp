@@ -46,14 +46,23 @@ std::pair<std::string, std::string> MainWindow::getDateFrTo()
 void MainWindow::setTxt(const QString &txt)
 {
     ui->plainTextEdit->setPlainText(txt);
+    qDebug() << "New text was set!";
 }
 
 void MainWindow::dateSpanChanged()
 {
-    // TODO: verify that fr/to is really changed -> return otherwise
-
     date_fr = ui->dateFr->date();
     date_to = ui->dateTo->date();
+    if (!date_fr.isValid() || !date_to.isValid()) {
+        qDebug() << "Not valid date, processing was skipped.";
+        return;
+    }
+    // allow fr-to dates exchange - swap variables
+    if (date_to < date_fr) {
+        QDate tmpdate = date_fr;
+        date_fr = date_to;
+        date_to = tmpdate;
+    }
 
     std::string fr = date_fr.toString("yyyy-MM-dd").toStdString();
     std::string to = date_to.toString("yyyy-MM-dd").toStdString();
