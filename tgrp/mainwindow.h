@@ -7,6 +7,8 @@
 #include <QDate>
 #include <QRegularExpression>
 
+#include <QLineEdit>
+
 #include "tgrp.h"
 
 QT_BEGIN_NAMESPACE
@@ -29,10 +31,14 @@ private:
     Ui::MainWindow *ui;
 
     void startup();
+    void stylesDefaults();
     void setTabbingOrder();
     void setLastWeekSpan();
     void setTxt(const QString &txt);
     std::pair<std::string, std::string> getDateFrTo();
+
+    QLineEdit*  fin;
+    QString     fin_ss_def;
 
     QDate date_fr;
     QDate date_to;
