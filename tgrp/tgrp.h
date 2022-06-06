@@ -21,7 +21,7 @@
 
 namespace fs = std::filesystem;
 
-struct Task {
+struct task_t {
     std::string dt;
     std::string text;
     std::string spent;
@@ -178,19 +178,19 @@ inline std::vector<std::string> projects_of_task(const std::string &s)
     return resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
 }
 
-inline std::vector<Task> file_tasks(const std::string &file_path)
+inline std::vector<task_t> parse_tasks(const std::string &str)
 {
-    std::vector<Task> tasks;
+    std::vector<task_t> tasks;
     std::string line;
-    std::istringstream fc(file_content(file_path));
-    while (std::getline(fc, line)) {
+    std::istringstream content(str);
+    while (std::getline(content, line)) {
         std::pair<std::string, std::string> dt_text = dt_and_task(line);
         std::string& dt = dt_text.first;
         std::string& text = dt_text.second;
         std::string spent = time_spent(dt);
         std::vector<std::string> words = split_on_words(text);
         std::vector<std::string> tproj = projects_of_task(text);
-        Task task = {dt, text, spent, words, tproj};
+        task_t task = {dt, text, spent, words, tproj};
         tasks.push_back(task);
     }
 #if 0
@@ -207,11 +207,11 @@ inline std::vector<Task> file_tasks(const std::string &file_path)
     return tasks;
 }
 
-inline std::string tasks_to_mulstr(std::vector<Task> tasks)
+inline std::string tasks_to_mulstr(std::vector<task_t> tasks)
 {
     std::ostringstream out;
     for (const auto &t : tasks) {
-        out << t.text << '\n';
+        out << t.dt << " <" << t.spent << "> " << t.text << '\n';
     }
     return out.str();
 }
