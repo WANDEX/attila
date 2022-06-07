@@ -19,6 +19,18 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+/*
+   print timestamp into debug output (used to measure speed between calls)
+*/
+void MainWindow::pts(const QString msg="")
+{
+    if (msg.isEmpty()) {
+        qDebug() << QDateTime::currentDateTime().toString("[hh:mm]:ss.zzz");
+    } else {
+        qDebug() << QDateTime::currentDateTime().toString("[hh:mm]:ss.zzz") << ":" << msg;
+    }
+}
+
 void MainWindow::stylesDefaults()
 {
     fin = ui->filterInput;

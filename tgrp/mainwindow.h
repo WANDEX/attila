@@ -30,6 +30,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    void pts(const QString);
     void startup();
     void stylesDefaults();
     void setTabbingOrder();
