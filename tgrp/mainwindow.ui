@@ -248,13 +248,13 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tab_1">
        <attribute name="title">
         <string>Preview</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QPlainTextEdit" name="plainTextEdit">
+         <widget class="QPlainTextEdit" name="previewText">
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -273,8 +273,26 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Spent</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPlainTextEdit" name="spentText">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="lineWrapMode">
+           <enum>QPlainTextEdit::NoWrap</enum>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="plainText">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
