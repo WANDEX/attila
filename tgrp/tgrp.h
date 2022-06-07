@@ -178,6 +178,9 @@ inline std::vector<std::string> projects_of_task(const std::string &s)
     return resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
 }
 
+/*
+    parse/analyze multiline string of tasks
+*/
 inline std::vector<task_t> parse_tasks(const std::string &str)
 {
     std::vector<task_t> tasks;
