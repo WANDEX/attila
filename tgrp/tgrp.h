@@ -5,10 +5,14 @@
 #include <cstdlib>  // getenv
 #include <ctime>    // difftime, mktime
 
-#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+
+#include <algorithm>
+#include <future>   // async
+#include <thread>   // hardware_concurrency
+
 #include <filesystem>
 #include <regex>
 #include <string>
@@ -223,6 +227,54 @@ inline const std::string lines_between(const std::vector<std::string> &lines, in
     for (int i = beg_nl; i < end_nl; i++)
         buf << lines[i] << '\n';
     return buf.str();
+}
+
+/*
+    wrapper around parse_tasks() for parallel/async parsing/analyzing of multiline string
+*/
+inline std::vector<task_t> parse_tasks_parallel(const std::string &str)
+{
+    unsigned int nl = std::count(str.begin(), str.end(), '\n'); // new lines count
+    unsigned int threads_total = std::thread::hardware_concurrency();
+    if (threads_total < 2 || nl < 101) { // simple single threaded mode
+        return parse_tasks(str);
+    }
+    unsigned int num_threads = threads_total - 1; // -1 thread is essential for the algorithm
+    // fill the lines vector
+    std::string line;
+    std::vector<std::string> lines;
+    std::istringstream content(str);
+    while (std::getline(content, line))
+        lines.push_back(line);
+    // lines per thread (-1 thread) & remainder
+    unsigned int lpt = std::floor(nl / num_threads);
+    double lpt_remainder = nl % num_threads;
+    // lambda function for feeding the tasks analyzer
+    // with equally distributed chunks-lines of one large text
+    auto parse_tasks_lines = [&](unsigned int i, bool to_the_end=false) -> std::vector<task_t> {
+        if (to_the_end)
+            return parse_tasks(lines_between(lines, lpt*i, -1));
+        else
+            return parse_tasks(lines_between(lines, lpt*i, lpt*(i+1)));
+    };
+    // vector of futures which will contain vector of task structs
+    std::vector<std::future<std::vector<task_t>>> futures;
+    for (unsigned int i = 0; i < num_threads; i++) {
+        futures.insert(futures.begin() + i,
+                std::async(std::launch::async, parse_tasks_lines, i));
+    }
+    // if has remainder -> process leftover lines on additional (last thread)
+    if (lpt_remainder != 0) {
+        futures.insert(futures.begin() + num_threads,
+                std::async(std::launch::async, parse_tasks_lines, num_threads, true));
+    }
+    // extend vector with tasks_t vectors got from vector of futures
+    std::vector<task_t> vtt;
+    for(auto &e : futures) {
+        std::vector<task_t> tmp_vec = e.get();
+        vtt.insert(vtt.end(), tmp_vec.begin(), tmp_vec.end());
+    }
+    return vtt;
 }
 
 inline std::string tasks_to_mulstr(std::vector<task_t> tasks)
