@@ -76,7 +76,12 @@ std::pair<std::string, std::string> MainWindow::getDateFrTo()
 
 void MainWindow::setTxt(const QString &txt)
 {
-    ui->plainTextEdit->setPlainText(txt);
+    ui->previewText->setPlainText(txt);
+    pts("[TASKS ANALYZING] before");
+    vtt = parse_tasks_parallel(txt.toStdString());
+    pts("[TASKS ANALYZING] after");
+    const QString spent_text = QString::fromStdString(tasks_to_mulstr(tasks));
+    ui->spentText->setPlainText(spent_text);
     qDebug() << "New text was set!";
 }
 
