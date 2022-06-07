@@ -207,6 +207,21 @@ inline std::vector<task_t> parse_tasks(const std::string &str)
     return tasks;
 }
 
+/*
+    get slice of multiline string between line numbers
+*/
+inline const std::string lines_between(const std::vector<std::string> &lines, int beg_nl=0, int end_nl=-1)
+{
+    if (beg_nl < 0)
+        beg_nl = 0;
+    if (end_nl == -1 || end_nl > lines.size())
+        end_nl = lines.size();
+    std::ostringstream buf;
+    for (int i = beg_nl; i < end_nl; i++)
+        buf << lines[i] << '\n';
+    return buf.str();
+}
+
 inline std::string tasks_to_mulstr(std::vector<task_t> tasks)
 {
     std::ostringstream out;
