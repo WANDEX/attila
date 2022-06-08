@@ -65,15 +65,6 @@ void MainWindow::setLastWeekSpan()
     ui->dateTo->setDate(date_to);
 }
 
-std::pair<std::string, std::string> MainWindow::getDateFrTo()
-{
-    date_fr = ui->dateFr->date();
-    date_to = ui->dateTo->date();
-    std::string fr = date_fr.toString("yyyy-MM-dd").toStdString();
-    std::string to = date_to.toString("yyyy-MM-dd").toStdString();
-    return std::make_pair(fr, to);
-}
-
 void MainWindow::setTxt(const QString &txt)
 {
     ui->previewText->setPlainText(txt);

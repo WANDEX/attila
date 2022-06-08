@@ -36,7 +36,6 @@ private:
     void setTabbingOrder();
     void setLastWeekSpan();
     void setTxt(const QString &txt);
-    std::pair<std::string, std::string> getDateFrTo();
 
     QLineEdit*  fin;
     QString     fin_ss_def;
