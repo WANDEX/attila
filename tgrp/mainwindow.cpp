@@ -80,7 +80,7 @@ void MainWindow::setTxt(const QString &txt)
     pts("[TASKS ANALYZING] before");
     vtt = parse_tasks_parallel(txt.toStdString());
     pts("[TASKS ANALYZING] after");
-    const QString spent_text = QString::fromStdString(tasks_to_mulstr(tasks));
+    const QString spent_text = QString::fromStdString(tasks_to_mulstr(vtt));
     ui->spentText->setPlainText(spent_text);
     qDebug() << "New text was set!";
 }
