@@ -36,6 +36,9 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
+       <property name="toolTip">
+        <string>Ctrl+1</string>
+       </property>
        <attribute name="title">
         <string>Preview</string>
        </attribute>
@@ -102,6 +105,9 @@
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
                 <widget class="QLineEdit" name="filterInput">
+                 <property name="toolTip">
+                  <string>Ctrl+f</string>
+                 </property>
                  <property name="inputMask">
                   <string notr="true"/>
                  </property>
@@ -144,7 +150,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>date from</string>
+                  <string>date from (Ctrl+d)</string>
                  </property>
                  <property name="layoutDirection">
                   <enum>Qt::LeftToRight</enum>
@@ -197,7 +203,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>date to</string>
+                  <string>date to (Ctrl+D)</string>
                  </property>
                  <property name="layoutDirection">
                   <enum>Qt::LeftToRight</enum>
@@ -225,6 +231,9 @@
         </item>
         <item>
          <widget class="QPlainTextEdit" name="previewText">
+          <property name="toolTip">
+           <string>Ctrl+t</string>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -242,6 +251,9 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
+       <property name="toolTip">
+        <string>Ctrl+2</string>
+       </property>
        <attribute name="title">
         <string>Spent</string>
        </attribute>
@@ -296,6 +308,9 @@
               <layout class="QGridLayout" name="gridLayout_2">
                <item row="0" column="6">
                 <widget class="QCheckBox" name="checkBoxMerge">
+                 <property name="toolTip">
+                  <string>Ctrl+m</string>
+                 </property>
                  <property name="text">
                   <string>merge</string>
                  </property>
@@ -478,6 +493,9 @@
         </item>
         <item>
          <widget class="QPlainTextEdit" name="spentText">
+          <property name="toolTip">
+           <string>Ctrl+t</string>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
