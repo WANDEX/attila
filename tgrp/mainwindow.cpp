@@ -49,8 +49,45 @@ void MainWindow::setTabbingOrder()
     QWidget::setTabOrder(ui->scrollArea, ui->scrollAreaWidgetContents);
 }
 
+void MainWindow::goToTab(int index)
+{
+    // check that tab with index exist
+    if (!(index < ui->tabWidget->count()))
+        return;
+    ui->tabWidget->setCurrentIndex(index);
+}
+
+void MainWindow::gTab1() { goToTab(0); }
+void MainWindow::gTab2() { goToTab(1); }
+
+void MainWindow::gToFilter()
+{
+    gTab1();
+    ui->filterInput->setFocus(Qt::ShortcutFocusReason);
+    ui->filterInput->deselect();
+}
+
+/*
+usage:
+shortcut(QKeySequence(Qt::Key_Escape), SLOT(keyHandle()));
+*/
+void MainWindow::shortcut(QKeySequence key, const char* execThis)
+{
+    QShortcut *shortcut = new QShortcut(key, this);
+    shortcut->setContext(Qt::ApplicationShortcut);
+    connect(shortcut, SIGNAL(activated()), this, execThis);
+}
+
+void MainWindow::hotkeys()
+{
+    shortcut(tr("Ctrl+1"), SLOT(gTab1()));
+    shortcut(tr("Ctrl+2"), SLOT(gTab2()));
+    shortcut(tr("Ctrl+f"), SLOT(gToFilter()));
+}
+
 void MainWindow::startup()
 {
+    hotkeys();
     stylesDefaults();
     setTabbingOrder();
     setLastWeekSpan();

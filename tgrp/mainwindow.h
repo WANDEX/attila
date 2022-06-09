@@ -6,7 +6,10 @@
 
 #include <QDate>
 #include <QRegularExpression>
+#include <QShortcut>
+#include <QKeySequence>
 
+#include <QTabWidget>
 #include <QLineEdit>
 
 #include "tgrp.h"
@@ -26,14 +29,23 @@ public:
 private slots:
     void dateSpanChanged();
     void filterChanged();
+    void gTab1();
+    void gTab2();
+    void gToFilter();
 
 private:
     Ui::MainWindow *ui;
 
     void pts(const QString);
+
+    void shortcut(QKeySequence key, const char* execThis);
+    void goToTab(int index);
+    void hotkeys();
+
     void startup();
     void stylesDefaults();
     void setTabbingOrder();
+
     void setLastWeekSpan();
     void setTxt(const QString &txt);
 
