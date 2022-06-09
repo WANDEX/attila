@@ -67,6 +67,41 @@ void MainWindow::gToFilter()
     ui->filterInput->deselect();
 }
 
+void MainWindow::gToDateFr()
+{
+    gTab1();
+    ui->dateFr->setFocus(Qt::ShortcutFocusReason);
+}
+
+void MainWindow::gToDateTo()
+{
+    gTab1();
+    ui->dateTo->setFocus(Qt::ShortcutFocusReason);
+}
+
+void MainWindow::gToTxt()
+{
+    switch (ui->tabWidget->currentIndex()) {
+    case 0:
+        ui->previewText->setFocus(Qt::ShortcutFocusReason);
+        break;
+    case 1:
+        ui->spentText->setFocus(Qt::ShortcutFocusReason);
+        break;
+    default:
+        qDebug() << "Tab without Ctrl+t shortcut! index:"
+                 << ui->tabWidget->currentIndex();
+        break;
+    }
+}
+
+void MainWindow::gToMerge()
+{
+    if (ui->tabWidget->currentIndex() != 1)
+        return;
+    ui->checkBoxMerge->click();
+}
+
 /*
 usage:
 shortcut(QKeySequence(Qt::Key_Escape), SLOT(keyHandle()));
@@ -83,6 +118,13 @@ void MainWindow::hotkeys()
     shortcut(tr("Ctrl+1"), SLOT(gTab1()));
     shortcut(tr("Ctrl+2"), SLOT(gTab2()));
     shortcut(tr("Ctrl+f"), SLOT(gToFilter()));
+    shortcut(tr("Ctrl+d"),       SLOT(gToDateFr()));
+    shortcut(tr("Ctrl+Shift+D"), SLOT(gToDateTo()));
+    shortcut(tr("Ctrl+t"), SLOT(gToTxt()));
+    // TODO: n/e / j/k scrolling
+    // shortcut(tr("n"), SLOT(gToTxt1()));
+    // shortcut(tr("e"), SLOT(gToTxt2()));
+    shortcut(tr("Ctrl+m"), SLOT(gToMerge()));
 }
 
 void MainWindow::startup()

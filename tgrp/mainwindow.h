@@ -32,6 +32,10 @@ private slots:
     void gTab1();
     void gTab2();
     void gToFilter();
+    void gToDateFr();
+    void gToDateTo();
+    void gToMerge();
+    void gToTxt();
 
 private:
     Ui::MainWindow *ui;
