@@ -33,7 +33,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -51,7 +51,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>80</height>
+            <height>85</height>
            </size>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -87,7 +87,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>774</width>
-                <height>62</height>
+                <height>67</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -257,7 +257,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>80</height>
+            <height>85</height>
            </size>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -284,7 +284,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>774</width>
-                <height>62</height>
+                <height>67</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -294,8 +294,15 @@
                </sizepolicy>
               </property>
               <layout class="QGridLayout" name="gridLayout_2">
+               <item row="0" column="6">
+                <widget class="QCheckBox" name="checkBoxMerge">
+                 <property name="text">
+                  <string>merge</string>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="0">
-                <widget class="QPlainTextEdit" name="statsText">
+                <widget class="QPlainTextEdit" name="statsTotal">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
                    <horstretch>0</horstretch>
@@ -308,6 +315,9 @@
                  <property name="frameShape">
                   <enum>QFrame::NoFrame</enum>
                  </property>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
                  <property name="undoRedoEnabled">
                   <bool>false</bool>
                  </property>
@@ -318,7 +328,144 @@
                   <bool>true</bool>
                  </property>
                  <property name="plainText">
-                  <string>total: 00:00 	min: 00:00 	max: 00:00 	avg: 00:00</string>
+                  <string>total: 00:00</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPlainTextEdit" name="statsMin">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="acceptDrops">
+                  <bool>false</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
+                 <property name="undoRedoEnabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="lineWrapMode">
+                  <enum>QPlainTextEdit::NoWrap</enum>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="plainText">
+                  <string>min: 00:00</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3" colspan="2">
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>400</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="0" column="1">
+                <widget class="QPlainTextEdit" name="statsMax">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="acceptDrops">
+                  <bool>false</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
+                 <property name="undoRedoEnabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="lineWrapMode">
+                  <enum>QPlainTextEdit::NoWrap</enum>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="plainText">
+                  <string>max: 00:00</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QPlainTextEdit" name="statsAvg">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="acceptDrops">
+                  <bool>false</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
+                 <property name="undoRedoEnabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="lineWrapMode">
+                  <enum>QPlainTextEdit::NoWrap</enum>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="plainText">
+                  <string>  avg: 00:00</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPlainTextEdit" name="statsRec">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="acceptDrops">
+                  <bool>false</bool>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                 <property name="verticalScrollBarPolicy">
+                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
+                 <property name="undoRedoEnabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="lineWrapMode">
+                  <enum>QPlainTextEdit::NoWrap</enum>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                 <property name="plainText">
+                  <string>records: 0</string>
                  </property>
                 </widget>
                </item>
