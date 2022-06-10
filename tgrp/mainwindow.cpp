@@ -121,25 +121,49 @@ void MainWindow::gScroll()
     // focus scrollable text element
     pte_of_cur_tab->setFocus(Qt::ShortcutFocusReason);
 
-    // vertical scrolling
+    /*
+       vertical scrolling
+    */
     if (seq.matches(Qt::Key_J) || seq.matches(Qt::Key_N)) {
-        vsb_of_cur_tab->setValue(vsb_val + 10);
+        vsb_of_cur_tab->setValue(vsb_val + vsb_of_cur_tab->singleStep());
         return;
     }
     if (seq.matches(Qt::Key_K) || seq.matches(Qt::Key_E)) {
-        vsb_of_cur_tab->setValue(vsb_val - 10);
+        vsb_of_cur_tab->setValue(vsb_val - vsb_of_cur_tab->singleStep());
         return;
     }
-    // horizontal scrolling
+    // ^ same by page step
+    if (seq.matches(Qt::SHIFT | Qt::Key_J) || seq.matches(Qt::SHIFT | Qt::Key_N)) {
+        vsb_of_cur_tab->setValue(vsb_val + vsb_of_cur_tab->pageStep());
+        return;
+    }
+    if (seq.matches(Qt::SHIFT | Qt::Key_K) || seq.matches(Qt::SHIFT | Qt::Key_E)) {
+        vsb_of_cur_tab->setValue(vsb_val - vsb_of_cur_tab->pageStep());
+        return;
+    }
+    /*
+       horizontal scrolling
+    */
     if (seq.matches(Qt::Key_H)) {
-        hsb_of_cur_tab->setValue(hsb_val - 40);
+        hsb_of_cur_tab->setValue(hsb_val - (hsb_of_cur_tab->singleStep() * 4));
         return;
     }
     if (seq.matches(Qt::Key_L) || seq.matches(Qt::Key_I)) {
-        hsb_of_cur_tab->setValue(hsb_val + 40);
+        hsb_of_cur_tab->setValue(hsb_val + (hsb_of_cur_tab->singleStep() * 4));
         return;
     }
-    // scroll top/bot
+    // ^ same by page step
+    if (seq.matches(Qt::SHIFT | Qt::Key_H)) {
+        hsb_of_cur_tab->setValue(hsb_val - hsb_of_cur_tab->pageStep());
+        return;
+    }
+    if (seq.matches(Qt::SHIFT | Qt::Key_L) || seq.matches(Qt::SHIFT | Qt::Key_I)) {
+        hsb_of_cur_tab->setValue(hsb_val + hsb_of_cur_tab->pageStep());
+        return;
+    }
+    /*
+       scroll top/bot
+    */
     if (seq.matches(Qt::Key_G)) {
         vsb_of_cur_tab->setValue(vsb_of_cur_tab->minimum());
         return;
@@ -183,6 +207,11 @@ void MainWindow::hotkeys()
     shortcut(Qt::Key_J, SLOT(gScroll())); shortcut(Qt::Key_N, SLOT(gScroll()));
     shortcut(Qt::Key_K, SLOT(gScroll())); shortcut(Qt::Key_E, SLOT(gScroll()));
     shortcut(Qt::Key_L, SLOT(gScroll())); shortcut(Qt::Key_I, SLOT(gScroll()));
+    // HJKL by page step (same as PageUp/PageDown)
+    shortcut(Qt::SHIFT | Qt::Key_H, SLOT(gScroll()));
+    shortcut(Qt::SHIFT | Qt::Key_J, SLOT(gScroll())); shortcut(Qt::SHIFT | Qt::Key_N, SLOT(gScroll()));
+    shortcut(Qt::SHIFT | Qt::Key_K, SLOT(gScroll())); shortcut(Qt::SHIFT | Qt::Key_E, SLOT(gScroll()));
+    shortcut(Qt::SHIFT | Qt::Key_L, SLOT(gScroll())); shortcut(Qt::SHIFT | Qt::Key_I, SLOT(gScroll()));
     // scroll top/bot - g/G
     shortcut(Qt::Key_G, SLOT(gScroll()));
     shortcut(Qt::SHIFT | Qt::Key_G, SLOT(gScroll()));
