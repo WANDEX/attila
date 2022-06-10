@@ -11,6 +11,8 @@
 
 #include <QTabWidget>
 #include <QLineEdit>
+#include <QPlainTextEdit>
+#include <QScrollBar>
 
 #include "tgrp.h"
 
@@ -36,6 +38,7 @@ private slots:
     void gToDateTo();
     void gToMerge();
     void gToTxt();
+    void gScroll();
 
 private:
     Ui::MainWindow *ui;
@@ -52,6 +55,10 @@ private:
 
     void setLastWeekSpan();
     void setTxt(const QString &txt);
+
+    QPlainTextEdit*  pte_of_cur_tab;
+    QScrollBar*      vsb_of_cur_tab;
+    QScrollBar*      hsb_of_cur_tab;
 
     QLineEdit*  fin;
     QString     fin_ss_def;

@@ -95,6 +95,52 @@ void MainWindow::gToTxt()
     }
 }
 
+void MainWindow::gScroll()
+{
+    switch (ui->tabWidget->currentIndex()) {
+    case 0:
+        pte_of_cur_tab = ui->previewText;
+        break;
+    case 1:
+        pte_of_cur_tab = ui->spentText;
+        break;
+    default:
+        qDebug() << "Tab without scroll shortcut! index:"
+                 << ui->tabWidget->currentIndex();
+        return;
+    }
+
+    QShortcut* shcut = qobject_cast<QShortcut*>(sender());
+    QKeySequence seq = shcut->key();
+
+    vsb_of_cur_tab = pte_of_cur_tab->verticalScrollBar();
+    hsb_of_cur_tab = pte_of_cur_tab->horizontalScrollBar();
+    int vsb_val = vsb_of_cur_tab->value();
+    int hsb_val = hsb_of_cur_tab->value();
+
+    // focus scrollable text element
+    pte_of_cur_tab->setFocus(Qt::ShortcutFocusReason);
+
+    // vertical scrolling
+    if (seq.matches(Qt::Key_J) || seq.matches(Qt::Key_N)) {
+        vsb_of_cur_tab->setValue(vsb_val + 10);
+        return;
+    }
+    if (seq.matches(Qt::Key_K) || seq.matches(Qt::Key_E)) {
+        vsb_of_cur_tab->setValue(vsb_val - 10);
+        return;
+    }
+    // horizontal scrolling
+    if (seq.matches(Qt::Key_H)) {
+        hsb_of_cur_tab->setValue(hsb_val - 40);
+        return;
+    }
+    if (seq.matches(Qt::Key_L) || seq.matches(Qt::Key_I)) {
+        hsb_of_cur_tab->setValue(hsb_val + 40);
+        return;
+    }
+}
+
 void MainWindow::gToMerge()
 {
     if (ui->tabWidget->currentIndex() != 1)
@@ -121,10 +167,13 @@ void MainWindow::hotkeys()
     shortcut(tr("Ctrl+d"),       SLOT(gToDateFr()));
     shortcut(tr("Ctrl+Shift+D"), SLOT(gToDateTo()));
     shortcut(tr("Ctrl+t"), SLOT(gToTxt()));
-    // TODO: n/e / j/k scrolling
-    // shortcut(tr("n"), SLOT(gToTxt1()));
-    // shortcut(tr("e"), SLOT(gToTxt2()));
     shortcut(tr("Ctrl+m"), SLOT(gToMerge()));
+
+    // hjkl scrolling of the text
+    shortcut(Qt::Key_H, SLOT(gScroll()));
+    shortcut(Qt::Key_J, SLOT(gScroll())); shortcut(Qt::Key_N, SLOT(gScroll()));
+    shortcut(Qt::Key_K, SLOT(gScroll())); shortcut(Qt::Key_E, SLOT(gScroll()));
+    shortcut(Qt::Key_L, SLOT(gScroll())); shortcut(Qt::Key_I, SLOT(gScroll()));
 }
 
 void MainWindow::startup()
