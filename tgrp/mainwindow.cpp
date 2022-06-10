@@ -139,6 +139,15 @@ void MainWindow::gScroll()
         hsb_of_cur_tab->setValue(hsb_val + 40);
         return;
     }
+    // scroll top/bot
+    if (seq.matches(Qt::Key_G)) {
+        vsb_of_cur_tab->setValue(vsb_of_cur_tab->minimum());
+        return;
+    }
+    if (seq.matches(Qt::SHIFT | Qt::Key_G)) {
+        vsb_of_cur_tab->setValue(vsb_of_cur_tab->maximum());
+        return;
+    }
 }
 
 void MainWindow::gToMerge()
@@ -174,6 +183,9 @@ void MainWindow::hotkeys()
     shortcut(Qt::Key_J, SLOT(gScroll())); shortcut(Qt::Key_N, SLOT(gScroll()));
     shortcut(Qt::Key_K, SLOT(gScroll())); shortcut(Qt::Key_E, SLOT(gScroll()));
     shortcut(Qt::Key_L, SLOT(gScroll())); shortcut(Qt::Key_I, SLOT(gScroll()));
+    // scroll top/bot - g/G
+    shortcut(Qt::Key_G, SLOT(gScroll()));
+    shortcut(Qt::SHIFT | Qt::Key_G, SLOT(gScroll()));
 }
 
 void MainWindow::startup()
