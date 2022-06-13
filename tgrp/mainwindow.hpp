@@ -13,7 +13,7 @@
 #include <QScrollBar>
 
 #include "keys.hpp"
-#include "tgrp.h"
+#include "tgrp.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

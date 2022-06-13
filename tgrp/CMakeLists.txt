@@ -17,10 +17,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
 find_package(fmt)
 
 set(PROJECT_SOURCES
-        tgrp.h
+        tgrp.hpp
         main.cpp
         mainwindow.cpp
-        mainwindow.h
+        mainwindow.hpp
         mainwindow.ui
         action.hpp
         action.cpp
