@@ -6,14 +6,13 @@
 
 #include <QDate>
 #include <QRegularExpression>
-#include <QShortcut>
-#include <QKeySequence>
 
 #include <QTabWidget>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QScrollBar>
 
+#include "keys.hpp"
 #include "tgrp.h"
 
 QT_BEGIN_NAMESPACE
@@ -31,23 +30,12 @@ public:
 private slots:
     void dateSpanChanged();
     void filterChanged();
-    void gTab1();
-    void gTab2();
-    void gToFilter();
-    void gToDateFr();
-    void gToDateTo();
-    void gToMerge();
-    void gToTxt();
-    void gScroll();
 
 private:
     Ui::MainWindow *ui;
+    class Keys     *ks;
 
     void pts(const QString);
-
-    void shortcut(QKeySequence key, const char* execThis);
-    void goToTab(int index);
-    void hotkeys();
 
     void startup();
     void stylesDefaults();
@@ -55,10 +43,6 @@ private:
 
     void setLastWeekSpan();
     void setTxt(const QString &txt);
-
-    QPlainTextEdit*  pte_of_cur_tab;
-    QScrollBar*      vsb_of_cur_tab;
-    QScrollBar*      hsb_of_cur_tab;
 
     QLineEdit*  fin;
     QString     fin_ss_def;
