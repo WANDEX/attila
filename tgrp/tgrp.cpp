@@ -139,12 +139,12 @@ std::vector<task_t> parse_tasks(const std::string &s)
 */
 std::vector<task_t> parse_tasks_parallel(const std::string &s)
 {
-    unsigned int nl = std::count(s.begin(), s.end(), '\n'); // new lines count
-    unsigned int threads_total = std::thread::hardware_concurrency();
+    size_t nl = std::count(s.begin(), s.end(), '\n'); // new lines count
+    size_t threads_total = std::thread::hardware_concurrency();
     if (threads_total < 2 || nl < 101) { // simple single threaded mode
         return parse_tasks(s);
     }
-    unsigned int num_threads = threads_total - 1; // -1 thread is essential for the algorithm
+    size_t num_threads = threads_total - 1; // -1 thread is essential for the algorithm
     // fill the lines vector
     std::string line;
     std::vector<std::string> lines;
@@ -152,11 +152,11 @@ std::vector<task_t> parse_tasks_parallel(const std::string &s)
     while (std::getline(content, line))
         lines.push_back(line);
     // lines per thread (-1 thread) & remainder
-    unsigned int lpt = std::floor(nl / num_threads);
+    size_t lpt = std::floor(nl / num_threads);
     double lpt_remainder = nl % num_threads;
     // lambda function for feeding the tasks analyzer
     // with equally distributed chunks-lines of one large text
-    auto parse_tasks_lines = [&](unsigned int i, bool to_the_end=false) -> std::vector<task_t> {
+    auto parse_tasks_lines = [&](size_t i, bool to_the_end=false) -> std::vector<task_t> {
         if (to_the_end)
             return parse_tasks(str::lines_between(lines, lpt*i, -1));
         else
@@ -164,7 +164,7 @@ std::vector<task_t> parse_tasks_parallel(const std::string &s)
     };
     // vector of futures which will contain vector of task structs
     std::vector<std::future<std::vector<task_t>>> futures;
-    for (unsigned int i = 0; i < num_threads; i++) {
+    for (size_t i = 0; i < num_threads; i++) {
         futures.insert(futures.begin() + i,
                 std::async(std::launch::async, parse_tasks_lines, i));
     }
