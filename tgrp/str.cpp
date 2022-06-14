@@ -57,6 +57,9 @@ string str::sane_getenv(const string &envar)
     return env_var;
 }
 
+/**
+ * split string by regex
+ */
 vector<string> str::resplit(const string &s, const regex &re = regex{"\\s+"})
 {
     sregex_token_iterator iter(s.begin(), s.end(), re, -1);
