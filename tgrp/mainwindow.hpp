@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAINWINDOW_HPP
+#define MAINWINDOW_HPP
 
 #include <QMainWindow>
 #include <QDebug>
@@ -7,10 +7,7 @@
 #include <QDate>
 #include <QRegularExpression>
 
-#include <QTabWidget>
 #include <QLineEdit>
-#include <QPlainTextEdit>
-#include <QScrollBar>
 
 #include "keys.hpp"
 #include "tgrp.hpp"
@@ -57,4 +54,4 @@ private:
 
     vtasks_t vtt;
 };
-#endif // MAINWINDOW_H
+#endif // MAINWINDOW_HPP
