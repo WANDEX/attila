@@ -7,6 +7,7 @@
 #include <QDate>
 #include <QFutureWatcher>
 #include <QRegularExpression>
+#include <QTimer>
 
 #include <QLineEdit>
 
@@ -54,6 +55,7 @@ private:
     QDate date_fr;
     QDate date_to;
 
+    QTimer *typingTimer;
     QRegularExpression re_filter;
 
     QString TXT_RAW;

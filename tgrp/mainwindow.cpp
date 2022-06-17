@@ -11,9 +11,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     MainWindow::startup();
 
+    typingTimer = new QTimer(this);
+    typingTimer->setSingleShot(true); // timer will fire only once after it was started
+
+    // filter only after the user has stopped typing for at least a short time (filter as you type)
+    connect(ui->filterInput, &QLineEdit::textChanged, this, [&](){ typingTimer->start(300); });
+    connect(typingTimer,     &QTimer::timeout,        this, &MainWindow::filterChanged);
+
     connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
-    connect(ui->filterInput, &QLineEdit::textChanged, this, &MainWindow::filterChanged);
 
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
