@@ -55,6 +55,6 @@ private:
     QString TXT_RAW;
     QString TXT_FILTERED;
 
-    std::vector<task_t> vtt;
+    vtasks_t vtt;
 };
 #endif // MAINWINDOW_H

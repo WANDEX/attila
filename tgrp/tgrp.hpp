@@ -14,6 +14,8 @@ struct task_t {
     std::vector<std::string> tproj;
 };
 
+using vtasks_t = std::vector<task_t>;
+
 std::vector<int> split_vi(const std::string &s, char delimiter);
 int item_index(const std::vector<std::string> &v, const std::string &item);
 std::vector<std::string> vslice(const std::vector<std::string> &v, int start, int end);
@@ -23,8 +25,8 @@ std::string time_spent(const std::string &s);
 std::pair<std::string, std::string> dt_and_task(const std::string &s);
 std::vector<std::string> projects_of_task(const std::string &s);
 
-std::vector<task_t> parse_tasks(const std::string &s);
-std::vector<task_t> parse_tasks_parallel(const std::string &s);
+vtasks_t parse_tasks(const std::string &s);
+vtasks_t parse_tasks_parallel(const std::string &s);
 
 std::string concat_span(const std::string &fr, const std::string &to);
 const std::string concat_week_files(std::vector<std::string> &fpaths,
@@ -43,6 +45,6 @@ std::string find_last_week_file();
 bool remove_lines_after_date (std::string &s, const std::string &date_str);
 bool remove_lines_before_date(std::string &s, const std::string &date_str);
 
-std::string tasks_to_mulstr(std::vector<task_t> tasks);
+std::string tasks_to_mulstr(vtasks_t tasks);
 
 #endif // TGRP_HPP
