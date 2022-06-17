@@ -55,20 +55,20 @@ void MainWindow::setTabbingOrder()
     QWidget::setTabOrder(ui->scrollArea, ui->scrollAreaWidgetContents);
 }
 
-void MainWindow::startup()
-{
-    stylesDefaults();
-    setTabbingOrder();
-    setLastWeekSpan();
-    dateSpanChanged();
-}
-
 void MainWindow::setLastWeekSpan()
 {
     date_to = QDate::currentDate();
     date_fr = date_to.addDays(1-date_to.dayOfWeek()); // monday
     ui->dateFr->setDate(date_fr);
     ui->dateTo->setDate(date_to);
+}
+
+void MainWindow::startup()
+{
+    stylesDefaults();
+    setTabbingOrder();
+    setLastWeekSpan();
+    dateSpanChanged();
 }
 
 void MainWindow::setTxt(const QString &txt)

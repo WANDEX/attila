@@ -35,19 +35,20 @@ private slots:
     void filterChanged();
 
 private:
-    Ui::MainWindow *ui;
-    class Keys     *ks;
-
     void pts(const QString);
 
-    void startup();
     void stylesDefaults();
     void setTabbingOrder();
-
     void setLastWeekSpan();
+    void startup();
+
     void setTxt(const QString &txt);
 
-    QLineEdit*  fin;
+private:
+    Ui::MainWindow  *ui;
+    class Keys      *ks;
+
+    QLineEdit  *fin;
     QString     fin_ss_def;
 
     QDate date_fr;
