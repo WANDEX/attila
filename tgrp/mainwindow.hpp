@@ -5,6 +5,7 @@
 #include <QDebug>
 
 #include <QDate>
+#include <QFutureWatcher>
 #include <QRegularExpression>
 
 #include <QLineEdit>
@@ -24,7 +25,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void analyzeTasksSignal(const QString &txt);
+
 private slots:
+    void analyzeTasksStarted(const QString &txt);
+    void analyzeTasksFinished();
     void dateSpanChanged();
     void filterChanged();
 
@@ -53,5 +59,6 @@ private:
     QString TXT_FILTERED;
 
     vtasks_t vtt;
+    QFutureWatcher<vtasks_t> vtt_watcher;
 };
 #endif // MAINWINDOW_HPP

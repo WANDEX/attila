@@ -1,6 +1,8 @@
 #include "mainwindow.hpp"
 #include "./ui_mainwindow.h"
 
+#include <QtConcurrent/QtConcurrent>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -12,6 +14,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->filterInput, &QLineEdit::textChanged, this, &MainWindow::filterChanged);
+
+    // parallel analysis of tasks in the background (non-blocking behavior)
+    connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
+    connect(&vtt_watcher, &QFutureWatcher<vtasks_t>::finished, this, &MainWindow::analyzeTasksFinished);
 }
 
 MainWindow::~MainWindow()
@@ -68,12 +74,25 @@ void MainWindow::setLastWeekSpan()
 void MainWindow::setTxt(const QString &txt)
 {
     ui->previewText->setPlainText(txt);
-    pts("[TASKS ANALYZING] before");
-    vtt = parse_tasks_parallel(txt.toStdString());
-    pts("[TASKS ANALYZING] after");
+    qDebug() << "New text was set!";
+    emit analyzeTasksSignal(txt);
+}
+
+void MainWindow::analyzeTasksStarted(const QString &txt)
+{
+    pts("[TASKS ANALYZING] started");
+    const std::string stdstr = txt.toStdString();
+    QFuture<vtasks_t> future = QtConcurrent::run(parse_tasks_parallel, stdstr);
+    vtt_watcher.setFuture(future); // when computation is finished -> emit finished
+}
+
+void MainWindow::analyzeTasksFinished()
+{
+    pts("[TASKS ANALYZING] finished");
+    vtt = vtt_watcher.result();
     const QString spent_text = QString::fromStdString(tasks_to_mulstr(vtt));
     ui->spentText->setPlainText(spent_text);
-    qDebug() << "New text was set!";
+    pts("[TASKS ANALYZING] spent text is set!");
 }
 
 void MainWindow::dateSpanChanged()
