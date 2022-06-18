@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ks(new Keys(this, ui)) // init Keys class & bind hotkeys
 {
     ui->setupUi(this);
-    MainWindow::startup();
 
     typingTimer = new QTimer(this);
     typingTimer->setSingleShot(true); // timer will fire only once after it was started
@@ -24,6 +23,9 @@ MainWindow::MainWindow(QWidget *parent)
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
     connect(&vtt_watcher, &QFutureWatcher<vtasks_t>::finished, this, &MainWindow::analyzeTasksFinished);
+
+    // at the end - after signal/slot connections
+    MainWindow::startup();
 }
 
 MainWindow::~MainWindow()
