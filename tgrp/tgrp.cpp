@@ -37,7 +37,7 @@ std::vector<int> split_vi(const std::string &s, char delimiter)
     return tokens;
 }
 
-std::string calculate_time_spent(const std::string &fr, const std::string &to)
+const ss::hm_t calculate_time_spent(const std::string &fr, const std::string &to)
 {
     std::vector<int> fr_res = split_vi(fr, ':');
     std::vector<int> to_res = split_vi(to, ':');
@@ -58,7 +58,7 @@ std::string calculate_time_spent(const std::string &fr, const std::string &to)
     std::time_t end = std::mktime(&t2);
 
     int sec_diff = std::floor(std::difftime(end, beg));
-    if (sec_diff == 0) return "00:00";
+    if (sec_diff == 0) return {0, 0, "00:00"};
     // fix: 23:53 -> 00:07 expected time spent: (00:14)
     // recalculate if the task was ended the next day
     if (sec_diff < 1) {
@@ -68,11 +68,11 @@ std::string calculate_time_spent(const std::string &fr, const std::string &to)
     }
     int h = sec_diff / 3600;
     int m = sec_diff % 3600 / 60;
-    std::string spent = fmt::format("{:02}:{:02}", h, m);
-    return spent;
+    std::string str = fmt::format("{:02}:{:02}", h, m);
+    return {h, m, str};
 }
 
-std::string time_spent(const std::string &s)
+const ss::hm_t time_spent(const std::string &s)
 {
     const std::regex r{R"((\d\d:\d\d).*(\d\d:\d\d))"}; // time span: from - to (hh:mm)
     std::smatch m;
@@ -114,12 +114,12 @@ ss::vtasks_t parse_tasks(const std::string &s)
     std::istringstream content(s);
     while (std::getline(content, line)) {
         std::pair<std::string, std::string> dt_text = dt_and_task(line);
-        std::string& dt = dt_text.first;
+        std::string& dt   = dt_text.first;
         std::string& text = dt_text.second;
-        std::string spent = time_spent(dt);
+        ss::hm_t hm_t = time_spent(dt);
         std::vector<std::string> words = str::split_on_words(text);
         std::vector<std::string> tproj = projects_of_task(text);
-        ss::task_t task = {dt, text, spent, words, tproj};
+        ss::task_t task = {dt, text, hm_t, words, tproj};
         tasks.push_back(task);
     }
 #if 0
@@ -127,7 +127,7 @@ ss::vtasks_t parse_tasks(const std::string &s)
         std::cout << std::endl
             << t.dt << std::endl
             << t.text << std::endl
-            << t.spent << std::endl;
+            << t.hm_t.str << std::endl;
         fmt::print("[{}]\n", fmt::join(t.words, ", "));
         if (!t.tproj.empty())
             fmt::print("> tproj: {}\n", fmt::join(t.tproj, ", "));
@@ -188,7 +188,7 @@ std::string tasks_to_mulstr(ss::vtasks_t tasks)
 {
     std::ostringstream out;
     for (const auto &t : tasks) {
-        out << t.dt << " <" << t.spent << "> " << t.text << '\n';
+        out << t.dt << " <" << t.hm_t.str << "> " << t.text << '\n';
     }
     return out.str();
 }

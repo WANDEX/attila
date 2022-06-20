@@ -7,10 +7,17 @@
 
 namespace ss
 {
+
+    struct hm_t {
+        int h;
+        int m;
+        std::string str;
+    };
+
     struct task_t {
         std::string dt;
         std::string text;
-        std::string spent;
+        ss::hm_t    hm_t;
         std::vector<std::string> words;
         std::vector<std::string> tproj;
     };

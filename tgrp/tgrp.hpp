@@ -12,8 +12,8 @@ std::vector<int> split_vi(const std::string &s, char delimiter);
 int item_index(const std::vector<std::string> &v, const std::string &item);
 std::vector<std::string> vslice(const std::vector<std::string> &v, int start, int end);
 
-std::string calculate_time_spent(const std::string &fr, const std::string &to);
-std::string time_spent(const std::string &s);
+const ss::hm_t calculate_time_spent(const std::string &fr, const std::string &to);
+const ss::hm_t time_spent(const std::string &s);
 std::pair<std::string, std::string> dt_and_task(const std::string &s);
 std::vector<std::string> projects_of_task(const std::string &s);
 
