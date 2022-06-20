@@ -11,8 +11,9 @@
 
 #include <QLineEdit>
 
-#include "keys.hpp"
+#include "structs.hpp" // ss namespace with struct defs
 #include "tgrp.hpp"
+#include "keys.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -61,7 +62,7 @@ private:
     QString TXT_RAW;
     QString TXT_FILTERED;
 
-    vtasks_t vtt;
-    QFutureWatcher<vtasks_t> vtt_watcher;
+    ss::vtasks_t vtt;
+    QFutureWatcher<ss::vtasks_t> vtt_watcher;
 };
 #endif // MAINWINDOW_HPP

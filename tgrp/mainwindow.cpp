@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
-    connect(&vtt_watcher, &QFutureWatcher<vtasks_t>::finished, this, &MainWindow::analyzeTasksFinished);
+    connect(&vtt_watcher, &QFutureWatcher<ss::vtasks_t>::finished, this, &MainWindow::analyzeTasksFinished);
 
     // at the end - after signal/slot connections
     MainWindow::startup();
@@ -90,7 +90,7 @@ void MainWindow::analyzeTasksStarted(const QString &txt)
 {
     pts("[TASKS ANALYZING] started");
     const std::string stdstr = txt.toStdString();
-    QFuture<vtasks_t> future = QtConcurrent::run(parse_tasks_parallel, stdstr);
+    QFuture<ss::vtasks_t> future = QtConcurrent::run(parse_tasks_parallel, stdstr);
     vtt_watcher.setFuture(future); // when computation is finished -> emit finished
 }
 

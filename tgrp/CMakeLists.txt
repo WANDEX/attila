@@ -17,6 +17,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Core)
 find_package(fmt)
 
 set(PROJECT_SOURCES
+        structs.hpp
         str.hpp
         str.cpp
         tgrp.hpp

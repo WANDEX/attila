@@ -19,8 +19,10 @@
 #include <fmt/core.h>
 #include <fmt/format.h> // fmt::join
 
-#include "str.hpp"  // str namespace
 #include "tgrp.hpp"
+
+#include "structs.hpp"  // ss  namespace with struct defs
+#include "str.hpp"      // str namespace
 
 namespace fs = std::filesystem;
 
@@ -105,9 +107,9 @@ std::vector<std::string> projects_of_task(const std::string &s)
 /*
     parse/analyze multiline string of tasks
 */
-vtasks_t parse_tasks(const std::string &s)
+ss::vtasks_t parse_tasks(const std::string &s)
 {
-    vtasks_t tasks;
+    ss::vtasks_t tasks;
     std::string line;
     std::istringstream content(s);
     while (std::getline(content, line)) {
@@ -117,7 +119,7 @@ vtasks_t parse_tasks(const std::string &s)
         std::string spent = time_spent(dt);
         std::vector<std::string> words = str::split_on_words(text);
         std::vector<std::string> tproj = projects_of_task(text);
-        task_t task = {dt, text, spent, words, tproj};
+        ss::task_t task = {dt, text, spent, words, tproj};
         tasks.push_back(task);
     }
 #if 0
@@ -137,7 +139,7 @@ vtasks_t parse_tasks(const std::string &s)
 /*
     wrapper around parse_tasks() for parallel/async parsing/analyzing of multiline string
 */
-vtasks_t parse_tasks_parallel(const std::string &s)
+ss::vtasks_t parse_tasks_parallel(const std::string &s)
 {
     size_t nl = std::count(s.begin(), s.end(), '\n'); // new lines count
     size_t threads_total = std::thread::hardware_concurrency();
@@ -156,14 +158,14 @@ vtasks_t parse_tasks_parallel(const std::string &s)
     double lpt_remainder = nl % num_threads;
     // lambda function for feeding the tasks analyzer
     // with equally distributed chunks-lines of one large text
-    auto parse_tasks_lines = [&](size_t i, bool to_the_end=false) -> vtasks_t {
+    auto parse_tasks_lines = [&](size_t i, bool to_the_end=false) -> ss::vtasks_t {
         if (to_the_end)
             return parse_tasks(str::lines_between(lines, lpt*i, -1));
         else
             return parse_tasks(str::lines_between(lines, lpt*i, lpt*(i+1)));
     };
     // vector of futures which will contain vector of task structs
-    std::vector<std::future<vtasks_t>> futures;
+    std::vector<std::future<ss::vtasks_t>> futures;
     for (size_t i = 0; i < num_threads; i++) {
         futures.insert(futures.begin() + i,
                 std::async(std::launch::async, parse_tasks_lines, i));
@@ -174,15 +176,15 @@ vtasks_t parse_tasks_parallel(const std::string &s)
                 std::async(std::launch::async, parse_tasks_lines, num_threads, true));
     }
     // extend vector with tasks_t vectors got from vector of futures
-    vtasks_t vtt;
+    ss::vtasks_t vtt;
     for(auto &e : futures) {
-        vtasks_t tmp_vec = e.get();
+        ss::vtasks_t tmp_vec = e.get();
         vtt.insert(vtt.end(), tmp_vec.begin(), tmp_vec.end());
     }
     return vtt;
 }
 
-std::string tasks_to_mulstr(vtasks_t tasks)
+std::string tasks_to_mulstr(ss::vtasks_t tasks)
 {
     std::ostringstream out;
     for (const auto &t : tasks) {
