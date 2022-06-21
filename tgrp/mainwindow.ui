@@ -317,7 +317,7 @@
                 </widget>
                </item>
                <item row="0" column="0">
-                <widget class="QPlainTextEdit" name="statsTotal">
+                <widget class="QPlainTextEdit" name="statsSum">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Ignored">
                    <horstretch>0</horstretch>
@@ -343,7 +343,7 @@
                   <bool>true</bool>
                  </property>
                  <property name="plainText">
-                  <string>total: 00:00</string>
+                  <string>  sum: 00:00</string>
                  </property>
                 </widget>
                </item>
