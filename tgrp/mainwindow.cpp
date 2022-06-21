@@ -86,6 +86,21 @@ void MainWindow::setTxt(const QString &txt)
     emit analyzeTasksSignal(txt);
 }
 
+/**
+ * calculate stats & display in spent tab header
+ */
+void MainWindow::updateStats(const ss::vtasks_t &vtt)
+{
+    const ss::stats_t     stats = calculate_stats(vtt);
+    const ss::stats_human_t hum = calculate_stats_human(stats);
+    ui->statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
+    ui->statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
+    ui->statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
+    ui->statsSum->setPlainText("sum: " + QString::fromStdString(hum.sum));
+    ui->statsRec->setPlainText("rec: " + QString::number(hum.nrecords));
+    pts("[TASKS ANALYZING] stats are set!");
+}
+
 void MainWindow::analyzeTasksStarted(const QString &txt)
 {
     pts("[TASKS ANALYZING] started");
@@ -101,6 +116,7 @@ void MainWindow::analyzeTasksFinished()
     const QString spent_text = QString::fromStdString(tasks_to_mulstr(vtt));
     ui->spentText->setPlainText(spent_text);
     pts("[TASKS ANALYZING] spent text is set!");
+    MainWindow::updateStats(vtt);
 }
 
 void MainWindow::dateSpanChanged()

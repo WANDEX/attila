@@ -26,8 +26,19 @@ namespace ss
     using vtasks_t = std::vector<ss::task_t>;
 
     struct stats_t {
+        const std::size_t avg;
+        const std::size_t max;
+        const std::size_t min;
+        const std::size_t sum;
         const std::size_t nrecords;
-        // TODO: max/min/avg/total
+    };
+
+    struct stats_human_t {
+        const std::string avg;
+        const std::string max;
+        const std::string min;
+        const std::string sum;
+        const std::size_t nrecords;
     };
 }
 

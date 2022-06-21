@@ -20,6 +20,8 @@ set(PROJECT_SOURCES
         structs.hpp
         str.hpp
         str.cpp
+        stats.hpp
+        stats.cpp
         tgrp.hpp
         tgrp.cpp
         main.cpp

@@ -12,6 +12,7 @@
 #include <QLineEdit>
 
 #include "structs.hpp" // ss namespace with struct defs
+#include "stats.hpp"
 #include "tgrp.hpp"
 #include "keys.hpp"
 
@@ -45,6 +46,7 @@ private:
     void startup();
 
     void setTxt(const QString &txt);
+    void updateStats(const ss::vtasks_t &vtt);
 
 private:
     Ui::MainWindow  *ui;
