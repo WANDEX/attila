@@ -11,6 +11,7 @@ namespace ss
     struct hm_t {
         int h;
         int m;
+        std::size_t in_sec;
         std::string str;
     };
 

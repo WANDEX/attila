@@ -58,7 +58,7 @@ const ss::hm_t calculate_time_spent(const std::string &fr, const std::string &to
     std::time_t end = std::mktime(&t2);
 
     int sec_diff = std::floor(std::difftime(end, beg));
-    if (sec_diff == 0) return {0, 0, "00:00"};
+    if (sec_diff == 0) return {0, 0, 0, "00:00"};
     // fix: 23:53 -> 00:07 expected time spent: (00:14)
     // recalculate if the task was ended the next day
     if (sec_diff < 1) {
@@ -69,7 +69,7 @@ const ss::hm_t calculate_time_spent(const std::string &fr, const std::string &to
     int h = sec_diff / 3600;
     int m = sec_diff % 3600 / 60;
     std::string str = fmt::format("{:02}:{:02}", h, m);
-    return {h, m, str};
+    return {h, m, static_cast<size_t>(sec_diff), str};
 }
 
 const ss::hm_t time_spent(const std::string &s)
