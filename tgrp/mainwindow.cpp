@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ks(new Keys(this, ui)) // init Keys class & bind hotkeys
 {
     ui->setupUi(this);
+    // before signal/slot connections
+    setLastWeekSpan(); // NOTE: here to avoid calling multiple times - date span changed
 
     typingTimer = new QTimer(this);
     typingTimer->setSingleShot(true); // timer will fire only once after it was started
@@ -75,7 +77,6 @@ void MainWindow::startup()
 {
     stylesDefaults();
     setTabbingOrder();
-    setLastWeekSpan();
     dateSpanChanged();
 }
 
