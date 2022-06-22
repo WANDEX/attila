@@ -1,4 +1,5 @@
-#include <cstdlib>  // getenv
+#include <cstddef>   // size_t
+#include <cstdlib>   // getenv
 
 #include <fstream>
 #include <iostream>

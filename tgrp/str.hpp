@@ -1,6 +1,7 @@
 #ifndef STR_HPP
 #define STR_HPP
 
+#include <cstddef> // size_t
 #include <regex>
 #include <string>
 #include <vector>
