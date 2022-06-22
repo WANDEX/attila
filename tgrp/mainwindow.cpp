@@ -156,13 +156,20 @@ void MainWindow::filterChanged()
 
     re_filter = QRegularExpression(pattern);
     if (!re_filter.isValid()) {
-        fin->setStyleSheet("color: red"); // indicate not valid regex by the red text color
+        fin->setStyleSheet("color: red"); // indicate not valid regex by the text color
+        qDebug() << "Not valid filter regex";
         return;
     } else {
         fin->setStyleSheet(fin_ss_def);
     }
 
-    std::string filtered = filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
+    const std::string filtered = filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
+    if (filtered.empty()) {
+        fin->setStyleSheet("color: magenta");
+        qDebug() << "No matches to the filter regex";
+        return;
+    }
+
     TXT_FILTERED = QString::fromStdString(filtered);
     setTxt(TXT_FILTERED);
 }
