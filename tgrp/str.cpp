@@ -38,6 +38,11 @@ string str::trim(const string &s)
     return str::trim_left(str::trim_right(s));
 }
 
+bool str::has_substr(const string &s, const string &substr)
+{
+    return (s.find(substr) == string::npos) ? false : true;
+}
+
 /**
  * wrapper around std::getenv() to make it more safer
  *
@@ -106,7 +111,7 @@ const string str::lines_between(const vector<string> &lines, int beg_nl=0, int e
  * find position of nearest newline in multiline str by substring
  * return std::string::npos if substring not found!
  */
-size_t str::fnl_substr(string &s, const string &substr, bool including_last=false)
+const size_t str::fnl_substr(string &s, const string &substr, bool including_last=false)
 {
     size_t pos;
     (including_last) ? pos = s.rfind(substr) : pos = s.find(substr);
@@ -130,7 +135,7 @@ size_t str::fnl_substr(string &s, const string &substr, bool including_last=fals
  */
 bool str::remove_lines_before(string &s, const string &substr, bool including_last=false)
 {
-    size_t pos = str::fnl_substr(s, substr, including_last);
+    const size_t pos = str::fnl_substr(s, substr, including_last);
     if (pos == string::npos) return false; // substr not found
     s.replace(0, pos, "");
     return true;
@@ -142,9 +147,17 @@ bool str::remove_lines_before(string &s, const string &substr, bool including_la
  */
 bool str::remove_lines_after(string &s, const string &substr, bool including_last=true)
 {
-    size_t pos = str::fnl_substr(s, substr, including_last);
+    const size_t pos = str::fnl_substr(s, substr, including_last);
     if (pos == string::npos) return false; // substr not found
     s.replace(pos, string::npos, "");
     return true;
 }
 
+const string str::tasks_to_mulstr(ss::vtasks_t &tasks)
+{
+    std::ostringstream out;
+    for (const auto &t : tasks) {
+        out << t.dt << " <" << t.hm_t.str << "> " << t.text << '\n';
+    }
+    return out.str();
+}

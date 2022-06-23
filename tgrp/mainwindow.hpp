@@ -63,6 +63,7 @@ private:
 
     QString TXT_RAW;
     QString TXT_FILTERED;
+    QString TXT_SPENT;
 
     ss::vtasks_t vtt;
     QFutureWatcher<ss::vtasks_t> vtt_watcher;

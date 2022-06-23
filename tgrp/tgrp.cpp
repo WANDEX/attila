@@ -184,15 +184,6 @@ ss::vtasks_t parse_tasks_parallel(const std::string &s)
     return vtt;
 }
 
-std::string tasks_to_mulstr(ss::vtasks_t tasks)
-{
-    std::ostringstream out;
-    for (const auto &t : tasks) {
-        out << t.dt << " <" << t.hm_t.str << "> " << t.text << '\n';
-    }
-    return out.str();
-}
-
 std::vector<std::string> get_all_files_recursive(const fs::path &path)
 {
     std::vector<std::string> fpaths;

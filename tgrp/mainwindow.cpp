@@ -1,6 +1,8 @@
 #include "mainwindow.hpp"
 #include "./ui_mainwindow.h"
 
+#include "str.hpp"      // str namespace
+
 #include <QtConcurrent/QtConcurrent>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -114,8 +116,8 @@ void MainWindow::analyzeTasksFinished()
 {
     pts("[TASKS ANALYZING] finished");
     vtt = vtt_watcher.result();
-    const QString spent_text = QString::fromStdString(tasks_to_mulstr(vtt));
-    ui->spentText->setPlainText(spent_text);
+    TXT_SPENT = QString::fromStdString(str::tasks_to_mulstr(vtt));
+    ui->spentText->setPlainText(TXT_SPENT);
     pts("[TASKS ANALYZING] spent text is set!");
     MainWindow::updateStats(vtt);
 }

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "structs.hpp" // ss namespace with struct defs
+
 namespace str
 {
     using namespace std;
@@ -13,6 +15,8 @@ namespace str
     string trim_right(const string &s);
     string trim_left(const string &s);
     string trim(const string &s);
+
+    bool has_substr(const string &s, const string &substr);
 
     string sane_getenv(const string &envar);
 
@@ -23,9 +27,11 @@ namespace str
 
     const string lines_between(const vector<string> &lines, int beg_nl, int end_nl);
 
-    size_t        fnl_substr(string &s, const string &substr, bool including_last);
+    const size_t  fnl_substr(string &s, const string &substr, bool including_last);
     bool remove_lines_before(string &s, const string &substr, bool including_last);
     bool remove_lines_after (string &s, const string &substr, bool including_last);
+
+    const string tasks_to_mulstr(ss::vtasks_t &tasks);
 }
 
 #endif // STR_HPP
