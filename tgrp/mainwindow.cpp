@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
 
-    connect(ui->checkBoxMerge, &QCheckBox::stateChanged, this, &MainWindow::mergeNonUnique);
+    connect(ui->checkBoxMerge, &QCheckBox::stateChanged, this, &MainWindow::mergeToggle);
 
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
@@ -107,6 +107,15 @@ void MainWindow::updateStats(const ss::vtasks_t &vtt)
     pts("[TASKS ANALYZING] stats are set!");
 }
 
+void MainWindow::merge()
+{
+    std::pair<const ss::vtasks_t, const std::string>
+        merged = merge_tasks(vtt, TXT_SPENT.toStdString());
+    vtt_merged = merged.first;
+    TXT_MERGED = QString::fromStdString(merged.second);
+    pts("[TASKS ANALYZING] merge finished!");
+}
+
 void MainWindow::analyzeTasksStarted(const QString &txt)
 {
     pts("[TASKS ANALYZING] started");
@@ -123,6 +132,7 @@ void MainWindow::analyzeTasksFinished()
     ui->spentText->setPlainText(TXT_SPENT);
     pts("[TASKS ANALYZING] spent text is set!");
     MainWindow::updateStats(vtt);
+    MainWindow::merge();
 }
 
 void MainWindow::dateSpanChanged()
@@ -179,14 +189,11 @@ void MainWindow::filterChanged()
     setTxt(TXT_FILTERED);
 }
 
-void MainWindow::mergeNonUnique(int state)
+void MainWindow::mergeToggle(int state)
 {
     if (state) {
-        std::pair<const ss::vtasks_t, const std::string>
-            merged = merge_tasks(vtt, TXT_SPENT.toStdString());
-        TXT_MERGED = QString::fromStdString(merged.second);
         ui->spentText->setPlainText(TXT_MERGED);
-        MainWindow::updateStats(merged.first);
+        MainWindow::updateStats(vtt_merged);
     } else {
         ui->spentText->setPlainText(TXT_SPENT);
         MainWindow::updateStats(vtt);

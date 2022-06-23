@@ -37,7 +37,7 @@ private slots:
     void analyzeTasksFinished();
     void dateSpanChanged();
     void filterChanged();
-    void mergeNonUnique(int state);
+    void mergeToggle(int state);
 
 private:
     void pts(const QString);
@@ -48,6 +48,7 @@ private:
     void startup();
 
     void setTxt(const QString &txt);
+    void merge();
     void updateStats(const ss::vtasks_t &vtt);
 
 private:
@@ -69,6 +70,7 @@ private:
     QString TXT_MERGED;
 
     ss::vtasks_t vtt;
+    ss::vtasks_t vtt_merged;
     QFutureWatcher<ss::vtasks_t> vtt_watcher;
 };
 #endif // MAINWINDOW_HPP
