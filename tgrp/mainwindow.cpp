@@ -1,6 +1,7 @@
 #include "mainwindow.hpp"
 #include "./ui_mainwindow.h"
 
+#include "stats.hpp"
 #include "str.hpp"      // str namespace
 
 #include <QtConcurrent/QtConcurrent>
@@ -23,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
+
+    connect(ui->checkBoxMerge, &QCheckBox::stateChanged, this, &MainWindow::mergeNonUnique);
 
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
@@ -174,4 +177,15 @@ void MainWindow::filterChanged()
 
     TXT_FILTERED = QString::fromStdString(filtered);
     setTxt(TXT_FILTERED);
+}
+
+void MainWindow::mergeNonUnique(int state)
+{
+    if (state) {
+        const std::string merged = merge_tasks(vtt, TXT_SPENT.toStdString());
+        TXT_MERGED = QString::fromStdString(merged);
+        ui->spentText->setPlainText(TXT_MERGED);
+    } else {
+        ui->spentText->setPlainText(TXT_SPENT);
+    }
 }

@@ -10,6 +10,7 @@
 #include <QTimer>
 
 #include <QLineEdit>
+#include <QCheckBox>
 
 #include "structs.hpp" // ss namespace with struct defs
 #include "stats.hpp"
@@ -36,6 +37,7 @@ private slots:
     void analyzeTasksFinished();
     void dateSpanChanged();
     void filterChanged();
+    void mergeNonUnique(int state);
 
 private:
     void pts(const QString);
@@ -64,6 +66,7 @@ private:
     QString TXT_RAW;
     QString TXT_FILTERED;
     QString TXT_SPENT;
+    QString TXT_MERGED;
 
     ss::vtasks_t vtt;
     QFutureWatcher<ss::vtasks_t> vtt_watcher;
