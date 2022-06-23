@@ -48,7 +48,8 @@ const ss::hm_t sec_to_hm_t(const std::size_t &sec)
     return {h, m, sec, str};
 }
 
-const std::string merge_tasks(const ss::vtasks_t &vtt, const std::string &mulstr)
+std::pair<const ss::vtasks_t, const std::string>
+    merge_tasks(const ss::vtasks_t &vtt, const std::string &mulstr)
 {
     ss::vtasks_t v {vtt};
     // remove vector elements which text is not in multiline string
@@ -94,5 +95,5 @@ const std::string merge_tasks(const ss::vtasks_t &vtt, const std::string &mulstr
         main_task.hm_t = sec_to_hm_t(sec);
     }
 
-    return str::tasks_to_mulstr(V);
+    return std::make_pair(V, str::tasks_to_mulstr(V));
 }

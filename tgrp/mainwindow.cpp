@@ -182,10 +182,13 @@ void MainWindow::filterChanged()
 void MainWindow::mergeNonUnique(int state)
 {
     if (state) {
-        const std::string merged = merge_tasks(vtt, TXT_SPENT.toStdString());
-        TXT_MERGED = QString::fromStdString(merged);
+        std::pair<const ss::vtasks_t, const std::string>
+            merged = merge_tasks(vtt, TXT_SPENT.toStdString());
+        TXT_MERGED = QString::fromStdString(merged.second);
         ui->spentText->setPlainText(TXT_MERGED);
+        MainWindow::updateStats(merged.first);
     } else {
         ui->spentText->setPlainText(TXT_SPENT);
+        MainWindow::updateStats(vtt);
     }
 }
