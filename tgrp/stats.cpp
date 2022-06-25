@@ -59,35 +59,28 @@ std::pair<const ss::vtasks_t, const std::string>
             v.erase(it);
     }
 
-    std::set<std::size_t> i_rmv {}; // indexes to remove
-    ss::vtasks_t V {v};
     for (std::size_t i = 0; i < v.size(); ++i) {
         bool already_exist = false;
         ss::stasks_t subt_t {};
-        for (std::size_t j = 0; j < V.size(); ++j) {
-            bool same_text = (v[i].text == V[j].text) ? true : false;
+        for (std::size_t j = i; j < v.size(); ++j) {
+            bool same_text = (v[i].text == v[j].text) ? true : false;
             if (!already_exist && same_text) {
-                // skip first found -> to not insert it into indexes to remove
+                // do not remove first found -> this will be the main task of sub tasks
                 already_exist = true;
-                subt_t.insert(V[j]);
+                subt_t.insert(v[j]);
                 continue;
             }
             if (same_text) {
                 // NOTE: set -> since we do not want to insert the same thing more than once
-                subt_t.insert(V[j]);
-                i_rmv.insert(j);
+                subt_t.insert(v[j]);
+                v.erase(v.begin() + j--); // remove by index & decrement index afterwards
             }
         }
-        V[i].subt_t = subt_t; // put set of sub tasks as child's
-    }
-
-    // since we have set sub tasks -> remove vector elements by the indexes from set
-    for (std::set<std::size_t>::reverse_iterator rit = i_rmv.rbegin(); rit != i_rmv.rend(); rit++) {
-        V.erase(V.begin() + *rit);
+        v.at(i).subt_t.insert(subt_t.begin(), subt_t.end()); // put set of sub tasks as child's
     }
 
     // sum time spent
-    for (auto &main_task: V) {
+    for (auto &main_task: v) {
         std::size_t sec {0};
         for (const auto &sub_task: main_task.subt_t) {
             sec += sub_task.hm_t.in_sec;
@@ -95,5 +88,5 @@ std::pair<const ss::vtasks_t, const std::string>
         main_task.hm_t = sec_to_hm_t(sec);
     }
 
-    return std::make_pair(V, str::tasks_to_mulstr(V));
+    return std::make_pair(v, str::tasks_to_mulstr(v));
 }
