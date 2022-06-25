@@ -109,11 +109,18 @@ void MainWindow::updateStats(const ss::vtasks_t &vtt)
 
 void MainWindow::merge()
 {
+    if (TXT_SPENT.isEmpty()) {
+        qDebug() << "Empty TXT_SPENT -> do nothing.";
+        return;
+    }
+    pts("[TASKS ANALYZING] before merge_tasks() call");
     std::pair<const ss::vtasks_t, const std::string>
         merged = merge_tasks(vtt, TXT_SPENT.toStdString());
     vtt_merged = merged.first;
     TXT_MERGED = QString::fromStdString(merged.second);
     pts("[TASKS ANALYZING] merge finished!");
+    // update stats & spent text according to the state of the checkbox
+    MainWindow::mergeToggle(ui->checkBoxMerge->isChecked());
 }
 
 void MainWindow::analyzeTasksStarted(const QString &txt)
@@ -131,7 +138,6 @@ void MainWindow::analyzeTasksFinished()
     TXT_SPENT = QString::fromStdString(str::tasks_to_mulstr(vtt));
     ui->spentText->setPlainText(TXT_SPENT);
     pts("[TASKS ANALYZING] spent text is set!");
-    MainWindow::updateStats(vtt);
     MainWindow::merge();
 }
 
@@ -191,6 +197,10 @@ void MainWindow::filterChanged()
 
 void MainWindow::mergeToggle(int state)
 {
+    if (TXT_SPENT.isEmpty()) {
+        qDebug() << "Empty TXT_SPENT -> do nothing.";
+        return;
+    }
     if (state) {
         ui->spentText->setPlainText(TXT_MERGED);
         MainWindow::updateStats(vtt_merged);
