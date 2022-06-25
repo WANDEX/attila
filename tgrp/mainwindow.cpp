@@ -107,6 +107,21 @@ void MainWindow::updateStats(const ss::vtasks_t &vtt)
     pts("[TASKS ANALYZING] stats are set!");
 }
 
+void MainWindow::mergeToggle(int state)
+{
+    if (TXT_SPENT.isEmpty()) {
+        qDebug() << "Empty TXT_SPENT -> do nothing.";
+        return;
+    }
+    if (state) {
+        ui->spentText->setPlainText(TXT_MERGED);
+        MainWindow::updateStats(vtt_merged);
+    } else {
+        ui->spentText->setPlainText(TXT_SPENT);
+        MainWindow::updateStats(vtt);
+    }
+}
+
 void MainWindow::merge()
 {
     if (TXT_SPENT.isEmpty()) {
@@ -193,19 +208,4 @@ void MainWindow::filterChanged()
 
     TXT_FILTERED = QString::fromStdString(filtered);
     setTxt(TXT_FILTERED);
-}
-
-void MainWindow::mergeToggle(int state)
-{
-    if (TXT_SPENT.isEmpty()) {
-        qDebug() << "Empty TXT_SPENT -> do nothing.";
-        return;
-    }
-    if (state) {
-        ui->spentText->setPlainText(TXT_MERGED);
-        MainWindow::updateStats(vtt_merged);
-    } else {
-        ui->spentText->setPlainText(TXT_SPENT);
-        MainWindow::updateStats(vtt);
-    }
 }
