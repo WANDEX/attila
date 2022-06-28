@@ -1,6 +1,7 @@
 #ifndef STR_HPP
 #define STR_HPP
 
+#include <ctime>   // time_t
 #include <cstddef> // size_t
 #include <regex>
 #include <string>
@@ -11,6 +12,8 @@
 namespace str
 {
     using namespace std;
+
+    inline const char *datef = "%Y-%m-%d"; // date format
 
     string trim_right(const string &s);
     string trim_left(const string &s);
@@ -31,6 +34,7 @@ namespace str
     bool remove_lines_before(string &s, const string &substr, bool including_last);
     bool remove_lines_after (string &s, const string &substr, bool including_last);
 
+    const string sec_to_tstr(const std::time_t &sec);
     const string tasks_to_mulstr(ss::vtasks_t &tasks);
 }
 

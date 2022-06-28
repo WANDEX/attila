@@ -1,4 +1,4 @@
-#include <ctime>    // difftime, mktime
+#include <ctime>    // time_t, mktime, difftime
 
 #include <fstream>
 #include <iostream>
@@ -36,53 +36,59 @@ std::vector<int> split_vi(const std::string &s, char delimiter)
     return tokens;
 }
 
-const ss::hm_t calculate_time_spent(const std::string &fr, const std::string &to)
+const ss::hm_t calculate_time_spent(
+        const std::string &d_fr, const std::string &d_to,
+        const std::string &t_fr, const std::string &t_to
+    )
 {
-    std::vector<int> fr_res { split_vi(fr, ':') };
-    std::vector<int> to_res { split_vi(to, ':') };
+    // hour:min from string
+    std::vector<int> fr_res { split_vi(t_fr, ':') };
+    std::vector<int> to_res { split_vi(t_to, ':') };
 
 #if 0
-    fmt::print("fr:{},{}\n", fr_res[0], fr_res[1]);
-    fmt::print("to:{},{}\n", to_res[0], to_res[1]);
+    fmt::print("t_fr:{},{}\n", fr_res[0], fr_res[1]);
+    fmt::print("t_to:{},{}\n", to_res[0], to_res[1]);
 #endif
 
     std::tm t1 {};
+    std::istringstream t1s(d_fr);
+    t1s >> std::get_time(&t1, str::datef); // date from string
     t1.tm_hour = fr_res[0];
     t1.tm_min  = fr_res[1];
-    std::time_t beg = std::mktime(&t1);
+    std::time_t beg = std::mktime(&t1);    // sec since epoch
 
     std::tm t2 {};
+    std::istringstream t2s(d_to);
+    t2s >> std::get_time(&t2, str::datef);
     t2.tm_hour = to_res[0];
     t2.tm_min  = to_res[1];
     std::time_t end = std::mktime(&t2);
 
-    int sec_diff = std::difftime(end, beg);
-    if (sec_diff == 0) return {0, 0, 0, "00:00"};
+    std::time_t diff = std::difftime(end, beg);
+    if (diff == 0) return {t1, t2, beg, end, 0, d_fr, d_to, t_fr, t_to, "00:00"};
     // fix: 23:53 -> 00:07 expected time spent: (00:14)
     // recalculate if the task was ended the next day
-    if (sec_diff < 1) {
+    if (diff < 1) {
         t2.tm_mday = t2.tm_mday + 1;
         end = std::mktime(&t2);
-        sec_diff = std::difftime(end, beg);
+        diff = std::difftime(end, beg);
     }
-    int h = sec_diff / 3600;
-    int m = sec_diff % 3600 / 60;
-    std::string str = fmt::format("{:02}:{:02}", h, m);
-    return {h, m, static_cast<size_t>(sec_diff), str};
+    return {t1, t2, beg, end, diff, d_fr, d_to, t_fr, t_to, str::sec_to_tstr(diff)};
 }
 
 const ss::hm_t time_spent(const std::string &s)
 {
-    const std::regex r{R"((\d\d:\d\d).*(\d\d:\d\d))"}; // time span: from - to (hh:mm)
+    // TODO: do not use hardcoded date string regex
+    const std::regex r{R"((\d\d\d\d-\d\d-\d\d).*(\d\d:\d\d).*(\d\d:\d\d))"}; // date & time span: from - to (hh:mm)
     std::smatch m;
     if(!std::regex_search(s, m, r)) {
-        std::cerr << "time span was not found in the string:" << '\n' << s << '\n';
+        std::cerr << "date & time span was not found in the string:" << '\n' << s << '\n';
         exit(77); // XXX
     }
-    return calculate_time_spent(m[1], m[2]);
+    return calculate_time_spent(m[1], m[1], m[2], m[3]);
 }
 
-std::pair<std::string, std::string> dt_and_task(const std::string &s)
+std::pair<std::string, std::string> dts_and_task(const std::string &s)
 {
     const std::regex r{R"((^.*\d\d:\d\d.*\d\d:\d\d) (.*$))"}; // time span: from - to (hh:mm)
     std::smatch m;
@@ -112,19 +118,19 @@ ss::vtasks_t parse_tasks(const std::string &s)
     std::string line;
     std::istringstream content(s);
     while (std::getline(content, line)) {
-        std::pair<std::string, std::string> dt_text = dt_and_task(line);
-        std::string& dt   = dt_text.first;
-        std::string& text = dt_text.second;
-        ss::hm_t hm_t = time_spent(dt);
+        std::pair<std::string, std::string> dts_text = dts_and_task(line);
+        std::string &dts  = dts_text.first;
+        std::string &text = dts_text.second;
+        ss::hm_t hm_t { time_spent(dts) };
         std::vector<std::string> words = str::split_on_words(text);
         std::vector<std::string> tproj = projects_of_task(text);
-        ss::task_t task = {dt, text, hm_t, words, tproj};
+        ss::task_t task = {dts, text, hm_t, words, tproj};
         tasks.push_back(task);
     }
 #if 0
     for (const auto &t : tasks) {
         std::cout << std::endl
-            << t.dt << std::endl
+            << t.dts << std::endl
             << t.text << std::endl
             << t.hm_t.str << std::endl;
         fmt::print("[{}]\n", fmt::join(t.words, ", "));
@@ -236,7 +242,7 @@ std::string week_file_name(const std::string &date_str)
     }
     std::istringstream ss(date_str);
     ss.imbue(std::locale("en_US.utf-8"));
-    ss >> std::get_time(&tm2, "%Y-%m-%d");
+    ss >> std::get_time(&tm2, str::datef);
     const std::time_t t = std::mktime(&tm2);
     // if date str > date now => current week fname
     if (std::difftime(now, t) < 0)
@@ -338,7 +344,7 @@ std::vector<std::string> dates_of_week(const std::string &date_str)
     std::tm tm = {};
     std::istringstream ss(date_str);
     ss.imbue(std::locale("en_US.utf-8"));
-    ss >> std::get_time(&tm, "%Y-%m-%d");
+    ss >> std::get_time(&tm, str::datef);
     std::mktime(&tm); // essential in order to set proper tm_wday
     int first_wday = tm.tm_mday - tm.tm_wday; // first day of the week
     tm.tm_mday = first_wday;
@@ -350,7 +356,7 @@ std::vector<std::string> dates_of_week(const std::string &date_str)
         tm.tm_mday += 1;
         std::mktime(&tm);
         buf.clear(); buf.str(""); // clean buffer before inserting new date
-        buf << std::put_time(&tm, "%Y-%m-%d");
+        buf << std::put_time(&tm, str::datef);
         wdates.push_back(buf.str());
     }
     return wdates;

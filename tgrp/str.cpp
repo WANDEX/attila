@@ -1,5 +1,6 @@
 #include <cstddef>   // size_t
 #include <cstdlib>   // getenv
+#include <ctime>     // time_t
 
 #include <fstream>
 #include <iostream>
@@ -9,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <algorithm> // remove_if etc
+
+#include <fmt/core.h>
 
 #include "str.hpp"
 
@@ -153,11 +156,16 @@ bool str::remove_lines_after(string &s, const string &substr, bool including_las
     return true;
 }
 
+const string str::sec_to_tstr(const std::time_t &sec)
+{
+    return fmt::format("{:02}:{:02}", sec / 3600, sec % 3600 / 60);
+}
+
 const string str::tasks_to_mulstr(ss::vtasks_t &tasks)
 {
     std::ostringstream out;
     for (const auto &t : tasks) {
-        out << t.dt << " <" << t.hm_t.str << "> " << t.text << '\n';
+        out << t.dts << " <" << t.hm_t.time_spent << "> " << t.text << '\n';
     }
     return out.str();
 }

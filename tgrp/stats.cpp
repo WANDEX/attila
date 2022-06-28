@@ -2,8 +2,11 @@
 #include "structs.hpp" // ss  namespace with struct defs
 #include "str.hpp"     // str namespace
 
+#include <sstream>   // ostringstream
+
 #include <algorithm> // erase/remove
 #include <cstddef>   // size_t
+#include <ctime>     // time_t
 #include <set>
 #include <string>
 #include <vector>
@@ -15,12 +18,12 @@ const ss::stats_t calculate_stats(const ss::vtasks_t &vtt)
     std::size_t sum {0}; // total spent on all tasks in seconds
     std::size_t avg {0};
     std::size_t max {0};
-    std::size_t min { vtt[0].hm_t.in_sec };
+    std::size_t min { static_cast<std::size_t>(vtt.at(0).hm_t.diff) };
     const std::size_t nrecords { vtt.size() };
 
     std::size_t sec {0}; // total spent on task in seconds
     for (const auto &t : vtt) {
-        sec = t.hm_t.in_sec;
+        sec = t.hm_t.diff;
         sum += sec;
         if (max < sec)
             max = sec;
@@ -38,14 +41,6 @@ const ss::stats_human_t calculate_stats_human(const ss::stats_t &t)
         return fmt::format("{:02}:{:02}", sec / 3600, sec % 3600 / 60);
     };
     return { hm(t.avg), hm(t.max), hm(t.min), hm(t.sum), t.nrecords };
-}
-
-const ss::hm_t sec_to_hm_t(const std::size_t &sec)
-{
-    int h = sec / 3600;
-    int m = sec % 3600 / 60;
-    std::string str = fmt::format("{:02}:{:02}", h, m);
-    return {h, m, sec, str};
 }
 
 std::pair<const ss::vtasks_t, const std::string>
@@ -79,13 +74,36 @@ std::pair<const ss::vtasks_t, const std::string>
         v.at(i).subt_t.insert(subt_t.begin(), subt_t.end()); // put set of sub tasks as child's
     }
 
-    // sum time spent
+    // sum time spent of all sub-tasks & set new parameters of the main task
+    // compose string with text indicating merged tasks into one main task
     for (auto &main_task: v) {
-        std::size_t sec {0};
-        for (const auto &sub_task: main_task.subt_t) {
-            sec += sub_task.hm_t.in_sec;
+        if (main_task.subt_t.size() < 2) {
+            continue; // skip -> this task does not have sub-tasks
         }
-        main_task.hm_t = sec_to_hm_t(sec);
+
+        std::time_t sec {0};
+        for (const auto &sub_task: main_task.subt_t) {
+            sec += sub_task.hm_t.diff;
+        }
+
+        const auto last = main_task.subt_t.rbegin();
+        // update hm_t struct values
+        main_task.hm_t.tm_end     = last->hm_t.tm_end;
+        main_task.hm_t.end        = last->hm_t.end;
+        main_task.hm_t.diff       = sec;
+        main_task.hm_t.date_to    = last->hm_t.date_to;
+        main_task.hm_t.time_to    = last->hm_t.time_to;
+        main_task.hm_t.time_spent = str::sec_to_tstr(sec);
+
+        // if first & last sub-task date differ -> only date strings without time: fr -> to
+        std::ostringstream out;
+        if (main_task.hm_t.date_fr == main_task.hm_t.date_to) {
+            out << "*M  (" << main_task.hm_t.date_fr << ") "
+                << main_task.hm_t.time_fr << " > " << main_task.hm_t.time_to;
+        } else {
+            out << "*M  (" << main_task.hm_t.date_fr << " >> " << main_task.hm_t.date_to << ")";
+        }
+        main_task.dts = out.str();
     }
 
     return std::make_pair(v, str::tasks_to_mulstr(v));

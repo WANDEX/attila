@@ -3,6 +3,7 @@
 
 #include <atomic>  // atomic, fetch_add
 #include <cstddef> // size_t
+#include <ctime>   // time_t
 #include <set>
 #include <string>
 #include <vector>
@@ -15,14 +16,20 @@ namespace ss
     }
 
     struct hm_t {
-        int h;
-        int m;
-        std::size_t in_sec;
-        std::string str;
+        std::tm  tm_beg;
+        std::tm  tm_end;
+        std::time_t beg;
+        std::time_t end;
+        std::time_t diff;
+        std::string date_fr;
+        std::string date_to;
+        std::string time_fr;
+        std::string time_to;
+        std::string time_spent;
     };
 
     struct task_t {
-        std::string dt;
+        std::string dts;
         std::string text;
         ss::hm_t    hm_t;
         std::vector<std::string> words;
