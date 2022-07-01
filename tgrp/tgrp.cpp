@@ -80,8 +80,12 @@ const ss::hm_t time_spent(const std::string &s)
 {
     std::smatch m;
     if(!std::regex_search(s, m, str::dts_re)) {
-        std::cerr << "date & time span was not found in the string:" << '\n' << s << '\n';
-        exit(77); // XXX
+        try {
+            throw "date and/or time span was not found in the string";
+        } catch (const char* e) {
+            std::cerr << "[Warning]: " << e << std::endl;
+            throw;
+        }
     }
     return calculate_time_spent(m[1], m[1], m[2], m[3]);
 }
@@ -90,8 +94,12 @@ const std::pair<const std::string, const std::string> dts_and_task(const std::st
 {
     std::smatch m;
     if(!std::regex_search(s, m, str::dts_txt_re)) {
-        std::cerr << "time span was not found in the string:" << '\n' << s << '\n';
-        exit(76); // XXX
+        try {
+            throw "time span and/or task text was not found in the string";
+        } catch (const char* e) {
+            std::cerr << "[Warning]: " << e << std::endl;
+            throw;
+        }
     }
     return std::make_pair(m[1], m[4]);
 }
@@ -114,11 +122,24 @@ ss::vtasks_t parse_tasks(const std::string &s)
     ss::vtasks_t tasks;
     std::string line;
     std::istringstream content(s);
+    std::pair<std::string, std::string> dts_text {};
+    ss::hm_t hm_t {};
+    std::string skip_msg = "^ Skipping task due to previous exception with line: ";
     while (std::getline(content, line)) {
-        std::pair<std::string, std::string> dts_text = dts_and_task(line);
+        try {
+            dts_text = dts_and_task(line);
+        } catch (const char* e) {
+            std::cerr << "[Info]: " << skip_msg << "'" << line << "'" << std::endl;
+            continue; // safely handle exception by skipping this task
+        }
         std::string &dts  = dts_text.first;
         std::string &text = dts_text.second;
-        ss::hm_t hm_t { time_spent(dts) };
+        try {
+            hm_t = time_spent(dts);
+        } catch (const char* e) {
+            std::cerr << "[Info]: " << skip_msg << "'" << line << "'" << std::endl;
+            continue; // safely handle exception by skipping this task
+        }
         std::vector<std::string> words = str::split_on_words(text);
         std::vector<std::string> tproj = projects_of_task(text);
         ss::task_t task = {dts, text, hm_t, words, tproj};
