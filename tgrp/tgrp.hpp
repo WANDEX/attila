@@ -17,7 +17,7 @@ const ss::hm_t calculate_time_spent(
         const std::string &t_fr, const std::string &t_to);
 
 const ss::hm_t time_spent(const std::string &s);
-std::pair<std::string, std::string> dts_and_task(const std::string &s);
+const std::pair<const std::string, const std::string> dts_and_task(const std::string &s);
 std::vector<std::string> projects_of_task(const std::string &s);
 
 ss::vtasks_t parse_tasks(const std::string &s);

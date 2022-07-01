@@ -13,7 +13,11 @@ namespace str
 {
     using namespace std;
 
-    inline const char *datef = "%Y-%m-%d"; // date format
+    inline static const char*  datef      { "%Y-%m-%d" }; // date format
+    inline static const string date_rs    { R"((\d{4}.\d\d.\d\d|\d\d.\d\d.\d{4}|\d\d.\d\d.\d\d))" };
+    inline static const string time_rs    { R"(.*(\d\d:\d\d).*(\d\d:\d\d))" };
+    inline static const regex  dts_re     { str::date_rs + str::time_rs }; // date + time span regex
+    inline static const regex  dts_txt_re { "(^.*" + str::time_rs + ") (.*$)" }; // + task text
 
     string trim_right(const string &s);
     string trim_left(const string &s);

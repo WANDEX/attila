@@ -78,25 +78,22 @@ const ss::hm_t calculate_time_spent(
 
 const ss::hm_t time_spent(const std::string &s)
 {
-    // TODO: do not use hardcoded date string regex
-    const std::regex r{R"((\d\d\d\d-\d\d-\d\d).*(\d\d:\d\d).*(\d\d:\d\d))"}; // date & time span: from - to (hh:mm)
     std::smatch m;
-    if(!std::regex_search(s, m, r)) {
+    if(!std::regex_search(s, m, str::dts_re)) {
         std::cerr << "date & time span was not found in the string:" << '\n' << s << '\n';
         exit(77); // XXX
     }
     return calculate_time_spent(m[1], m[1], m[2], m[3]);
 }
 
-std::pair<std::string, std::string> dts_and_task(const std::string &s)
+const std::pair<const std::string, const std::string> dts_and_task(const std::string &s)
 {
-    const std::regex r{R"((^.*\d\d:\d\d.*\d\d:\d\d) (.*$))"}; // time span: from - to (hh:mm)
     std::smatch m;
-    if(!std::regex_search(s, m, r)) {
+    if(!std::regex_search(s, m, str::dts_txt_re)) {
         std::cerr << "time span was not found in the string:" << '\n' << s << '\n';
         exit(76); // XXX
     }
-    return std::make_pair(m[1], m[2]);
+    return std::make_pair(m[1], m[4]);
 }
 
 std::vector<std::string> projects_of_task(const std::string &s)
