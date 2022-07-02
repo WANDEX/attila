@@ -40,9 +40,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/*
-   print timestamp into debug output (used to measure speed between calls)
-*/
+/**
+ * print timestamp into debug output (used to measure speed between calls)
+ */
 void MainWindow::pts(const QString msg="")
 {
     if (msg.isEmpty()) {
@@ -59,9 +59,9 @@ void MainWindow::stylesDefaults()
     fin->setStyleSheet(fin_ss_def); // fix: override placeholderText color by gray
 }
 
-/*
-    set order in which we switch between widgets by pressing Tab key
-*/
+/**
+ * set order in which we switch between widgets by pressing Tab key
+ */
 void MainWindow::setTabbingOrder()
 {
     QWidget::setTabOrder(fin, ui->dateFr);

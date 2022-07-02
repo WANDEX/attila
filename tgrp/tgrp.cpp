@@ -114,9 +114,9 @@ std::vector<std::string> projects_of_task(const std::string &s)
     return str::resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
 }
 
-/*
-    parse/analyze multiline string of tasks
-*/
+/**
+ * parse/analyze multiline string of tasks
+ */
 ss::vtasks_t parse_tasks(const std::string &s)
 {
     ss::vtasks_t tasks;
@@ -159,9 +159,9 @@ ss::vtasks_t parse_tasks(const std::string &s)
     return tasks;
 }
 
-/*
-    wrapper around parse_tasks() for parallel/async parsing/analyzing of multiline string
-*/
+/**
+ * wrapper around parse_tasks() for parallel/async parsing/analyzing of multiline string
+ */
 ss::vtasks_t parse_tasks_parallel(const std::string &s)
 {
     size_t nl = std::count(s.begin(), s.end(), '\n'); // new lines count
@@ -244,9 +244,9 @@ std::vector<std::string> find_week_files(const std::string &pmatch = "week-")
     return fpaths;
 }
 
-/*
-    construct & return week file name by the date string
-*/
+/**
+ * construct & return week file name by the date string
+ */
 std::string week_file_name(const std::string &date_str)
 {
     std::tm tm1 {}, tm2 {};
@@ -270,9 +270,9 @@ std::string week_file_name(const std::string &date_str)
     return buf.str();
 }
 
-/*
-    vector slice by indexes, like the list slicing in python
-*/
+/**
+ * vector slice by indexes, like the list slicing in python
+ */
 std::vector<std::string> vslice(const std::vector<std::string> &v, int start=0, int end=-1)
 {
     int oldlen = v.size();
@@ -353,10 +353,10 @@ std::vector<std::string> find_week_files_in_span(const std::string &fr, const st
     return fpaths_span;
 }
 
-/*
-    vector of all dates of the week found by date string
-    (from first to the last day of the week)
-*/
+/**
+ * vector of all dates of the week found by date string
+ * (from first to the last day of the week)
+ */
 std::vector<std::string> dates_of_week(const std::string &date_str)
 {
     std::tm tm = {};
@@ -380,11 +380,11 @@ std::vector<std::string> dates_of_week(const std::string &date_str)
     return wdates;
 }
 
-/*
-    Remove lines before line with date substring.
-    Iterate over the dates of the week if the date substring is not found,
-    to exclude all lines before the date anyway.
-*/
+/**
+ * Remove lines before line with date substring.
+ * Iterate over the dates of the week if the date substring is not found,
+ * to exclude all lines before the date anyway.
+ */
 bool remove_lines_before_date(std::string &s, const std::string &date_str)
 {
     if (str::remove_lines_before(s, date_str, false))
@@ -400,11 +400,11 @@ bool remove_lines_before_date(std::string &s, const std::string &date_str)
     return false;
 }
 
-/*
-    Remove lines after line with date substring.
-    Iterate over the dates of the week if the date substring is not found,
-    to exclude all lines after the date anyway.
-*/
+/**
+ * Remove lines after line with date substring.
+ * Iterate over the dates of the week if the date substring is not found,
+ * to exclude all lines after the date anyway.
+ */
 bool remove_lines_after_date(std::string &s, const std::string &date_str)
 {
     if (str::remove_lines_after(s, date_str, true))
@@ -420,9 +420,9 @@ bool remove_lines_after_date(std::string &s, const std::string &date_str)
     return false;
 }
 
-/*
-    concatenate week files removing lines before & after range of dates
-*/
+/**
+ * concatenate week files removing lines before & after range of dates
+ */
 const std::string concat_week_files(std::vector<std::string> &fpaths,
                                     const std::string &fr, const std::string &to)
 {
@@ -452,9 +452,9 @@ std::string concat_span(const std::string &fr, const std::string &to)
     return content;
 }
 
-/*
-    filter multiline string by lines containing matching pattern
-*/
+/**
+ * filter multiline string by lines containing matching pattern
+ */
 std::string filter_find(const std::string &s, const std::string &reinput)
 {
     const std::regex re(reinput, std::regex::ECMAScript|std::regex::icase);
