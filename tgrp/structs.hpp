@@ -60,6 +60,21 @@ namespace ss
         const std::string sum;
         const std::size_t nrecords;
     };
+
+    struct group_t {
+        // std::string color; // TODO: generate group unique hex color, can be overridden by the user
+        // TODO: words are manually added by the user in the UI group container
+        std::set<std::string> words {}; // auto-associate task to the group by unique word
+        std::set<ss::task_t> tasks_t {};
+        std::string gname { "group_" + std::to_string(gid) }; // TODO: can be overridden by the user
+        std::uint32_t gid { ss::getID() };
+    };
+
+    inline bool operator<(const ss::group_t &lhs, const ss::group_t &rhs) {
+        return lhs.gid < rhs.gid;
+    }
+
+    using sgroups_t = std::set<ss::group_t>;
 }
 
 #endif // STRUCTS_HPP

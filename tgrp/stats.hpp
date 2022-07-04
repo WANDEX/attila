@@ -9,4 +9,6 @@ const ss::stats_human_t calculate_stats_human(const ss::stats_t &stats_t);
 std::pair<const ss::vtasks_t, const std::string>
     merge_tasks(const ss::vtasks_t &vtt, const std::string &mulstr);
 
+ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt);
+
 #endif // STATS_HPP

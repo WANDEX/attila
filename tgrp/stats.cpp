@@ -2,6 +2,7 @@
 #include "structs.hpp" // ss  namespace with struct defs
 #include "str.hpp"     // str namespace
 
+#include <iostream>  // cerr
 #include <sstream>   // ostringstream
 
 #include <algorithm> // erase/remove
@@ -107,4 +108,52 @@ std::pair<const ss::vtasks_t, const std::string>
     }
 
     return std::make_pair(v, str::tasks_to_mulstr(v));
+}
+
+/**
+ * auto create and populate groups by the tasks with unique project name
+ */
+ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt)
+{
+    ss::sgroups_t groups {};
+    std::set<std::string> utproj_names {}; // unique task project names
+    for (auto &task: vtt) {
+        if (task.tproj.size() < 2) {
+            continue; // skip -> task without task project(s)
+        }
+
+        // TODO for each tproj element -> in case there are many
+
+        const std::string project_name { task.tproj[0] }; // if more than one -> first task project
+
+        // auto-associate tasks with the same project name to the same auto group
+        // do not create new group if group with project name already exist in groups -> simply insert task to the group
+        if (utproj_names.find(project_name) != utproj_names.end()) { // exist -> reuse already present group
+            bool found = false;
+            for (auto g: groups) { // find group to add task to
+                if (g.gname == project_name) {
+                    found = true;
+                    g.tasks_t.insert(g.tasks_t.end(), task);
+                    break;
+                }
+            }
+            if (!found) {
+                try {
+                    throw "Finished iterating over groups -> project_name, was not found!";
+                } catch (const char* e) {
+                    std::cerr << "[Error]: " << e << " project_name = "  << project_name << std::endl;
+                    throw;
+                }
+            }
+        } else { // not exist -> create & insert new group to the groups
+            ss::group_t group_t {}; // initialize with gid generation
+            group_t.gname = project_name;
+            group_t.words.insert(project_name);
+            group_t.tasks_t.insert(task);
+            groups.insert(group_t);
+            utproj_names.insert(project_name); // since this is a set duplicates wont be added
+        }
+    }
+
+    return groups;
 }
