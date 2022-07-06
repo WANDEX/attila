@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(tgrp VERSION 0.1 LANGUAGES CXX)
+project(attila VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -22,8 +22,8 @@ set(PROJECT_SOURCES
         str.cpp
         stats.hpp
         stats.cpp
-        tgrp.hpp
-        tgrp.cpp
+        attila.hpp
+        attila.cpp
         main.cpp
         mainwindow.cpp
         mainwindow.hpp
@@ -35,33 +35,33 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(tgrp
+    qt_add_executable(attila
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 # Define target properties for Android with Qt 6 as:
-#    set_property(TARGET tgrp APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#    set_property(TARGET attila APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
-        add_library(tgrp SHARED
+        add_library(attila SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(tgrp
+        add_executable(attila
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(tgrp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(attila PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-target_link_libraries(tgrp PRIVATE fmt::fmt-header-only)
+target_link_libraries(attila PRIVATE fmt::fmt-header-only)
 
-set_target_properties(tgrp PROPERTIES
+set_target_properties(attila PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -70,5 +70,5 @@ set_target_properties(tgrp PROPERTIES
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(tgrp)
+    qt_finalize_executable(attila)
 endif()

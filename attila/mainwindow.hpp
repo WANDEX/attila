@@ -14,7 +14,7 @@
 
 #include "structs.hpp" // ss namespace with struct defs
 #include "stats.hpp"
-#include "tgrp.hpp"
+#include "attila.hpp"
 #include "keys.hpp"
 
 QT_BEGIN_NAMESPACE

@@ -1,5 +1,5 @@
-#ifndef TGRP_HPP
-#define TGRP_HPP
+#ifndef ATTILA_HPP
+#define ATTILA_HPP
 
 #include <filesystem>
 #include <regex>
@@ -40,4 +40,4 @@ std::string find_last_week_file();
 bool remove_lines_after_date (std::string &s, const std::string &date_str);
 bool remove_lines_before_date(std::string &s, const std::string &date_str);
 
-#endif // TGRP_HPP
+#endif // ATTILA_HPP
