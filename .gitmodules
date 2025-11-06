@@ -1,0 +1,3 @@
+[submodule "3rdparty/wndx/sane"]
+	path = 3rdparty/wndx/sane
+	url = git@github.com:WANDEX/wndx_sane.git

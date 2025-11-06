@@ -1,0 +1,53 @@
+## NOTE: ALL commented out lines are left as notes to myself on bizare syntax quirks that I encountered.
+## Uncommented lines with suppressions enabled should be placed at the end of the file for ease of reading!
+##
+## reference sources:
+## https://drmemory.org/page_suppress.html
+## https://www.chromium.org/developers/how-tos/using-drmemory/
+## https://chromium.googlesource.com/external/github.com/DynamoRIO/drmemory/+/refs/heads/master/drmemory/suppress-default.win.txt
+##
+## WARNING: writing to readonly memory
+## originates in MSVC because of the std::random_device
+## XXX: UNFORTUNATELY this simple rule hangs the program, puts into inf loop...
+##      This warning can not be ignored? Or I just do it wrong way?
+## XXX: does not work - hangs in inf loop!
+## WARNING
+## name=bug (I HATE MSBuild/MSVC! false positive WARNING: writing to readonly memory)
+## #wndx::algo::gen::random<>
+## *
+
+## UNINITIALIZED READ
+## ntdll.dll!RtlCaptureContext2
+## ntdll.dll!RtlUnwindEx
+## ntdll.dll!RtlUserThreadStart
+## ...
+## Dr. Memory + MSVC structured-exception unwinding interaction
+UNINITIALIZED READ
+name=bug (I HATE MSBuild/MSVC! false positive - caused by exception-unwinding and gtest/CRT interaction)
+ntdll.dll!RtlCaptureContext2
+
+## XXX: I do not see such error in my win10 WM, but in github CI - windows-2022 platform:
+## CUSTOMBUILD : ~~Dr.M~~ error #1: UNINITIALIZED READ: reading 0x000001c9691ebe81-0x000001c9691ebe96 21 byte(s) within 0x000001c9691ebe76-0x000001c9691ebe96 [D:\a\algorithms\algorithms\build_wndx_algo_win10_cl_Debug\memcheck.vcxproj]
+##  ~~Dr.M~~ # 0 `anonymous namespace'::__std_find_trivial_impl<>                       [D:\a\_work\1\s\src\vctools\crt\github\stl\src\vector_algorithms.cpp:2590]
+##  ~~Dr.M~~ # 1 __std_find_trivial_1                                                   [D:\a\_work\1\s\src\vctools\crt\github\stl\src\vector_algorithms.cpp:4510]
+##  ~~Dr.M~~ # 2 std::_Find_vectorized<>                                                [C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\xutility:200]
+##  ...
+UNINITIALIZED READ
+name=bug #1000 (I HATE MSBuild/MSVC! false positive - STL implementation)
+*!*
+*!__std_find_trivial_*
+*!std::_Find_vectorized<>
+
+## XXX: I do not see such error in my win10 WM, but in github CI - windows-2022 platform:
+## CUSTOMBUILD : ~~Dr.M~~ error #1: UNADDRESSABLE ACCESS beyond heap bounds: reading 0x000002ae20e09148-0x000002ae20e09160 24 byte(s) within 0x000002ae20e09140-0x000002ae20e09160 [D:\a\algorithms\algorithms\build_wndx_algo_win10_cl_Debug\memcheck.vcxproj]
+##  ~~Dr.M~~ # 0 `anonymous namespace'::__std_find_trivial_impl<>                       [D:\a\_work\1\s\src\vctools\crt\github\stl\src\vector_algorithms.cpp:2590]
+##  ~~Dr.M~~ # 1 __std_find_trivial_4                                                   [D:\a\_work\1\s\src\vctools\crt\github\stl\src\vector_algorithms.cpp:4520]
+##  ~~Dr.M~~ # 2 std::_Find_vectorized<>                                                [C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\xutility:206]
+##  ...
+UNADDRESSABLE ACCESS
+name=bug #1001 (I HATE MSBuild/MSVC! false positive - STL implementation)
+*!*
+*!__std_find_trivial_*
+*!std::_Find_vectorized<>
+
+# vim:set ft=gdb:nowrap:
