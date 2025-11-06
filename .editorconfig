@@ -1,7 +1,7 @@
 # top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
+# Unix-style newlines
 [*]
 end_of_line = lf
 insert_final_newline = true
@@ -10,3 +10,15 @@ indent_style = space
 indent_size = 4
 charset = utf-8
 trim_trailing_whitespace = true
+
+[CMakeLists.txt]
+indent_size = 2
+
+[*.cmake]
+indent_size = 2
+
+[*.yml]
+indent_size = 2
+
+[*.sh]
+indent_size = 2
