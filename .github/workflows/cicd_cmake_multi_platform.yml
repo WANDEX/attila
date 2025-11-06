@@ -1,0 +1,378 @@
+## CI/CD CMake on multiple platforms.
+## AUTHOR: github.com/WANDEX. LICENSE: MIT.
+## CMake project: build, test, memcheck, package, deploy.
+name: CI/CD cmake-multi-platform
+permissions:
+  contents: write ## for the action release
+
+defaults:
+  run:
+    shell: sh
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - '.*'
+      - '!.drmemory_suppress'
+      - 'scripts/**'
+      - 'README*'
+  pull_request:
+    paths-ignore:
+      - '.*'
+      - '!.drmemory_suppress'
+      - 'scripts/**'
+      - 'README*'
+
+env:
+  PRJ_NAME   : "attila"
+  TESTS_DIR  : "tests/units"
+  BUILD_TESTS: "ATTILA_BUILD_TESTS=ON"
+  MEMCHECK   : "ATTILA_MEMCHECK_ENABLE=ON"
+
+jobs:
+  multi-build-test-deploy:
+    continue-on-error: false
+    runs-on : ${{ matrix.pl }}
+    strategy:
+      fail-fast: false
+      matrix:
+        bt : [Debug, Release] ## build type
+        bp :
+          - "lnx_gcc"
+          - "lnx_clang"
+          - "mac_gcc"
+          - "mac_clang"
+          - "mac_Xcode"
+          - "win11_clang"
+          - "win11_cl"
+          - "win10_cl"
+        include:
+          - name: "ubuntu gcc"
+            bp : "lnx_gcc"
+            pl : ubuntu-latest
+            cc : gcc
+            cxx: g++
+            gen: "Ninja"
+          - name: "ubuntu clang"
+            bp : "lnx_clang"
+            pl : ubuntu-latest
+            cc : clang
+            cxx: clang++
+            gen: "Ninja"
+          - name: "macOS gcc"
+            bp : "mac_gcc"
+            pl : macos-latest
+            cc : gcc
+            cxx: g++
+            gen: "Ninja"
+          - name: "macOS clang"
+            bp : "mac_clang"
+            pl : macos-latest
+            cc : clang
+            cxx: clang++
+            gen: "Ninja"
+          - name: "macOS Xcode"
+            bp : "mac_Xcode"
+            pl : macos-latest
+            cc : cc
+            cxx: c++
+            gen: "Xcode"
+          - name: "win11 clang"
+            bp : "win11_clang"
+            pl : windows-latest
+            cc : clang
+            cxx: clang++
+            gen: "Ninja"
+          - name: "win11 MSVC"
+            bp : "win11_cl"
+            pl : windows-latest
+            cc : cl
+            cxx: cl
+            gen: "Visual Studio 17 2022"
+          - name: "win10 MSVC"
+            bp : "win10_cl"
+            pl : windows-2022
+            cc : cl
+            cxx: cl
+            gen: "Visual Studio 17 2022"
+        ## END include
+      ## END matrix
+    ## END strategy
+
+    name: "${{ matrix.bp }}_${{ matrix.bt }} | CC=${{ matrix.cc }} CXX=${{ matrix.cxx }} | ${{ matrix.pl }}"
+    steps:
+      ## https://github.com/marketplace/actions/checkout
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref }}
+        submodules: 'recursive'
+
+      ## Turn repeated input strings (such as the build output directory) into step outputs.
+      ## These step outputs can be used throughout the workflow file as regular variables.
+      ## NOTE: id strN must be run in separate consecutive steps to get previously put variables.
+    - name: set reusable str1
+      id   : str1
+      shell: bash
+      run  : |
+        echo "date=$(date +%y-%m-%d)" >> "$GITHUB_OUTPUT"
+        echo "date_time=$(date +%y-%m-%d_%H-%M-%S)" >> "$GITHUB_OUTPUT"
+        echo "dir_path_prj=${{ github.workspace }}" >> "$GITHUB_OUTPUT"
+        echo "dir_name_build=build_${{ env.PRJ_NAME }}_${{ matrix.bp }}_${{ matrix.bt }}" >> "$GITHUB_OUTPUT"
+        echo "dir_cache_local=${{ github.workspace }}/.local" >> "$GITHUB_OUTPUT"
+    - name: set reusable str2
+      id   : str2
+      shell: bash
+      run  : |
+        echo "dir_path_build=${{ steps.str1.outputs.dir_path_prj }}/${{ steps.str1.outputs.dir_name_build }}" >> "$GITHUB_OUTPUT"
+        echo "artifact_name=${{ steps.str1.outputs.dir_name_build }}_${{ steps.str1.outputs.date_time }}" >> "$GITHUB_OUTPUT"
+    - name: set reusable str3
+      id   : str3
+      shell: bash
+      run  : |
+        echo "dir_path_env=${{ steps.str2.outputs.dir_path_build }}/env" >> "$GITHUB_OUTPUT"
+        echo "dir_path_deploy=${{ steps.str2.outputs.dir_path_build }}/deploy" >> "$GITHUB_OUTPUT"
+
+    - name: --strip will be used on the binaries of build type Release
+      if   : ${{ matrix.bt == 'Release' }}
+      id   : strip
+      shell: bash
+      run  : echo "__strip=--strip" >> "$GITHUB_OUTPUT"
+
+    - name: Date Time ${{ steps.str1.outputs.date_time }}
+      run : |
+        echo "${{ steps.str1.outputs.date_time }}"
+        echo "${{ steps.str2.outputs.dir_path_build }}"
+        echo "${{ steps.str2.outputs.artifact_name }}"
+
+    - name: Create build environment
+      run : |
+        cmake -E make_directory "${{ steps.str2.outputs.dir_path_build }}"
+        cmake -E make_directory "${{ steps.str3.outputs.dir_path_env }}"
+        cmake -E make_directory "${{ steps.str3.outputs.dir_path_deploy }}"
+        cmake -E make_directory "${{ steps.str1.outputs.dir_cache_local }}"
+        cmake -E make_directory "${{ steps.str1.outputs.dir_cache_local }}/bin"
+        cmake -E make_directory "${{ steps.str1.outputs.dir_cache_local }}/lib"
+        echo "${{ steps.str1.outputs.dir_cache_local }}/bin" >> "$GITHUB_PATH"
+        cmake -E touch "${{ steps.str1.outputs.dir_cache_local }}/.DS_Store"
+      ## ^ create empty file .DS_Store to make sure that step "Post cache local" will work!
+
+    - name: ENV List All bef
+      working-directory: ${{ steps.str3.outputs.dir_path_env }}
+      run : env > bef.txt && cat bef.txt
+
+      ## get from cache or install and add to the PATH
+      ## https://github.com/marketplace/actions/actions-setup-cmake
+    - name: get/install cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '4.0.0'
+
+    - name: cmake --version
+      run : cmake --version
+
+      ## get from cache or install and add to the PATH
+      ## https://github.com/marketplace/actions/action-get-ninja
+    - name: get/install latest ninja
+      uses: urkle/action-get-ninja@v1
+
+    - name: ninja --version
+      run : ninja --version
+
+    - name: cache local
+      id  : cache_local
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ steps.str1.outputs.dir_cache_local }}
+        key : ${{ runner.os }}-local-${{ steps.str1.outputs.date }}
+
+      ## https://github.com/marketplace/actions/install-winget
+    - name: get/install winget
+      if  : ${{ runner.os == 'Windows' && matrix.pl == 'windows-2022' }}
+      uses: Cyberboss/install-winget@v1
+
+    - name: get/install WingetPathUpdater
+      if  : ${{ runner.os == 'Windows' }}
+      working-directory: ${{ github.workspace }}
+      run : winget install jazzdelightsme.WingetPathUpdater --disable-interactivity --accept-source-agreements
+
+    - name: install drmemory
+      if  : ${{ runner.os == 'Windows' }}
+      working-directory: ${{ github.workspace }}
+      run : |
+        DRMEMORY_V=2.6.20185
+        DRMEMORY_DN=DrMemory-Windows-$DRMEMORY_V
+        DRMEMORY_ID=DynamoRIO.drmemory
+        MS_WG_DIR="/c/Users/runneradmin/AppData/Local/Microsoft/WinGet"
+        MS_WG_SRC=_Microsoft.Winget.Source_
+        MS_PUB_ID=8wekyb3d8bbwe
+        winget install --id=$DRMEMORY_ID -v $DRMEMORY_V -e --disable-interactivity --accept-source-agreements
+        echo ";${MS_WG_DIR}/Packages/${DRMEMORY_ID}${MS_WG_SRC}${MS_PUB_ID}/${DRMEMORY_DN}/bin64" >> "$GITHUB_PATH"
+
+    ## occupies to much space in cache - 434 Mb. Whole dir must be cached, not only bin64 - exe require parent dirs!
+    # - name: get/install drmemory
+    #   if  : ${{ runner.os == 'Windows' && steps.cache_local.outputs.cache-hit != 'true' }}
+    #   working-directory: ${{ github.workspace }}
+    #   run : |
+    #     URL_BASE="https://github.com/DynamoRIO/drmemory/releases/download/release_2.6.0"
+    #     DRMEMORY=DrMemory-Windows-2.6.0
+    #     curl -sSLO "$URL_BASE/$DRMEMORY.zip"
+    #     cmake -E tar -xzf $DRMEMORY.zip
+    #     cmake -E copy_directory $DRMEMORY "${{ steps.str1.outputs.dir_cache_local }}"
+
+    ## install libc6-dbg and/or use previously installed files from cache.
+    ## LD_LIBRARY_PATH cannot be set in github workflow, thus manual copy to the system lib dir.
+    - name: get/install valgrind deps
+      if  : ${{ runner.os == 'Linux' }}
+      working-directory: ${{ github.workspace }}
+      run : |
+        lib_debug_usr="/usr/lib/debug"
+        lib_debug_lcl="${{ steps.str1.outputs.dir_cache_local }}/lib/debug"
+        if [ ! -d "$lib_debug_usr" ] && [ ! -d "$lib_debug_lcl" ]; then
+          sudo apt-get install libc6-dbg
+        fi
+        if [   -d "$lib_debug_usr" ] && [ ! -d "$lib_debug_lcl" ]; then
+          echo "> copy   to the local cache"
+          sudo cp -r "$lib_debug_usr" "$lib_debug_lcl"
+        else
+          echo "> copy from the local cache"
+          sudo cp -r "$lib_debug_lcl" "$lib_debug_usr"
+        fi
+
+    - name: get/install valgrind
+      if  : ${{ runner.os == 'Linux' && steps.cache_local.outputs.cache-hit != 'true' }}
+      working-directory: ${{ github.workspace }}
+      run : |
+        VALGRIND=valgrind-3.25.0
+        curl -sSLO "https://sourceware.org/pub/valgrind/$VALGRIND.tar.bz2"
+        cmake -E tar -xjf $VALGRIND.tar.bz2 && cd $VALGRIND
+        ./configure --prefix "${{ steps.str1.outputs.dir_cache_local }}"
+        make -j $(getconf _NPROCESSORS_ONLN) && make install
+
+    - name: ENV List All post diff
+      working-directory: ${{ steps.str3.outputs.dir_path_env }}
+      run : |
+        env > post.txt && cat post.txt
+      # env > post.txt && diff bef.txt post.txt > env.diff && cat env.diff
+      # env > post.txt && diff -u bef.txt post.txt > env.diff && cat env.diff
+      # TODO: must find a convenient cross-platform way to install diffutils.
+
+    - name: cmake --system-information
+      working-directory: ${{ steps.str3.outputs.dir_path_env }}
+      run : cmake --system-information > cmake_sys_info.txt && cat cmake_sys_info.txt
+
+    - name: cmake -G | Generators available on the current platform ${{ matrix.pl }}
+      working-directory: ${{ steps.str3.outputs.dir_path_env }}
+      run : cmake -G >cmake_pl_generators.txt 2>&1 || true && cat cmake_pl_generators.txt
+
+    - name: Configure CMake
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run : >
+        cmake -S .. -B . -G "${{ matrix.gen }}" --log-level=DEBUG
+        -D CMAKE_INSTALL_PREFIX=${{ steps.str3.outputs.dir_path_deploy }}
+        -D CMAKE_CXX_COMPILER=${{ matrix.cxx }}
+        -D CMAKE_C_COMPILER=${{ matrix.cc }}
+        -D CMAKE_BUILD_TYPE=${{ matrix.bt }}
+        -D CMAKE_CONFIGURATION_TYPES=${{ matrix.bt }}
+        -D ${{ env.BUILD_TESTS }} -D ${{ env.MEMCHECK }}
+
+      ## Build program with the given configuration. Note that --config is needed for multi-config generator.
+    - name: Build
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run : cmake --build . --config ${{ matrix.bt }} --verbose
+
+    - name: Test
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run: ctest --test-dir ${{ env.TESTS_DIR }} --build-config ${{ matrix.bt }} --output-on-failure
+
+      ## drmemory currently not works on windows-latest/windows-2025 => Dr. Memory internal crash at PC 0x*.
+    - name: Memcheck
+      if  : ${{ matrix.bt == 'Debug' && matrix.pl != 'windows-latest' }}
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run : cmake --build . --config ${{ matrix.bt }} --target memcheck
+
+    - name: Package source code
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run : cmake --build . --config ${{ matrix.bt }} --target package_src
+
+    - name: Deploy ${{ steps.strip.outputs.__strip }}
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run : cmake --install . --config ${{ matrix.bt }} ${{ steps.strip.outputs.__strip }}
+
+    - name: Runner info lines
+      run : |
+        echo "> cwd:"
+        ls -la .
+        echo "> prj_dir:"
+        ls -la "${{ steps.str1.outputs.dir_path_prj }}"
+        echo "> build_dir:"
+        ls -la "${{ steps.str2.outputs.dir_path_build }}"
+        echo "> deploy_dir:"
+        ls -la "${{ steps.str3.outputs.dir_path_deploy }}"
+
+      ## https://github.com/marketplace/actions/upload-a-build-artifact
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        ## Artifact name
+        name: "${{ steps.str2.outputs.artifact_name }}"
+        ## A file, directory or wildcard pattern that describes what to upload
+        path: "${{ steps.str2.outputs.dir_path_build }}"
+        if-no-files-found: warn ## optional, default is warn
+        ## Duration after which artifact will expire in days. 0 means using default retention.
+        ## Minimum 1 day. Maximum 90 days unless changed from the repository settings page.
+        retention-days: 1
+        compression-level: 6
+        overwrite: true ## optional, default is false
+
+    - name : archive
+      id   : archive
+      shell: bash
+      if   : ${{ github.ref_type == 'tag' && matrix.bt == 'Release' }}
+      working-directory: ${{ steps.str2.outputs.dir_path_build }}
+      run  : |
+        PRJNAME=${{ env.PRJ_NAME }}
+        VERSION=$GITHUB_REF_NAME
+        ARCH=$(uname -m)
+        PRJVERA=$PRJNAME-$VERSION-$ARCH
+        PKGNAME=$PRJVERA-${{ matrix.bp }}
+        TARBALL=$PKGNAME.tar.gz
+        SHASUM=$PKGNAME.tar.gz.sha256
+        cp -r deploy $PRJVERA
+        cmake -E tar -czf $TARBALL $PRJVERA
+        cmake -E sha256sum $TARBALL > $SHASUM
+        echo "TARBALL=$TARBALL" >> "$GITHUB_OUTPUT"
+        echo  "SHASUM=$SHASUM"  >> "$GITHUB_OUTPUT"
+
+      ## https://github.com/ericcornelissen/git-tag-annotation-action
+    - name : extract git tag annotation for release body text
+      id   : git
+      shell: bash
+      if   : ${{ github.ref_type == 'tag' && matrix.bt == 'Release' }}
+      run  : |
+        { ## handle multi-line output
+          echo 'annotation<<EOF'
+          git tag -l "$GITHUB_REF_NAME" --format '%(body)'
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+        echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+
+      ## https://github.com/marketplace/actions/gh-release
+    - name : release
+      uses : softprops/action-gh-release@v2
+      if   : ${{ github.ref_type == 'tag' && matrix.bt == 'Release' }}
+      with :
+        generate_release_notes: true
+        append_body: true
+        body : ${{ steps.git.outputs.annotation }}
+        draft: false
+        token: ${{ secrets.GITHUB_TOKEN }}
+        files: |
+          ${{ steps.str2.outputs.dir_path_build }}/${{ env.PRJ_NAME }}-*-src.tar.gz
+          ${{ steps.str2.outputs.dir_path_build }}/${{ steps.archive.outputs.TARBALL }}
+          ${{ steps.str2.outputs.dir_path_build }}/${{ steps.archive.outputs.SHASUM }}
+
+    ## END steps
+  ## END multi-build-test-deploy
+## END jobs
