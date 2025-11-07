@@ -250,6 +250,16 @@ jobs:
         ./configure --prefix "${{ steps.str1.outputs.dir_cache_local }}"
         make -j $(getconf _NPROCESSORS_ONLN) && make install
 
+      ## https://github.com/marketplace/actions/install-qt
+    - name: get/install Qt 6
+      uses: jurplel/install-qt-action@v4
+      with:
+        install-deps: 'true'
+        version: '6.9.2'
+        cache  : 'true'
+        set-env: 'true'
+        extra  : '--external 7z'
+
     - name: ENV List All post diff
       working-directory: ${{ steps.str3.outputs.dir_path_env }}
       run : |
