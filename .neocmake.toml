@@ -1,0 +1,1 @@
+enable_external_cmake_lint = true # true to use external cmake-lint, or false to disable it

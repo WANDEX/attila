@@ -1,17 +1,23 @@
-#ifndef ACTION_HPP
-#define ACTION_HPP
+#pragma once
+
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+
+#include "aliases.hpp"
 
 #include <QObject>
+#include <QScopedPointer>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+namespace wndx {
+
+// namespace Ui { class MainWindow; }
 
 class Action : public QObject
 {
     Q_OBJECT
 public:
-    explicit Action(QObject *mwi = nullptr, Ui::MainWindow *mwui = nullptr);
+    explicit Action(QObject *mwi, Ui::MainWindow *mwui);
+    // explicit Action(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui);
+    virtual ~Action();
 
 private:
     void goto_tab(int index);
@@ -27,5 +33,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    // QScopedPointer<Ui::MainWindow> ui;
 };
-#endif // ACTION_HPP
+
+} // namespace wndx

@@ -270,10 +270,11 @@ get_opt() {
 "-D CMAKE_C_COMPILER='$CC'
  -D CMAKE_CXX_COMPILER='$CXX'
  -D CMAKE_BUILD_TYPE=$BUILD_TYPE
- -D $PRJ_BUILD_TESTS=ON
- -D $PRJ_MEMCHECK_EN=ON
  $COPTS
 " ## <- default cmake configure options
+ # -D $PRJ_BUILD_TESTS=ON
+ # -D $PRJ_MEMCHECK_EN=ON
+
   BOPTS=\
 "$BOPTS
 " ## <- default cmake build options

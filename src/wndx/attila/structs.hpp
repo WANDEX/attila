@@ -1,80 +1,88 @@
-#ifndef STRUCTS_HPP
-#define STRUCTS_HPP
+#pragma once
 
-#include <atomic>  // atomic, fetch_add
-#include <cstddef> // size_t
-#include <ctime>   // time_t
+#include "aliases.hpp"
+
+#include <atomic>               // atomic, fetch_add
+#include <ctime>                // std::time_t
 #include <set>
-#include <string>
 #include <vector>
 
-namespace ss
-{
-    inline std::uint32_t getID() {
-        static std::atomic<std::uint32_t> uid { 0 };
-        return uid.fetch_add(1, std::memory_order_relaxed);
-    }
+namespace wndx::ss {
 
-    struct hm_t {
-        std::tm  tm_beg;
-        std::tm  tm_end;
-        std::time_t beg;
-        std::time_t end;
-        std::time_t diff;
-        std::string date_fr;
-        std::string date_to;
-        std::string time_fr;
-        std::string time_to;
-        std::string time_spent;
-    };
-
-    struct task_t {
-        std::string dts;
-        std::string text;
-        ss::hm_t    hm_t;
-        std::vector<std::string> words;
-        std::vector<std::string> tproj;
-        std::uint32_t id { ss::getID() };
-        std::set<ss::task_t> subt_t {};
-    };
-
-    inline bool operator<(const ss::task_t &lhs, const ss::task_t &rhs) {
-        return lhs.id < rhs.id;
-    }
-
-    using vtasks_t = std::vector<ss::task_t>;
-    using stasks_t = std::set<ss::task_t>;
-
-    struct stats_t {
-        const std::size_t avg;
-        const std::size_t max;
-        const std::size_t min;
-        const std::size_t sum;
-        const std::size_t nrecords;
-    };
-
-    struct stats_human_t {
-        const std::string avg;
-        const std::string max;
-        const std::string min;
-        const std::string sum;
-        const std::size_t nrecords;
-    };
-
-    struct group_t {
-        // std::string color; // TODO: generate group unique hex color, can be overridden by the user
-        // TODO: words are manually added by the user in the UI group container
-        std::set<std::string> words {}; // auto-associate task to the group by unique word
-        std::set<ss::task_t> tasks_t {};
-        std::string gname { "group_" + std::to_string(gid) }; // TODO: can be overridden by the user
-        std::uint32_t gid { ss::getID() };
-    };
-
-    inline bool operator<(const ss::group_t &lhs, const ss::group_t &rhs) {
-        return lhs.gid < rhs.gid;
-    }
-
-    using sgroups_t = std::set<ss::group_t>;
+inline s32 getID() {
+    static std::atomic<s32> uid{ 0 };
+    return uid.fetch_add(1, std::memory_order_relaxed);
 }
 
-#endif // STRUCTS_HPP
+struct hm_t {
+    std::tm  tm_beg;
+    std::tm  tm_end;
+    std::time_t beg;
+    std::time_t end;
+    std::time_t diff;
+    str_t date_fr;
+    str_t date_to;
+    str_t time_fr;
+    str_t time_to;
+    str_t time_spent;
+};
+
+struct task_t {
+    str_t dts;
+    str_t text;
+    hm_t  hm;
+    vec_str_t words;
+    vec_str_t tproj;
+    s32   id{ getID() };
+    std::set<task_t> subt_t {};
+#if 1
+    auto operator<=>(const task_t &rhs) const {
+        return id <=> rhs.id;
+    }
+#else
+    bool operator<(const task_t &lhs, const task_t &rhs) {
+        return lhs.id < rhs.id;
+    }
+#endif
+};
+
+struct stats_t {
+    sz_t avg;
+    sz_t max;
+    sz_t min;
+    sz_t sum;
+    sz_t nrecords;
+};
+
+struct stats_human_t {
+    str_t avg;
+    str_t max;
+    str_t min;
+    str_t sum;
+    sz_t nrecords;
+};
+
+struct group_t {
+    // str_t color; // TODO: generate group unique hex color, can be overridden by the user
+    // TODO: words are manually added by the user in the UI group container
+    std::set<str_t>  words   {}; // auto-associate task to the group by unique word
+    std::set<task_t> tasks_t {};
+    str_t gname{ "group_" + std::to_string(gid) }; // TODO: can be overridden by the user
+    s32   gid{ getID() };
+#if 1
+    auto operator<=>(const group_t &rhs) const {
+        return gid <=> rhs.gid;
+    }
+#else
+    bool operator<(const group_t &lhs, const group_t &rhs) {
+        return lhs.id < rhs.id;
+    }
+#endif
+};
+
+using vtasks_t  = std::vector<task_t>;
+using stasks_t  = std::set<task_t>;
+using sgroups_t = std::set<group_t>;
+
+} // namespace wndx::ss
+

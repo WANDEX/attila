@@ -32,7 +32,7 @@ Makefile*
 *.prl
 *.app
 moc_*.cpp
-ui_*.h
+!ui_*.h
 qrc_*.cpp
 Thumbs.db
 *.res

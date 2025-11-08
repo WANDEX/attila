@@ -1,16 +1,24 @@
-#include "./ui_mainwindow.h"
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+
 #include "keys.hpp"
-#include "qnamespace.h" // Qt::ShortcutFocusReason
+
+#include "action.hpp"
+
+namespace wndx {
 
 Keys::Keys(QObject *mwi, Ui::MainWindow *mwui)
-    : QObject{mwi}
-    , mw(mwi)
+// Keys::Keys(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui)
+    : QObject(mwi)
     , ui(mwui)
-    , act(new Action(mwi, mwui)) // Action class instance
+    , mw(mwi)
+    , act(new Action(this, ui)) // Action class instance
 {
     Keys::hotkeys(); // bind hotkeys
 }
 
+Keys::~Keys()
+{
+}
 
 /**
  * change scroll position based on active tab & scroll key
@@ -147,3 +155,4 @@ void Keys::hotkeys()
     sact(tr("Ctrl+m"), &Action::toggle_merge);
 }
 
+} // namespace wndx

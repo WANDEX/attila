@@ -1,14 +1,17 @@
-#ifndef STATS_HPP
-#define STATS_HPP
+#pragma once
 
-#include "structs.hpp" // ss namespace with struct defs
+#include "aliases.hpp"
 
-const ss::stats_t       calculate_stats(const ss::vtasks_t &vtt);
-const ss::stats_human_t calculate_stats_human(const ss::stats_t &stats_t);
+#include "structs.hpp"          // ss namespace with struct defs
 
-std::pair<const ss::vtasks_t, const std::string>
-    merge_tasks(const ss::vtasks_t &vtt, const std::string &mulstr);
+namespace wndx::ss {
 
-ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt);
+stats_t       calculate_stats(const vtasks_t &vtt);
+stats_human_t calculate_stats_human(const stats_t &stats_t);
 
-#endif // STATS_HPP
+std::pair<const vtasks_t, str_t>
+merge_tasks(const vtasks_t &vtt, const str_t &mulstr);
+
+sgroups_t auto_proj_groups(const vtasks_t &vtt);
+
+} // namespace wndx::ss

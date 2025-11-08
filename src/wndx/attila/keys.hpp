@@ -1,27 +1,29 @@
-#ifndef KEYS_HPP
-#define KEYS_HPP
+#pragma once
 
-#include <QObject>
-#include <QShortcut>
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+
+#include "aliases.hpp"
+
 #include <QKeySequence>
-
+#include <QObject>
 #include <QPlainTextEdit>
+#include <QScopedPointer>
 #include <QScrollBar>
+#include <QShortcut>
 #include <QTabWidget>
 
-#include "action.hpp"
+namespace wndx {
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow;
+class Action;
+// namespace Ui { class MainWindow; }
 
 class Keys : public QObject
 {
     Q_OBJECT
 public:
-    explicit Keys(QObject *mwi = nullptr, Ui::MainWindow *mwui = nullptr);
+    explicit Keys(QObject *mwi, Ui::MainWindow *mwui);
+    // explicit Keys(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui);
+    virtual ~Keys();
 
 private:
     void scrollkey(QKeySequence key);
@@ -37,11 +39,16 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    // QScopedPointer<Ui::MainWindow> ui;
     QObject        *mw;
     Action         *act;
+
+    // QScopedPointer<QObject> mw;
+    // QScopedPointer<Action> act;
 
     QPlainTextEdit *sobj;
     QScrollBar     *vsbar;
     QScrollBar     *hsbar;
 };
-#endif // KEYS_HPP
+
+} // namespace wndx

@@ -1,10 +1,17 @@
-#include "./ui_mainwindow.h"
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+
 #include "action.hpp"
-#include "qnamespace.h" // Qt::ShortcutFocusReason
+
+namespace wndx {
 
 Action::Action(QObject *mwi, Ui::MainWindow *mwui)
-    : QObject{mwi}
+// Action::Action(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui)
+    : QObject(mwi)
     , ui(mwui)
+{
+}
+
+Action::~Action()
 {
 }
 
@@ -61,3 +68,4 @@ void Action::toggle_merge()
     ui->checkBoxMerge->click();
 }
 
+} // namespace wndx

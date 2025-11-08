@@ -1,45 +1,36 @@
-#include <ctime>    // time_t, mktime, difftime
-
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
-#include <algorithm>
-#include <future>   // async
-#include <thread>   // hardware_concurrency
-
-#include <filesystem>
-#include <regex>
-#include <string>
-#include <vector>
-#include <locale>
-#include <iomanip>  // put_time
-
-#include <fmt/core.h>
-#include <fmt/format.h> // fmt::join
-
 #include "attila.hpp"
 
-#include "structs.hpp"  // ss  namespace with struct defs
-#include "str.hpp"      // str namespace
+#include "structs.hpp"          // ss  namespace with struct defs
+#include "str.hpp"              // str namespace
 
-namespace fs = std::filesystem;
+#include <fmt/core.h>
+#include <fmt/format.h>         // fmt::join
 
-std::vector<int> split_vi(const std::string &s, char delimiter)
+#include <algorithm>
+#include <ctime>                // time_t, mktime, difftime
+#include <future>               // async
+#include <iomanip>              // put_time
+#include <locale>
+#include <regex>                // TODO: replace std::regex with RE2
+#include <sstream>
+#include <thread>               // hardware_concurrency
+
+namespace wndx {
+
+std::vector<int> split_vi(str_v s, ch_t delimiter)
 {
     std::vector<int> tokens;
-    std::string token;
-    std::istringstream token_stream(s);
+    str_t token;
+    str_t const str(s.data(), s.size()); // XXX
+    std::istringstream token_stream(str);
     while (std::getline(token_stream, token, delimiter)) {
         tokens.push_back(std::stoi(token));
     }
     return tokens;
 }
 
-const ss::hm_t calculate_time_spent(
-        const std::string &d_fr, const std::string &d_to,
-        const std::string &t_fr, const std::string &t_to
-    )
+// ss::hm_t calculate_time_spent(str_v d_fr, str_v d_to, str_v t_fr, str_v t_to)
+ss::hm_t calculate_time_spent(str_t d_fr, str_t d_to, str_t t_fr, str_t t_to)
 {
     // hour:min from string
     std::vector<int> fr_res { split_vi(t_fr, ':') };
@@ -51,21 +42,28 @@ const ss::hm_t calculate_time_spent(
 #endif
 
     std::tm t1 {};
-    std::istringstream t1s(d_fr);
+    // str_t const str1(d_fr.data(), d_fr.size()); // XXX
+    str_t const str1(d_fr.begin(), d_fr.end()); // XXX
+    std::istringstream t1s(str1);
     t1s >> std::get_time(&t1, str::datef); // date from string
     t1.tm_hour = fr_res[0];
     t1.tm_min  = fr_res[1];
     std::time_t beg = std::mktime(&t1);    // sec since epoch
 
     std::tm t2 {};
-    std::istringstream t2s(d_to);
+    str_t const str2(d_fr.data(), d_fr.size()); // XXX
+    std::istringstream t2s(str2);
     t2s >> std::get_time(&t2, str::datef);
     t2.tm_hour = to_res[0];
     t2.tm_min  = to_res[1];
     std::time_t end = std::mktime(&t2);
 
     std::time_t diff = std::difftime(end, beg);
-    if (diff == 0) return {t1, t2, beg, end, 0, d_fr, d_to, t_fr, t_to, "00:00"};
+    if (diff == 0) {
+        return { t1, t2, beg, end, 0,
+            d_fr, d_to, t_fr, t_to, "00:00"
+        };
+    }
     // fix: 23:53 -> 00:07 expected time spent: (00:14)
     // recalculate if the task was ended the next day
     if (diff < 1) {
@@ -73,76 +71,82 @@ const ss::hm_t calculate_time_spent(
         end = std::mktime(&t2);
         diff = std::difftime(end, beg);
     }
-    return {t1, t2, beg, end, diff, d_fr, d_to, t_fr, t_to, str::sec_to_tstr(diff)};
+    auto tmp{ str::sec_to_tstr(diff) }; // XXX
+    return{ t1, t2, beg, end, diff, d_fr, d_to, t_fr, t_to, tmp };
 }
 
-const ss::hm_t time_spent(const std::string &s)
+ss::hm_t time_spent(str_v s)
 {
     std::smatch m;
-    if(!std::regex_search(s, m, str::dts_re)) {
-        try {
-            throw "date and/or time span was not found in the string";
-        } catch (const char* e) {
-            std::cerr << "[Warning]: " << e << std::endl;
+    str_t const str(s.data(), s.size()); // XXX
+    if (!std::regex_search(str, m, str::dts_re)) {
+        try { // XXX
+            throw std::runtime_error("date and/or time span was not found in the string");
+        } catch (std::runtime_error const& e) {
+            WNDX_LOG(LL::WARN, "{}\n", e.what());
             throw;
         }
     }
+    // return calculate_time_spent(m[1], m[1], m[2], m[3]);
     return calculate_time_spent(m[1], m[1], m[2], m[3]);
 }
 
-const std::pair<const std::string, const std::string> dts_and_task(const std::string &s)
+std::pair<str_t, str_t> dts_and_task(str_v s)
 {
     std::smatch m;
-    if(!std::regex_search(s, m, str::dts_txt_re)) {
-        try {
-            throw "time span and/or task text was not found in the string";
-        } catch (const char* e) {
-            std::cerr << "[Warning]: " << e << std::endl;
+    str_t const str(s.data(), s.size()); // XXX
+    if (!std::regex_search(str, m, str::dts_txt_re)) {
+        try { // XXX
+            throw std::runtime_error("time span and/or task text was not found in the string");
+        } catch (std::runtime_error const& e) {
+            WNDX_LOG(LL::WARN, "{}\n", e.what());
             throw;
         }
     }
     return std::make_pair(m[1], m[4]);
 }
 
-std::vector<std::string> projects_of_task(const std::string &s)
+vec_str_t projects_of_task(str_v s)
 {
-    const std::regex projects{R"((\[.*\]))"};
+    std::regex const projects{R"((\[.*\]))"};
     std::smatch m;
-    if(!std::regex_search(s, m, projects))
+    str_t const str(s.data(), s.size()); // XXX
+    if (!std::regex_search(str, m, projects))
         return {};
-    const std::regex re{R"(([\[\]]))"};
+    std::regex const re{R"(([\[\]]))"};
     return str::resplit(m.str(), re); // [nvim][lsp] -> nvim lsp
 }
 
 /**
  * parse/analyze multiline string of tasks
  */
-ss::vtasks_t parse_tasks(const std::string &s)
+ss::vtasks_t parse_tasks(str_v s)
 {
     ss::vtasks_t tasks;
-    std::string line;
-    std::istringstream content(s);
-    std::pair<std::string, std::string> dts_text {};
-    ss::hm_t hm_t {};
-    std::string skip_msg = "^ Skipping task due to previous exception with line: ";
+    str_t line;
+    str_t const str(s.data(), s.size()); // XXX
+    std::istringstream content(str);
+    std::pair<str_t, str_t> dts_text {};
+    ss::hm_t hm {};
+    str_t skip_msg = "^ Skipping task due to previous exception with line: ";
     while (std::getline(content, line)) {
         try {
             dts_text = dts_and_task(line);
-        } catch (const char* e) {
-            std::cerr << "[Info]: " << skip_msg << "'" << line << "'" << std::endl;
+        } catch (std::runtime_error const& e) {
+            WNDX_LOG(LL::INFO, "{}\n{}\n{}\n", e.what(), skip_msg, line);
             continue; // safely handle exception by skipping this task
         }
-        std::string &dts  = dts_text.first;
-        std::string &text = dts_text.second;
+        auto const dts { dts_text.first  };
+        auto const text{ dts_text.second };
         try {
-            hm_t = time_spent(dts);
-        } catch (const char* e) {
-            std::cerr << "[Info]: " << skip_msg << "'" << line << "'" << std::endl;
+            hm = time_spent(dts);
+        } catch (std::runtime_error const& e) {
+            WNDX_LOG(LL::INFO, "{}\n{}\n{}\n", e.what(), skip_msg, line);
             continue; // safely handle exception by skipping this task
         }
-        std::vector<std::string> words = str::split_on_words(text);
-        std::vector<std::string> tproj = projects_of_task(text);
-        ss::task_t task = {dts, text, hm_t, words, tproj};
+        auto const words{ str::split_on_words(text) };
+        auto const tproj{    projects_of_task(text) };
+        ss::task_t task{ dts, text, hm, words, tproj };
         tasks.push_back(task);
     }
 #if 0
@@ -150,7 +154,7 @@ ss::vtasks_t parse_tasks(const std::string &s)
         std::cout << std::endl
             << t.dts << std::endl
             << t.text << std::endl
-            << t.hm_t.str << std::endl;
+            << t.hm.str << std::endl;
         fmt::print("[{}]\n", fmt::join(t.words, ", "));
         if (!t.tproj.empty())
             fmt::print("> tproj: {}\n", fmt::join(t.tproj, ", "));
@@ -162,7 +166,7 @@ ss::vtasks_t parse_tasks(const std::string &s)
 /**
  * wrapper around parse_tasks() for parallel/async parsing/analyzing of multiline string
  */
-ss::vtasks_t parse_tasks_parallel(const std::string &s)
+ss::vtasks_t parse_tasks_parallel(str_v s)
 {
     size_t nl = std::count(s.begin(), s.end(), '\n'); // new lines count
     size_t threads_total = std::thread::hardware_concurrency();
@@ -171,9 +175,10 @@ ss::vtasks_t parse_tasks_parallel(const std::string &s)
     }
     size_t num_threads = threads_total - 1; // -1 thread is essential for the algorithm
     // fill the lines vector
-    std::string line;
-    std::vector<std::string> lines;
-    std::istringstream content(s);
+    str_t line;
+    vec_str_t lines;
+    str_t const str(s.data(), s.size()); // XXX
+    std::istringstream content(str);
     while (std::getline(content, line))
         lines.push_back(line);
     // lines per thread (-1 thread) & remainder
@@ -207,13 +212,18 @@ ss::vtasks_t parse_tasks_parallel(const std::string &s)
     return vtt;
 }
 
-std::vector<std::string> get_all_files_recursive(const fs::path &path)
+auto get_all_files_recursive(fs::path const &path)
 {
-    std::vector<std::string> fpaths;
+    vec_str_t fpaths;
     for (const auto& p : fs::recursive_directory_iterator(path)) {
         if (!fs::is_directory(p)) {
+#if 1
             fs::path path = p.path();
-            fpaths.push_back(path.u8string());
+            // fpaths.push_back(path.u8string());
+            fpaths.push_back(path.string());
+#else
+            fpaths.push_back(p.path());
+#endif
         }
     }
     std::sort(fpaths.begin(), fpaths.end());
@@ -225,13 +235,18 @@ std::vector<std::string> get_all_files_recursive(const fs::path &path)
     return fpaths;
 }
 
-std::vector<std::string> find_week_files(const std::string &pmatch = "week-")
+auto find_week_files(str_v pmatch = "week-") -> vec_str_t
 {
-    std::string POMODORO_DIR = str::sane_getenv("POMODORO_DIR");
-    std::vector<std::string> fpaths = get_all_files_recursive(POMODORO_DIR);
-    std::vector<std::string>& v = fpaths; // reference for shortness
-    auto match = [=](const std::string &tmps) {
-        return tmps.find(pmatch) == std::string::npos;
+    str_t POMODORO_DIR = str::sane_getenv("POMODORO_DIR");
+#if 0
+    auto fpaths = get_all_files_recursive(POMODORO_DIR);
+    auto& v = fpaths; // reference for shortness
+#else
+    vec_str_t fpaths = get_all_files_recursive(POMODORO_DIR);
+    vec_str_t& v = fpaths; // reference for shortness
+#endif
+    auto match = [=](const str_t &tmps) {
+        return tmps.find(pmatch) == str_t::npos;
     }; // remove all paths which does not include pattern match
     v.erase(std::remove_if(v.begin(), v.end(), match), v.end());
     if (v.empty())
@@ -247,7 +262,7 @@ std::vector<std::string> find_week_files(const std::string &pmatch = "week-")
 /**
  * construct & return week file name by the date string
  */
-std::string week_file_name(const std::string &date_str)
+str_t week_file_name(str_v date_str)
 {
     std::tm tm1 {}, tm2 {};
     const char* wfmt = "week-%V-%Y.txt";
@@ -258,7 +273,8 @@ std::string week_file_name(const std::string &date_str)
         buf << std::put_time(&tm1, wfmt);
         return buf.str();
     }
-    std::istringstream ss(date_str);
+    str_t const str(date_str.data(), date_str.size()); // XXX
+    std::istringstream ss(str);
     ss.imbue(std::locale("en_US.utf-8"));
     ss >> std::get_time(&tm2, str::datef);
     const std::time_t t = std::mktime(&tm2);
@@ -273,7 +289,7 @@ std::string week_file_name(const std::string &date_str)
 /**
  * vector slice by indexes, like the list slicing in python
  */
-std::vector<std::string> vslice(const std::vector<std::string> &v, int start=0, int end=-1)
+vec_str_t vslice(vec_str_t const &v, int start=0, int end=-1)
 {
     int oldlen = v.size();
     int newlen;
@@ -282,14 +298,14 @@ std::vector<std::string> vslice(const std::vector<std::string> &v, int start=0, 
     } else {
         newlen = end - start;
     }
-    std::vector<std::string> nv(newlen);
+    vec_str_t nv(newlen);
     for (int i=0; i<newlen; i++) {
         nv[i] = v[start + i];
     }
     return nv;
 }
 
-int item_index(const std::vector<std::string> &v, const std::string &item)
+int item_index(vec_str_t const &v, str_v item)
 {
     auto ret = std::find(v.begin(), v.end(), item);
     if (ret != v.end())
@@ -297,20 +313,20 @@ int item_index(const std::vector<std::string> &v, const std::string &item)
     return -1; // return the last element index
 }
 
-std::string find_week_file_by_date(const std::string &date_str)
+str_t find_week_file_by_date(str_v date_str)
 {
-    const std::vector<std::string> found = find_week_files(week_file_name(date_str));
+    const vec_str_t found = find_week_files(week_file_name(date_str));
     if (found.empty()) { // find closest next found week file
-        const std::vector<std::string> fpaths = find_week_files();
-        const std::string fake_fname = week_file_name(date_str);
-        std::vector<std::string> fnames;
+        const vec_str_t fpaths = find_week_files();
+        const str_t fake_fname = week_file_name(date_str);
+        vec_str_t fnames;
         fnames.push_back(fake_fname); // add fake entry week fname
         for (const fs::path p : fpaths)
             fnames.push_back(p.filename());
         // fname example: week-05-2022.txt
         // substr(8, 4) = year; substr(5, 2) = week_num
         std::sort(fnames.begin(), fnames.end(),
-            [](const std::string &a, const std::string &b) -> bool
+            [](str_v a, str_v b) -> bool
         {
             return
             (
@@ -329,19 +345,19 @@ std::string find_week_file_by_date(const std::string &date_str)
     return found[0];
 }
 
-std::string find_last_week_file()
+str_t find_last_week_file()
 {
     return find_week_file_by_date("now");
 }
 
-std::vector<std::string> find_week_files_in_span(const std::string &fr, const std::string &to)
+auto find_week_files_in_span(str_v fr, str_v to)
 {
-    const std::string fr_fpath = find_week_file_by_date(fr);
-    const std::string to_fpath = find_week_file_by_date(to);
-    const std::vector<std::string> fpaths = find_week_files();
-    int fr_index = item_index(fpaths, fr_fpath);
-    int to_index = item_index(fpaths, to_fpath);
-    std::vector<std::string> fpaths_span = vslice(fpaths, fr_index, to_index + 1); // +1 including
+    auto fr_fpath{ find_week_file_by_date(fr) };
+    auto to_fpath{ find_week_file_by_date(to) };
+    auto   fpaths{ find_week_files() };
+    auto fr_index{ item_index(fpaths, fr_fpath) };
+    auto to_index{ item_index(fpaths, to_fpath) };
+    auto fpaths_span{  vslice(fpaths, fr_index, to_index + 1) }; // +1 including
 #if 0
     for (const auto &p : fpaths_span) {
         std::cout << p << std::endl;
@@ -357,16 +373,17 @@ std::vector<std::string> find_week_files_in_span(const std::string &fr, const st
  * vector of all dates of the week found by date string
  * (from first to the last day of the week)
  */
-std::vector<std::string> dates_of_week(const std::string &date_str)
+vec_str_t dates_of_week(str_v date_str)
 {
     std::tm tm = {};
-    std::istringstream ss(date_str);
+    str_t const str(date_str.data(), date_str.size()); // XXX
+    std::istringstream ss(str);
     ss.imbue(std::locale("en_US.utf-8"));
     ss >> std::get_time(&tm, str::datef);
     std::mktime(&tm); // essential in order to set proper tm_wday
     int first_wday = tm.tm_mday - tm.tm_wday; // first day of the week
     tm.tm_mday = first_wday;
-    std::vector<std::string> wdates;
+    vec_str_t wdates;
     std::ostringstream buf;
     for (int i = 0; i < 7; i++) {
         // FIXME: HACK: to make sunday last day of the week, not first.
@@ -385,12 +402,12 @@ std::vector<std::string> dates_of_week(const std::string &date_str)
  * Iterate over the dates of the week if the date substring is not found,
  * to exclude all lines before the date anyway.
  */
-bool remove_lines_before_date(std::string &s, const std::string &date_str)
+bool remove_lines_before_date(str_t &s, str_v date_str)
 {
     if (str::remove_lines_before(s, date_str, false))
         return true;
 
-    const std::vector<std::string> dates = dates_of_week(date_str);
+    const vec_str_t dates = dates_of_week(date_str);
     int index = item_index(dates, date_str);
 
     for (int i = index; i >= 0; i--) {
@@ -405,12 +422,12 @@ bool remove_lines_before_date(std::string &s, const std::string &date_str)
  * Iterate over the dates of the week if the date substring is not found,
  * to exclude all lines after the date anyway.
  */
-bool remove_lines_after_date(std::string &s, const std::string &date_str)
+bool remove_lines_after_date(str_t &s, str_v date_str)
 {
     if (str::remove_lines_after(s, date_str, true))
         return true;
 
-    const std::vector<std::string> dates = dates_of_week(date_str);
+    const vec_str_t dates = dates_of_week(date_str);
     int index = item_index(dates, date_str);
 
     for (int i = index; i < dates.size(); i++) {
@@ -423,18 +440,17 @@ bool remove_lines_after_date(std::string &s, const std::string &date_str)
 /**
  * concatenate week files removing lines before & after range of dates
  */
-const std::string concat_week_files(std::vector<std::string> &fpaths,
-                                    const std::string &fr, const std::string &to)
+str_t concat_week_files(vec_str_t &fpaths, str_v fr, str_v to)
 {
     // if the date range matches one file
     if (fpaths.size() == 1) {
-        std::string fcontent = str::file_content(fpaths[0]);
+        str_t fcontent = str::file_content(fpaths[0]);
         remove_lines_before_date(fcontent, fr);
         remove_lines_after_date(fcontent, to);
         return str::trim(fcontent);
     }
-    std::string fcontent_first = str::file_content(fpaths[0]);
-    std::string fcontent_last  = str::file_content(fpaths.back());
+    str_t fcontent_first = str::file_content(fpaths[0]);
+    str_t fcontent_last  = str::file_content(fpaths.back());
     remove_lines_before_date(fcontent_first, fr);
     remove_lines_after_date(fcontent_last, to);
     std::ostringstream buf;
@@ -445,26 +461,30 @@ const std::string concat_week_files(std::vector<std::string> &fpaths,
     return str::trim(buf.str());
 }
 
-std::string concat_span(const std::string &fr, const std::string &to)
+str_t concat_span(str_v fr, str_v to)
 {
-    std::vector<std::string> fpaths = find_week_files_in_span(fr, to);
-    std::string content = concat_week_files(fpaths, fr, to);
+    // FIXME: find_week_files_in_span
+    vec_str_t fpaths = find_week_files_in_span(fr, to);
+    str_t content = concat_week_files(fpaths, fr, to);
     return content;
 }
 
 /**
  * filter multiline string by lines containing matching pattern
  */
-std::string filter_find(const std::string &s, const std::string &reinput)
+str_t filter_find(str_v s, str_v reinput)
 {
-    const std::regex re(reinput, std::regex::ECMAScript|std::regex::icase);
+    std::regex const re(reinput.data(), reinput.length(), std::regex::ECMAScript|std::regex::icase);
     std::smatch m;
-    std::string line;
-    std::istringstream iss(s);
+    str_t line;
+    str_t const str(s.data(), s.size()); // XXX
+    std::istringstream iss(str);
     std::ostringstream oss;
     while (std::getline(iss, line)) {
-        if(std::regex_search(line, m, re))
+        if (std::regex_search(line, m, re))
             oss << line << '\n';
     }
     return oss.str();
 }
+
+} // namespace wndx

@@ -1,14 +1,19 @@
-#include "mainwindow.hpp"
-#include "./ui_mainwindow.h"
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
 
+#include "mainwindow.hpp"
+
+#include "keys.hpp"
 #include "stats.hpp"
-#include "str.hpp"      // str namespace
+#include "str.hpp"              // str namespace
 
 #include <QtConcurrent/QtConcurrent>
+
+namespace wndx {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    // , ks(new Keys(this, ui->data())) // init Keys class & bind hotkeys
     , ks(new Keys(this, ui)) // init Keys class & bind hotkeys
 {
     ui->setupUi(this);
@@ -25,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
 
-    connect(ui->checkBoxMerge, &QCheckBox::stateChanged, this, &MainWindow::mergeToggle);
+    connect(ui->checkBoxMerge, &QCheckBox::checkStateChanged, this, &MainWindow::mergeToggle);
 
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
@@ -38,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete ks;
 }
 
 /**
@@ -129,8 +135,8 @@ void MainWindow::merge()
         return;
     }
     pts("[TASKS ANALYZING] before merge_tasks() call");
-    std::pair<const ss::vtasks_t, const std::string>
-        merged = merge_tasks(vtt, TXT_SPENT.toStdString());
+    std::pair<const ss::vtasks_t, const str_t>
+        merged = ss::merge_tasks(vtt, TXT_SPENT.toStdString());
     vtt_merged = merged.first;
     TXT_MERGED = QString::fromStdString(merged.second);
     pts("[TASKS ANALYZING] merge finished!");
@@ -141,7 +147,7 @@ void MainWindow::merge()
 void MainWindow::analyzeTasksStarted(const QString &txt)
 {
     pts("[TASKS ANALYZING] started");
-    const std::string stdstr = txt.toStdString();
+    str_t const stdstr = txt.toStdString();
     QFuture<ss::vtasks_t> future = QtConcurrent::run(parse_tasks_parallel, stdstr);
     vtt_watcher.setFuture(future); // when computation is finished -> emit finished
 }
@@ -171,9 +177,9 @@ void MainWindow::dateSpanChanged()
         date_to = tmpdate;
     }
 
-    std::string fr = date_fr.toString("yyyy-MM-dd").toStdString();
-    std::string to = date_to.toString("yyyy-MM-dd").toStdString();
-    std::string content = concat_span(fr, to);
+    str_t fr = date_fr.toString("yyyy-MM-dd").toStdString();
+    str_t to = date_to.toString("yyyy-MM-dd").toStdString();
+    str_t content = concat_span(fr, to);
     TXT_RAW = QString::fromStdString(content);
     setTxt(TXT_RAW);
     // try to apply filter back after changing the date span
@@ -199,7 +205,7 @@ void MainWindow::filterChanged()
         fin->setStyleSheet(fin_ss_def);
     }
 
-    const std::string filtered = filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
+    str_t const filtered = filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
     if (filtered.empty()) {
         fin->setStyleSheet("color: magenta");
         qDebug() << "No matches to the filter regex";
@@ -209,3 +215,5 @@ void MainWindow::filterChanged()
     TXT_FILTERED = QString::fromStdString(filtered);
     setTxt(TXT_FILTERED);
 }
+
+} // namespace wndx

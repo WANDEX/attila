@@ -1,30 +1,32 @@
 #include "stats.hpp"
-#include "structs.hpp" // ss  namespace with struct defs
-#include "str.hpp"     // str namespace
 
-#include <iostream>  // cerr
-#include <sstream>   // ostringstream
-
-#include <algorithm> // erase/remove
-#include <cstddef>   // size_t
-#include <ctime>     // time_t
-#include <set>
-#include <string>
-#include <vector>
+#include "str.hpp"              // str namespace
+#include "structs.hpp"          // ss  namespace with struct defs
 
 #include <fmt/core.h>
 
-const ss::stats_t calculate_stats(const ss::vtasks_t &vtt)
+#include <sstream>              // ostringstream
+#include <algorithm>            // erase/remove
+#include <cstddef>              // size_t
+#include <ctime>                // time_t
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace wndx::ss {
+
+stats_t calculate_stats(const vtasks_t &vtt)
 {
     std::size_t sum {0}; // total spent on all tasks in seconds
     std::size_t avg {0};
     std::size_t max {0};
-    std::size_t min { static_cast<std::size_t>(vtt.at(0).hm_t.diff) };
+    std::size_t min { static_cast<std::size_t>(vtt.at(0).hm.diff) };
     const std::size_t nrecords { vtt.size() };
 
     std::size_t sec {0}; // total spent on task in seconds
     for (const auto &t : vtt) {
-        sec = t.hm_t.diff;
+        sec = t.hm.diff;
         sum += sec;
         if (max < sec)
             max = sec;
@@ -35,29 +37,29 @@ const ss::stats_t calculate_stats(const ss::vtasks_t &vtt)
     return { avg, max, min, sum, nrecords };
 }
 
-const ss::stats_human_t calculate_stats_human(const ss::stats_t &t)
+stats_human_t calculate_stats_human(const stats_t &t)
 {
     // convert size_t seconds into HH:MM spent time string
-    auto hm = [&](const std::size_t sec) -> const std::string {
+    auto hm = [&](const std::size_t sec) -> str_t {
         return fmt::format("{:02}:{:02}", sec / 3600, sec % 3600 / 60);
     };
     return { hm(t.avg), hm(t.max), hm(t.min), hm(t.sum), t.nrecords };
 }
 
-std::pair<const ss::vtasks_t, const std::string>
-    merge_tasks(const ss::vtasks_t &vtt, const std::string &mulstr)
+std::pair<const vtasks_t, str_t>
+merge_tasks(const vtasks_t &vtt, const str_t &mulstr)
 {
-    ss::vtasks_t v {vtt};
+    vtasks_t v {vtt};
     // remove vector elements which text is not in multiline string
     // NOTE: (in case multiline string was filtered by the regex)
-    for (ss::vtasks_t::iterator it = v.begin(); it != v.end(); ++it) {
+    for (vtasks_t::iterator it = v.begin(); it != v.end(); ++it) {
         if (!str::has_substr(mulstr, it->text))
             v.erase(it);
     }
 
     for (std::size_t i = 0; i < v.size(); ++i) {
         bool already_exist = false;
-        ss::stasks_t subt_t {};
+        stasks_t subt_t {};
         for (std::size_t j = i; j < v.size(); ++j) {
             bool same_text = (v[i].text == v[j].text) ? true : false;
             if (!already_exist && same_text) {
@@ -84,25 +86,25 @@ std::pair<const ss::vtasks_t, const std::string>
 
         std::time_t sec {0};
         for (const auto &sub_task: main_task.subt_t) {
-            sec += sub_task.hm_t.diff;
+            sec += sub_task.hm.diff;
         }
 
         const auto last = main_task.subt_t.rbegin();
         // update hm_t struct values
-        main_task.hm_t.tm_end     = last->hm_t.tm_end;
-        main_task.hm_t.end        = last->hm_t.end;
-        main_task.hm_t.diff       = sec;
-        main_task.hm_t.date_to    = last->hm_t.date_to;
-        main_task.hm_t.time_to    = last->hm_t.time_to;
-        main_task.hm_t.time_spent = str::sec_to_tstr(sec);
+        main_task.hm.tm_end     = last->hm.tm_end;
+        main_task.hm.end        = last->hm.end;
+        main_task.hm.diff       = sec;
+        main_task.hm.date_to    = last->hm.date_to;
+        main_task.hm.time_to    = last->hm.time_to;
+        main_task.hm.time_spent = str::sec_to_tstr(sec);
 
         // if first & last sub-task date differ -> only date strings without time: fr -> to
         std::ostringstream out;
-        if (main_task.hm_t.date_fr == main_task.hm_t.date_to) {
-            out << "*M  (" << main_task.hm_t.date_fr << ") "
-                << main_task.hm_t.time_fr << " > " << main_task.hm_t.time_to;
+        if (main_task.hm.date_fr == main_task.hm.date_to) {
+            out << "*M  (" << main_task.hm.date_fr << ") "
+                << main_task.hm.time_fr << " > " << main_task.hm.time_to;
         } else {
-            out << "*M  (" << main_task.hm_t.date_fr << " >> " << main_task.hm_t.date_to << ")";
+            out << "*M  (" << main_task.hm.date_fr << " >> " << main_task.hm.date_to << ")";
         }
         main_task.dts = out.str();
     }
@@ -113,10 +115,10 @@ std::pair<const ss::vtasks_t, const std::string>
 /**
  * auto create and populate groups by the tasks with unique project name
  */
-ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt)
+sgroups_t auto_proj_groups(const vtasks_t &vtt)
 {
-    ss::sgroups_t groups {};
-    std::set<std::string> utproj_names {}; // unique task project names
+    sgroups_t groups {};
+    std::set<str_t> utproj_names {}; // unique task project names
     for (auto &task: vtt) {
         if (task.tproj.size() < 2) {
             continue; // skip -> task without task project(s)
@@ -124,7 +126,7 @@ ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt)
 
         // TODO for each tproj element -> in case there are many
 
-        const std::string project_name { task.tproj[0] }; // if more than one -> first task project
+        str_t const project_name { task.tproj[0] }; // if more than one -> first task project
 
         // auto-associate tasks with the same project name to the same auto group
         // do not create new group if group with project name already exist in groups -> simply insert task to the group
@@ -138,15 +140,15 @@ ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt)
                 }
             }
             if (!found) {
-                try {
-                    throw "Finished iterating over groups -> project_name, was not found!";
-                } catch (const char* e) {
-                    std::cerr << "[Error]: " << e << " project_name = "  << project_name << std::endl;
+                try { // XXX
+                    throw std::runtime_error("Finished iterating over groups -> project_name, was not found!");
+                } catch (std::runtime_error const& e) {
+                    WNDX_LOG(LL::ERRO, "{}\n", e.what());
                     throw;
                 }
             }
         } else { // not exist -> create & insert new group to the groups
-            ss::group_t group_t {}; // initialize with gid generation
+            group_t group_t {}; // initialize with gid generation
             group_t.gname = project_name;
             group_t.words.insert(project_name);
             group_t.tasks_t.insert(task);
@@ -157,3 +159,5 @@ ss::sgroups_t auto_proj_groups(const ss::vtasks_t &vtt)
 
     return groups;
 }
+
+} // namespace wndx::ss

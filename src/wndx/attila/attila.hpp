@@ -1,43 +1,41 @@
-#ifndef ATTILA_HPP
-#define ATTILA_HPP
+#pragma once
 
-#include <filesystem>
-#include <regex>
-#include <string>
+#include "aliases.hpp"
+
+#include "structs.hpp"          // ss namespace with struct defs
+
 #include <vector>
 
-#include "structs.hpp" // ss namespace with struct defs
+namespace wndx {
 
-std::vector<int> split_vi(const std::string &s, char delimiter);
-int item_index(const std::vector<std::string> &v, const std::string &item);
-std::vector<std::string> vslice(const std::vector<std::string> &v, int start, int end);
+std::vector<int> split_vi(str_v s, ch_t delimiter);
+int item_index(vec_str_t const &v, str_v item);
+vec_str_t vslice(vec_str_t const &v, int start, int end);
 
-const ss::hm_t calculate_time_spent(
-        const std::string &d_fr, const std::string &d_to,
-        const std::string &t_fr, const std::string &t_to);
+// ss::hm_t calculate_time_spent(str_v d_fr, str_v d_to, str_v t_fr, str_v t_to);
+ss::hm_t calculate_time_spent(str_t d_fr, str_t d_to, str_t t_fr, str_t t_to);
 
-const ss::hm_t time_spent(const std::string &s);
-const std::pair<const std::string, const std::string> dts_and_task(const std::string &s);
-std::vector<std::string> projects_of_task(const std::string &s);
+ss::hm_t time_spent(str_v s);
+std::pair<str_t, str_t> dts_and_task(str_v s);
+vec_str_t projects_of_task(str_v s);
 
-ss::vtasks_t parse_tasks(const std::string &s);
-ss::vtasks_t parse_tasks_parallel(const std::string &s);
+ss::vtasks_t parse_tasks(str_v s);
+ss::vtasks_t parse_tasks_parallel(str_v s);
 
-std::string concat_span(const std::string &fr, const std::string &to);
-const std::string concat_week_files(std::vector<std::string> &fpaths,
-                                    const std::string &fr, const std::string &to);
-std::vector<std::string> dates_of_week(const std::string &date_str);
-std::string filter_find(const std::string &s, const std::string &reinput);
+str_t concat_span(str_v fr, str_v to);
+str_t concat_week_files(vec_str_t &fpaths, str_v fr, str_v to);
+vec_str_t dates_of_week(str_v date_str);
+str_t filter_find(str_v s, str_v reinput);
 
-std::vector<std::string> get_all_files_recursive(const std::filesystem::path &path);
-std::vector<std::string> find_week_files(const std::string &pmatch);
-std::vector<std::string> find_week_files_in_span(const std::string &fr, const std::string &to);
+auto get_all_files_recursive(fs::path const &path);
+auto find_week_files(str_v pmatch) -> vec_str_t;
+auto find_week_files_in_span(str_v fr, str_v to);
 
-std::string week_file_name(const std::string &date_str);
-std::string find_week_file_by_date(const std::string &date_str);
-std::string find_last_week_file();
+str_t week_file_name(str_v date_str);
+str_t find_week_file_by_date(str_v date_str);
+str_t find_last_week_file();
 
-bool remove_lines_after_date (std::string &s, const std::string &date_str);
-bool remove_lines_before_date(std::string &s, const std::string &date_str);
+bool remove_lines_after_date (str_t &s, str_v date_str);
+bool remove_lines_before_date(str_t &s, str_v date_str);
 
-#endif // ATTILA_HPP
+} // namespace wndx

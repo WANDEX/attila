@@ -1,33 +1,39 @@
-#ifndef MAINWINDOW_HPP
-#define MAINWINDOW_HPP
+#pragma once
 
-#include <QMainWindow>
-#include <QDebug>
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
 
-#include <QDate>
-#include <QFutureWatcher>
-#include <QRegularExpression>
-#include <QTimer>
+#include "aliases.hpp"
 
-#include <QLineEdit>
-#include <QCheckBox>
-
-#include "structs.hpp" // ss namespace with struct defs
+#include "structs.hpp"          // ss namespace with struct defs
 #include "stats.hpp"
 #include "attila.hpp"
-#include "keys.hpp"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include <QCheckBox>
+#include <QDate>
+#include <QDebug>
+#include <QFutureWatcher>
+#include <QLineEdit>
+#include <QMainWindow>
+#include <QRegularExpression>
+#include <QScopedPointer>
+#include <QTimer>
+
+
+namespace wndx {
+
+class Keys;
+// namespace Ui { class MainWindow; }
+
+// namespace Ui {
+//     class MainWindow: public Ui_MainWindow {};
+// } // namespace Ui
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    virtual ~MainWindow();
 
 signals:
     void analyzeTasksSignal(const QString &txt);
@@ -54,6 +60,8 @@ private:
 private:
     Ui::MainWindow  *ui;
     class Keys      *ks;
+    // QScopedPointer<Ui::MainWindow> ui;
+    // QScopedPointer<Keys> ks;
 
     QLineEdit  *fin;
     QString     fin_ss_def;
@@ -73,4 +81,5 @@ private:
     ss::vtasks_t vtt_merged;
     QFutureWatcher<ss::vtasks_t> vtt_watcher;
 };
-#endif // MAINWINDOW_HPP
+
+} // namespace wndx
