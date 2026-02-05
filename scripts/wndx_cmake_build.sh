@@ -24,8 +24,8 @@ set -e
 ## "OPTION DEFAULTS" - project specific, they may be changed between the projects freely.
 ## In other cases, version should be bumped, then updated script must be propagated
 ## to older versions of the script and changes must be merged except "OPTION DEFAULTS".
-VERSION="1.0.0"
-VERSION_DATE="2025-10-29" # update at each VERSION bump
+VERSION="1.0.1"
+VERSION_DATE="2026-02-05" # update at each VERSION bump
 
 bname=$(basename "$0")
 USAGE="\
@@ -369,7 +369,7 @@ if [ "$RUN_TESTS" = 1 ]; then
       printe "%s\n^ %s\n" "$gtest_binary" "File not found or not executable, exit."
       exit 5
     fi
-    "$gtest_binary" --gtests_filter="$TESTS_FILTER"
+    "$gtest_binary" --gtest_filter="$TESTS_FILTER"
   ;;
   esac
 fi
