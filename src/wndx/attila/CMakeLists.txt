@@ -1,57 +1,72 @@
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON) # XXX
+## AUTHOR: 'WANDEX/attila'
+## Cmake conf which uses modern cmake targets approach & per target properties.
+## Compiles target which uses Qt sources as separate static library.
+##
+## Per target properties:
+## AUTOMOC, AUTOUIC instead of obsolete & de facto standard approach.
+## Old approach used by nearly everyone across the web is obsolete:
+##  1. Pollutes build directory.
+##  2. Increases build times as unneeded properties are added to all targets.
+##  3. Which leads to excessive/unneeded code generation by the Qt framework.
 
-# include_directories(/home/wndx/source/projects/attila/build/unix_makefiles/x86_64-gcc-debug/src/wndx/attila/attila_app_autogen/include) # XXX ui_mainwindow.h
+## cmake-properties(7)
+## cmake-qt(7): /AUTOUIC -- Multi-Config "include_<CONFIG>", otherwise "include".
+# set(ATTILA_INC_DIR_NAME $<IF:$<BOOL:$<CONFIG>>,include_${CMAKE_BUILD_TYPE},include>)
+# set(ATTILA_INC_DIR_NAME $<IF:$<BOOL:$<CONFIG>>,include_$<CONFIG>,include>)
+# set(ATTILA_AUTOGEN_INC  "${AUTOGEN_BUILD_DIR}/${ATTILA_INC_DIR_NAME}")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
-set(ATTILA_SOURCES "")
-list(APPEND ATTILA_SOURCES
-  action.cpp
-  action.hpp
-  attila.cpp
-  attila.hpp
-  keys.cpp
-  keys.hpp
-  mainwindow.cpp
-  mainwindow.hpp
-  stats.cpp
-  stats.hpp
-  str.cpp
-  str.hpp
-  structs.hpp
-)
-
+target_link_libraries(attila_deps PUBLIC Qt6::Core Qt6::Widgets)
 
 set(ATTILA_UI_FILES mainwindow.ui)
-# qt_wrap_ui(ATTILA_UI_HEADERS ${ATTILA_UI_FILES}) # XXX: without this ui_mainwindow.h is not generated!
-if(NOT ATTILA_UI_HEADERS)
-  list(APPEND ATTILA_UI_HEADERS ${ATTILA_UI_FILES})
-endif()
 
-set(ATTILA_AUTOGEN_INC ${CMAKE_CURRENT_BINARY_DIR}/src/wndx/attila/attila_app_autogen/include)
+## sources which use Qt headers & headers generated from .ui files
+add_library(attila_wdgt STATIC)
+target_compile_features(attila_wdgt PRIVATE cxx_std_20)
+target_sources(attila_wdgt
+  PUBLIC FILE_SET headers_attila_wdgt TYPE HEADERS FILES
+    ui.hpp
+    action.hpp
+    keys.hpp
+    mainwindow.hpp
+  PRIVATE
+    ${ATTILA_UI_FILES} # adding them here triggers AUTOUIC
+    ui.cpp             # include implementation here
+    action.cpp
+    keys.cpp
+    mainwindow.cpp
+)
+# target_link_libraries(attila_wdgt PRIVATE attila_dev) # uncomment & FIXME
+target_link_libraries(attila_wdgt PRIVATE attila_deps)
 
-if(FALSE)
-  ## XXX: if enabled cannot find ui_mainwindow.h
-  target_include_directories(attila_src PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-  # target_include_directories(attila_src PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # XXX: fixes?
-  # target_include_directories(attila_src PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/src/wndx/attila) # XXX: fixes?
-  target_include_directories(attila_app PUBLIC ${ATTILA_AUTOGEN_INC}) # XXX ui_mainwindow.h
-  target_sources(attila_src PUBLIC ${ATTILA_SOURCES} ${ATTILA_UI_HEADERS}) # XXX: PRIVATE or PUBLIC?
-  ## XXX: qt_add_ui() not works on my target?
-  # qt_add_ui(attila_src INCLUDE_PREFIX "src/wndx/attila" SOURCES mainwindow.ui)
-  # qt_add_ui(attila_src INCLUDE_PREFIX "src/wndx/attila" SOURCES ${ATTILA_UI_HEADERS})
-  # qt_add_ui(attila_src SOURCES mainwindow.ui) # XXX
-endif()
+set_target_properties(attila_wdgt PROPERTIES
+  AUTOMOC ON # => Q_OBJECT
+  AUTOUIC ON # => find -> generate: *.ui -> ui_*.h
+  # AUTORCC ON
+  # AUTOGEN_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/attila_wdgt_autogen"
+  LINKER_LANGUAGE CXX
+)
 
-qt_add_executable(attila_app ${ATTILA_SOURCES} ${ATTILA_UI_HEADERS} main.cpp)
-# target_include_directories(attila_app PUBLIC /home/wndx/source/projects/attila/build/unix_makefiles/x86_64-gcc-debug/src/wndx/attila/attila_app_autogen/include) # XXX  ui_mainwindow.h
-target_include_directories(attila_app PUBLIC ${ATTILA_AUTOGEN_INC}) # XXX ui_mainwindow.h
-# qt_add_ui(attila_app SOURCES ${ATTILA_UI_HEADERS})
+## sources which do NOT use Qt headers
+target_sources(attila_src
+  PUBLIC FILE_SET headers_attila_src TYPE HEADERS FILES
+    attila.hpp
+    stats.hpp
+    str.hpp
+    structs.hpp
+  PUBLIC # => sources also needed in attila_wdgt!
+    attila.cpp
+    stats.cpp
+    str.cpp
+)
+
+add_executable(attila_app main.cpp)
+target_compile_features(attila_app PRIVATE cxx_std_20)
+target_link_libraries(attila_app PRIVATE attila_src)
+# target_link_libraries(attila_app PRIVATE attila_dev) # uncomment & FIXME
+target_link_libraries(attila_app PRIVATE attila_wdgt)
 target_link_libraries(attila_app PRIVATE attila_deps)
-target_link_libraries(attila_app PRIVATE Qt6::Core Qt6::Widgets)
 
 set_target_properties(attila_app PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER org.wndx.attila

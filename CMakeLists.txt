@@ -57,7 +57,6 @@ function(targets_and_linking)
   if(ATTILA_BUILD_SRC OR NOT ATTILA_IS_TOP_PROJECT)
     ## find/fetch dependecies:
     find_package(fmt REQUIRED)
-    find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
     add_subdirectory(src/wndx/attila)
   endif()
 endfunction(targets_and_linking)
