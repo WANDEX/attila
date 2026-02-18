@@ -1,19 +1,20 @@
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
-
 #include "keys.hpp"
 
 #include "action.hpp"
 
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+
+#include <QDebug>
+
 namespace wndx {
 
-Keys::Keys(QObject *mwi, Ui::MainWindow *mwui)
-// Keys::Keys(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui)
-    : QObject(mwi)
-    , ui(mwui)
-    , mw(mwi)
-    , act(new Action(this, ui)) // Action class instance
+Keys::Keys(QObject *window, Ui::MainWindow &ui)
+    : QObject(window)
+    , mw(window)
+    , ui(ui)
+    , act(new Action(this, ui))
 {
-    Keys::hotkeys(); // bind hotkeys
+    this->hotkeys(); // bind hotkeys
 }
 
 Keys::~Keys()
@@ -25,16 +26,16 @@ Keys::~Keys()
  */
 void Keys::scroll()
 {
-    switch (ui->tabWidget->currentIndex()) {
+    switch (ui.tabWidget->currentIndex()) {
     case 0:
-        sobj = ui->previewText;
+        sobj = ui.previewText;
         break;
     case 1:
-        sobj = ui->spentText;
+        sobj = ui.spentText;
         break;
     default:
         qDebug() << "Tab without scroll shortcut! index:"
-                 << ui->tabWidget->currentIndex();
+                 << ui.tabWidget->currentIndex();
         return;
     }
 

@@ -1,22 +1,18 @@
 #pragma once
 
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+#include "ui.hpp"
 
 #include "aliases.hpp"
 
 #include <QObject>
-#include <QScopedPointer>
 
 namespace wndx {
-
-// namespace Ui { class MainWindow; }
 
 class Action : public QObject
 {
     Q_OBJECT
 public:
-    explicit Action(QObject *mwi, Ui::MainWindow *mwui);
-    // explicit Action(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui);
+    explicit Action(QObject *mwi, Ui::MainWindow &mwui);
     virtual ~Action();
 
 private:
@@ -32,8 +28,7 @@ public slots:
     void toggle_merge();
 
 private:
-    Ui::MainWindow *ui;
-    // QScopedPointer<Ui::MainWindow> ui;
+    Ui::MainWindow &ui;
 };
 
 } // namespace wndx

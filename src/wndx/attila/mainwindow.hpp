@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+#include "ui.hpp"
 
 #include "aliases.hpp"
 
@@ -14,19 +14,14 @@
 #include <QFutureWatcher>
 #include <QLineEdit>
 #include <QMainWindow>
+#include <QObject>
 #include <QRegularExpression>
 #include <QScopedPointer>
 #include <QTimer>
 
-
 namespace wndx {
 
 class Keys;
-// namespace Ui { class MainWindow; }
-
-// namespace Ui {
-//     class MainWindow: public Ui_MainWindow {};
-// } // namespace Ui
 
 class MainWindow : public QMainWindow
 {
@@ -58,10 +53,8 @@ private:
     void updateStats(const ss::vtasks_t &vtt);
 
 private:
-    Ui::MainWindow  *ui;
-    class Keys      *ks;
-    // QScopedPointer<Ui::MainWindow> ui;
-    // QScopedPointer<Keys> ks;
+    ui::MainWindow &ui_self;
+    Ui::MainWindow &ui;
 
     QLineEdit  *fin;
     QString     fin_ss_def;

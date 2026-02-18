@@ -1,10 +1,9 @@
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
-
 #include "mainwindow.hpp"
 
-#include "keys.hpp"
 #include "stats.hpp"
 #include "str.hpp"              // str namespace
+
+#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
 
 #include <QtConcurrent/QtConcurrent>
 
@@ -12,28 +11,27 @@ namespace wndx {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    // , ks(new Keys(this, ui->data())) // init Keys class & bind hotkeys
-    , ks(new Keys(this, ui)) // init Keys class & bind hotkeys
+    , ui_self(ui::MainWindow(this).self_r())
+    , ui(ui_self.ref())
 {
-    ui->setupUi(this);
+    ui.setupUi(this);
     // before signal/slot connections
-    setLastWeekSpan(); // NOTE: here to avoid calling multiple times - date span changed
+    setLastWeekSpan();
 
     typingTimer = new QTimer(this);
     typingTimer->setSingleShot(true); // timer will fire only once after it was started
 
     // filter only after the user has stopped typing for at least a short time (filter as you type)
-    connect(ui->filterInput, &QLineEdit::textChanged, this, [&](){ typingTimer->start(300); });
-    connect(typingTimer,     &QTimer::timeout,        this, &MainWindow::filterChanged);
+    connect(ui.filterInput, &QLineEdit::textChanged, this, [&](){ typingTimer->start(300); });
+    connect(typingTimer,    &QTimer::timeout,        this, &MainWindow::filterChanged);
 
-    connect(ui->dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
-    connect(ui->dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
+    connect(ui.dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
+    connect(ui.dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
 
-    connect(ui->checkBoxMerge, &QCheckBox::checkStateChanged, this, &MainWindow::mergeToggle);
+    connect(ui.checkBoxMerge, &QCheckBox::checkStateChanged, this, &MainWindow::mergeToggle);
 
     // parallel analysis of tasks in the background (non-blocking behavior)
-    connect(this, &MainWindow::analyzeTasksSignal, this, &MainWindow::analyzeTasksStarted);
+    connect(this,         &MainWindow::analyzeTasksSignal,         this, &MainWindow::analyzeTasksStarted);
     connect(&vtt_watcher, &QFutureWatcher<ss::vtasks_t>::finished, this, &MainWindow::analyzeTasksFinished);
 
     // at the end - after signal/slot connections
@@ -42,8 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete ks;
+    delete typingTimer;
+    // ui_self.cleanup(); // FIXME: causes Segmentation fault at exit.
 }
 
 /**
@@ -60,7 +58,7 @@ void MainWindow::pts(const QString msg="")
 
 void MainWindow::stylesDefaults()
 {
-    fin = ui->filterInput;
+    fin = ui.filterInput;
     fin_ss_def = "QLineEdit{ color: white; }\nQLineEdit[text=\"\"]{ color: gray; }";
     fin->setStyleSheet(fin_ss_def); // fix: override placeholderText color by gray
 }
@@ -70,18 +68,18 @@ void MainWindow::stylesDefaults()
  */
 void MainWindow::setTabbingOrder()
 {
-    QWidget::setTabOrder(fin, ui->dateFr);
-    QWidget::setTabOrder(ui->dateFr, ui->dateTo);
-    QWidget::setTabOrder(ui->dateTo, ui->scrollArea);
-    QWidget::setTabOrder(ui->scrollArea, ui->scrollAreaWidgetContents);
+    QWidget::setTabOrder(fin, ui.dateFr);
+    QWidget::setTabOrder(ui.dateFr, ui.dateTo);
+    QWidget::setTabOrder(ui.dateTo, ui.scrollArea);
+    QWidget::setTabOrder(ui.scrollArea, ui.scrollAreaWidgetContents);
 }
 
 void MainWindow::setLastWeekSpan()
 {
     date_to = QDate::currentDate();
     date_fr = date_to.addDays(1-date_to.dayOfWeek()); // monday
-    ui->dateFr->setDate(date_fr);
-    ui->dateTo->setDate(date_to);
+    ui.dateFr->setDate(date_fr);
+    ui.dateTo->setDate(date_to);
 }
 
 void MainWindow::startup()
@@ -93,7 +91,7 @@ void MainWindow::startup()
 
 void MainWindow::setTxt(const QString &txt)
 {
-    ui->previewText->setPlainText(txt);
+    ui.previewText->setPlainText(txt);
     qDebug() << "New text was set!";
     emit analyzeTasksSignal(txt);
 }
@@ -105,11 +103,11 @@ void MainWindow::updateStats(const ss::vtasks_t &vtt)
 {
     const ss::stats_t     stats = calculate_stats(vtt);
     const ss::stats_human_t hum = calculate_stats_human(stats);
-    ui->statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
-    ui->statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
-    ui->statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
-    ui->statsSum->setPlainText("sum: " + QString::fromStdString(hum.sum));
-    ui->statsRec->setPlainText("rec: " + QString::number(hum.nrecords));
+    ui.statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
+    ui.statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
+    ui.statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
+    ui.statsSum->setPlainText("sum: " + QString::fromStdString(hum.sum));
+    ui.statsRec->setPlainText("rec: " + QString::number(hum.nrecords));
     pts("[TASKS ANALYZING] stats are set!");
 }
 
@@ -120,10 +118,10 @@ void MainWindow::mergeToggle(int state)
         return;
     }
     if (state) {
-        ui->spentText->setPlainText(TXT_MERGED);
+        ui.spentText->setPlainText(TXT_MERGED);
         MainWindow::updateStats(vtt_merged);
     } else {
-        ui->spentText->setPlainText(TXT_SPENT);
+        ui.spentText->setPlainText(TXT_SPENT);
         MainWindow::updateStats(vtt);
     }
 }
@@ -141,7 +139,7 @@ void MainWindow::merge()
     TXT_MERGED = QString::fromStdString(merged.second);
     pts("[TASKS ANALYZING] merge finished!");
     // update stats & spent text according to the state of the checkbox
-    MainWindow::mergeToggle(ui->checkBoxMerge->isChecked());
+    MainWindow::mergeToggle(ui.checkBoxMerge->isChecked());
 }
 
 void MainWindow::analyzeTasksStarted(const QString &txt)
@@ -157,15 +155,15 @@ void MainWindow::analyzeTasksFinished()
     pts("[TASKS ANALYZING] finished");
     vtt = vtt_watcher.result();
     TXT_SPENT = QString::fromStdString(str::tasks_to_mulstr(vtt));
-    ui->spentText->setPlainText(TXT_SPENT);
+    ui.spentText->setPlainText(TXT_SPENT);
     pts("[TASKS ANALYZING] spent text is set!");
     MainWindow::merge();
 }
 
 void MainWindow::dateSpanChanged()
 {
-    date_fr = ui->dateFr->date();
-    date_to = ui->dateTo->date();
+    date_fr = ui.dateFr->date();
+    date_to = ui.dateTo->date();
     if (!date_fr.isValid() || !date_to.isValid()) {
         qDebug() << "Not valid date, processing was skipped.";
         return;

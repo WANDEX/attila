@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+#include "ui.hpp"
 
 #include "aliases.hpp"
 
@@ -15,14 +15,12 @@
 namespace wndx {
 
 class Action;
-// namespace Ui { class MainWindow; }
 
 class Keys : public QObject
 {
     Q_OBJECT
 public:
-    explicit Keys(QObject *mwi, Ui::MainWindow *mwui);
-    // explicit Keys(QObject *mwi, QScopedPointer<Ui::MainWindow> mwui);
+    explicit Keys(QObject *mwi, Ui::MainWindow &mwui);
     virtual ~Keys();
 
 private:
@@ -38,13 +36,9 @@ private slots:
     void scroll();
 
 private:
-    Ui::MainWindow *ui;
-    // QScopedPointer<Ui::MainWindow> ui;
-    QObject        *mw;
+    Ui::MainWindow &ui;
     Action         *act;
-
-    // QScopedPointer<QObject> mw;
-    // QScopedPointer<Action> act;
+    QObject        *mw;
 
     QPlainTextEdit *sobj;
     QScrollBar     *vsbar;
