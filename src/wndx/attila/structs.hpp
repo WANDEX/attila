@@ -1,6 +1,6 @@
 #pragma once
 
-#include "aliases.hpp"
+#include "wndx/attila/aliases.hpp"
 
 #include <atomic>               // atomic, fetch_add
 #include <ctime>                // std::time_t

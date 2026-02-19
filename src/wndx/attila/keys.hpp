@@ -2,7 +2,7 @@
 
 #include "ui.hpp"
 
-#include "aliases.hpp"
+#include "wndx/attila/aliases.hpp"
 
 #include <QKeySequence>
 #include <QObject>
