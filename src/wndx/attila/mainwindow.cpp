@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete typingTimer;
-    // ui_self.cleanup(); // FIXME: causes Segmentation fault at exit.
+    // ui_self.cleanup(); // FIXME: causes Segmentation fault at exit!
 }
 
 /**
