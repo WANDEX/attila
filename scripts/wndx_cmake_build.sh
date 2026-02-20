@@ -24,8 +24,8 @@ set -e
 ## "OPTION DEFAULTS" - project specific, they may be changed between the projects freely.
 ## In other cases, version should be bumped, then updated script must be propagated
 ## to older versions of the script and changes must be merged except "OPTION DEFAULTS".
-VERSION="1.0.1"
-VERSION_DATE="2026-02-05" # update at each VERSION bump
+VERSION="1.0.2"
+VERSION_DATE="2026-02-20" # update at each VERSION bump
 
 bname=$(basename "$0")
 USAGE="\
@@ -172,6 +172,7 @@ pre_configure() {
   ## source and build dirs provided as the relative paths
   _sdir="."
   _bdir="$BUILD_DIR"
+  prefix_deploy="$(pwd)/$BUILD_DIR/deploy" # must be an absolute path for Qt deploy etc.
   if [ "$REL" = 1 ]; then
     cd "$BUILD_DIR" || exit 11
     pwd # cd - cmd visual feedback about internal behavior
@@ -381,7 +382,8 @@ fi
 
 if [ "$DEPLOY" = 1 ]; then
   vsep "DEPLOY" "${MAG}"
-  "$CMAKE" --install "$_bdir" --config "$BUILD_TYPE" --prefix "$_bdir/deploy"
+  printe "%s %s\n" "--prefix" "$prefix_deploy"
+  "$CMAKE" --install "$_bdir" --config "$BUILD_TYPE" --prefix "$prefix_deploy"
 fi
 
 vsep   "COMPLETED" "${GRN}"
