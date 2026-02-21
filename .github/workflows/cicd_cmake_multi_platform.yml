@@ -228,6 +228,7 @@ jobs:
 
     ## install libc6-dbg and/or use previously installed files from cache.
     ## LD_LIBRARY_PATH cannot be set in github workflow, thus manual copy to the system lib dir.
+    ## update -> https://github.com/actions/runner/issues/3720
     - name: get/install valgrind deps
       if  : ${{ runner.os == 'Linux' }}
       working-directory: ${{ github.workspace }}
@@ -235,6 +236,7 @@ jobs:
         lib_debug_usr="/usr/lib/debug"
         lib_debug_lcl="${{ steps.str1.outputs.dir_cache_local }}/lib/debug"
         if [ ! -d "$lib_debug_usr" ] && [ ! -d "$lib_debug_lcl" ]; then
+          sudo apt-get update
           sudo apt-get install libc6-dbg
         fi
         if [   -d "$lib_debug_usr" ] && [ ! -d "$lib_debug_lcl" ]; then
