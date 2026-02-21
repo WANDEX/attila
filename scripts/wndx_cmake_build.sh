@@ -24,8 +24,8 @@ set -e
 ## "OPTION DEFAULTS" - project specific, they may be changed between the projects freely.
 ## In other cases, version should be bumped, then updated script must be propagated
 ## to older versions of the script and changes must be merged except "OPTION DEFAULTS".
-VERSION="1.0.2"
-VERSION_DATE="2026-02-20" # update at each VERSION bump
+VERSION="1.1.0"
+VERSION_DATE="2026-02-21" # update at each VERSION bump
 
 bname=$(basename "$0")
 USAGE="\
@@ -38,15 +38,19 @@ OPTIONS
     -h, --help                print help
     -v, --version             print version
 POSITIONAL
-    c , clean  , --clean
-    cc, cleaner, --cleaner
+    x  , x_cache , --x_cache  rm CMakeCache.txt with cached variables
+    c  , clean   , --clean    built-in cmake clean build
+    cc , cleaner , --cleaner  built-in cmake clean configure & build
+    ccc, cleanest, --cleanest rm build dir & build from scratch
     ctest, ct, ctp, ctr       (optional) arg - filter regex    (default: '.*')
     gtest, gt                 (optional) arg - filter wildcard (default:  '*')
                               special chars (:,*,?,-), ':' separator, '-' negative
 EXAMPLES
+./scripts/$bname
+./scripts/$bname x
+./scripts/$bname x c
 ./scripts/$bname c ct
 ./scripts/$bname c gt *
-./scripts/$bname
 # ====== build & run tests:
 ./scripts/$bname ctest
 # ====== make clean build & run tests:
@@ -160,12 +164,21 @@ pre_configure() {
   ## cmake clean options
   _fresh=""
   _clean_first=""
+  ## x_cache - rm CMakeCache.txt with cached variables.
+  if [ "$RM_CMAKECACHE" = 1 ]; then
+    [ -f "$BUILD_DIR/CMakeCache.txt" ] && rm -f "$BUILD_DIR/CMakeCache.txt"
+  fi
+  ## clean - built-in cmake clean build step.
   if [ "$CLEAN" = 1 ]; then
+    _clean_first="--clean-first"
+  fi
+  ## cleaner - build using built-in cmake clean options, for both: configure & build step.
+  if [ "$CLEANER" = 1 ]; then
     _fresh="--fresh"
     _clean_first="--clean-first"
   fi
-  ## cleaner is a heavy artillery - for edge cases!
-  if [ "$CLEANER" = 1 ]; then
+  ## cleanest - wipe whole build dir, build from scratch.
+  if [ "$CLEANEST" = 1 ]; then
     [ -d "$BUILD_DIR" ] && rm -rf "$BUILD_DIR"
   fi
   [ -d "$BUILD_DIR" ] || mkdir -p "$BUILD_DIR"
@@ -208,12 +221,20 @@ trailing_args() {
       case "$arg_type" in gtest|gt) TESTS_FILTER='*' ;; esac # gtest - default wildcard
       continue
     ;;
+    cleanest|ccc)
+      CLEANEST=1
+      continue
+    ;;
     cleaner|cc)
       CLEANER=1
       continue
     ;;
     clean|c)
       CLEAN=1
+      continue
+    ;;
+    x_cache|x)
+      RM_CMAKECACHE=1
       continue
     ;;
     *)
@@ -226,14 +247,15 @@ trailing_args() {
   set +o noglob # restore - enable (wildcard expansion)
   IFS="$OLDIFS" # restore
   if [ $_dbg_trailing_args = 1 ]; then
-    printe "CLEAN=$CLEAN CLEANER=$CLEANER RUN_TESTS_TYPE=$RUN_TESTS_TYPE TESTS_FILTER=$TESTS_FILTER"
+    printe "CLEAN=$CLEAN CLEANER=$CLEANER CLEANEST=$CLEANEST"
+    printe "RUN_TESTS_TYPE=$RUN_TESTS_TYPE TESTS_FILTER=$TESTS_FILTER"
   fi
 }
 
 get_opt() {
   ## Parse and read OPTIONS command-line options
   SHORT=D:hv
-  LONG=clean,cleaner,get_build_dir,get_project_name,get_project_name_upper,help,version
+  LONG=x_cache,clean,cleaner,cleanest,get_build_dir,get_project_name,get_project_name_upper,help,version
   OPTIONS=$(getopt --options $SHORT --long $LONG --name "$0" -- "$@")
   ## PLACE FOR OPTION DEFAULTS BEG
   BUILD_TYPE="${BUILD_TYPE:-Debug}"
@@ -244,8 +266,10 @@ get_opt() {
   DEPLOY="${DEPLOY:-0}"
   REL="${REL:-0}"
   ##
+  RM_CMAKECACHE=0
   CLEAN=0
   CLEANER=0
+  CLEANEST=0
   ##
   RUN_TESTS=0
   RUN_TESTS_TYPE=''
@@ -284,11 +308,17 @@ get_opt() {
   eval set -- "$OPTIONS"
   while true; do
     case "$1" in
+    --x_cache)
+      RM_CMAKECACHE=1
+    ;;
     --clean)
       CLEAN=1
     ;;
     --cleaner)
       CLEANER=1
+    ;;
+    --cleanest)
+      CLEANEST=1
     ;;
     -D)
       shift
