@@ -192,10 +192,15 @@ jobs:
       if  : ${{ runner.os == 'Windows' && matrix.pl == 'windows-2022' }}
       uses: Cyberboss/install-winget@v1
 
+      ## https://github.com/microsoft/winget-cli/issues/2879#issuecomment-1411114420
+      ## $ winget settings --enable BypassCertificatePinningForMicrosoftStore
+      ## $ winget settings export
     - name: get/install WingetPathUpdater
       if  : ${{ runner.os == 'Windows' }}
       working-directory: ${{ github.workspace }}
-      run : winget install jazzdelightsme.WingetPathUpdater --disable-interactivity --accept-source-agreements
+      run : |
+        winget upgrade winget --accept-package-agreements --disable-interactivity --accept-source-agreements
+        winget install jazzdelightsme.WingetPathUpdater --disable-interactivity --accept-source-agreements
 
     - name: install drmemory
       if  : ${{ runner.os == 'Windows' }}
