@@ -15,14 +15,14 @@
 # set(ATTILA_INC_DIR_NAME $<IF:$<BOOL:$<CONFIG>>,include_$<CONFIG>,include>)
 # set(ATTILA_AUTOGEN_INC  "${AUTOGEN_BUILD_DIR}/${ATTILA_INC_DIR_NAME}")
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+# find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 target_link_libraries(attila_deps PUBLIC Qt6::Core Qt6::Widgets)
 
 set(ATTILA_UI_FILES mainwindow.ui)
 
 ## sources which use Qt headers & headers generated from .ui files
-add_library(attila_wdgt STATIC)
+qt_add_library(attila_wdgt STATIC)
 target_compile_features(attila_wdgt PRIVATE cxx_std_20)
 target_sources(attila_wdgt
   PUBLIC FILE_SET headers_attila_wdgt TYPE HEADERS FILES
@@ -61,12 +61,11 @@ target_sources(attila_src
     str.cpp
 )
 
-add_executable(attila_app main.cpp)
+qt_add_executable(attila_app main.cpp)
 target_compile_features(attila_app PRIVATE cxx_std_20)
 target_link_libraries(attila_app PRIVATE attila_src)
 # target_link_libraries(attila_app PRIVATE attila_dev) # uncomment & FIXME
 target_link_libraries(attila_app PRIVATE attila_wdgt)
-target_link_libraries(attila_app PRIVATE attila_deps)
 
 set_target_properties(attila_app PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER org.wndx.attila
