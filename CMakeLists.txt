@@ -152,17 +152,14 @@ if(ATTILA_INSTALL_ENABLE)
   endif()
   include(wndx_sane_install)
   wndx_sane_install(
-    TARGETS
-      attila_app
+    TARGETS attila_app
     PHD "include/wndx/attila"
     PATTERNS "*.hpp"
   )
   include(InstallRequiredSystemLibraries)
   if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP)
     ## install minimum required set of libs
-    install(TARGETS attila_app RUNTIME_DEPENDENCIES
-      LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-    )
+    install(TARGETS attila_app RUNTIME_DEPENDENCIES)
   else()
     ## BUG? - not respects CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP
     ## for some reason, no matter what, it installs more system libs than used.
