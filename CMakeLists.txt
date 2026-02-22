@@ -155,12 +155,11 @@ if(ATTILA_INSTALL_ENABLE)
     TARGETS attila_app
     PHD "include/wndx/attila"
     PATTERNS "*.hpp"
-  )
-  include(InstallRequiredSystemLibraries)
-  if(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP)
-    ## install minimum required set of libs
-    install(TARGETS attila_app RUNTIME_DEPENDENCIES)
-  else()
+    NAMESPACE wndx::
+    RUNTIME_DEPENDENCIES
+  ) # ^--install required set of libs vs v--install max amount of system libs.
+  if(DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP AND
+         NOT CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP)
     ## BUG? - not respects CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP
     ## for some reason, no matter what, it installs more system libs than used.
     if(${QT_VERSION} VERSION_GREATER_EQUAL 6.3)

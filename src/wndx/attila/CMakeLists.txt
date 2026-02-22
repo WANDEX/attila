@@ -16,29 +16,43 @@
 # set(ATTILA_AUTOGEN_INC  "${AUTOGEN_BUILD_DIR}/${ATTILA_INC_DIR_NAME}")
 
 # find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+# find_package(QT NAMES Qt6) # => populate QT_VERSION variables!
 
 target_link_libraries(attila_deps PUBLIC Qt6::Core Qt6::Widgets)
+
+## sources which do NOT use Qt headers
+add_library(attila_common OBJECT)
+target_sources(attila_common
+  PUBLIC FILE_SET headers TYPE HEADERS FILES
+    structs.hpp
+    str.hpp
+    stats.hpp
+    attila.hpp
+  PRIVATE
+    str.cpp
+    stats.cpp
+    attila.cpp
+)
+target_link_libraries(attila_common PRIVATE attila_src)
 
 set(ATTILA_UI_FILES mainwindow.ui)
 
 ## sources which use Qt headers & headers generated from .ui files
 qt_add_library(attila_wdgt STATIC)
-target_compile_features(attila_wdgt PRIVATE cxx_std_20)
 target_sources(attila_wdgt
-  PUBLIC FILE_SET headers_attila_wdgt TYPE HEADERS FILES
+  PUBLIC FILE_SET headers TYPE HEADERS FILES
     ui.hpp
     action.hpp
     keys.hpp
     mainwindow.hpp
   PRIVATE
     ${ATTILA_UI_FILES} # adding them here triggers AUTOUIC
-    ui.cpp             # include implementation here
+    ui.cpp
     action.cpp
     keys.cpp
     mainwindow.cpp
 )
-# target_link_libraries(attila_wdgt PRIVATE attila_dev) # uncomment & FIXME
-target_link_libraries(attila_wdgt PRIVATE attila_deps)
+target_link_libraries(attila_wdgt PRIVATE attila_common attila_deps)
 
 set_target_properties(attila_wdgt PROPERTIES
   AUTOMOC ON # => Q_OBJECT
@@ -48,24 +62,9 @@ set_target_properties(attila_wdgt PROPERTIES
   LINKER_LANGUAGE CXX
 )
 
-## sources which do NOT use Qt headers
-target_sources(attila_src
-  PUBLIC FILE_SET headers_attila_src TYPE HEADERS FILES
-    attila.hpp
-    stats.hpp
-    str.hpp
-    structs.hpp
-  PUBLIC # => sources also needed in attila_wdgt!
-    attila.cpp
-    stats.cpp
-    str.cpp
-)
-
 qt_add_executable(attila_app main.cpp)
-target_compile_features(attila_app PRIVATE cxx_std_20)
-target_link_libraries(attila_app PRIVATE attila_src)
+target_link_libraries(attila_app PRIVATE attila_wdgt attila_deps)
 # target_link_libraries(attila_app PRIVATE attila_dev) # uncomment & FIXME
-target_link_libraries(attila_app PRIVATE attila_wdgt)
 
 set_target_properties(attila_app PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER org.wndx.attila

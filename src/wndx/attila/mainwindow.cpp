@@ -1,5 +1,6 @@
 #include "mainwindow.hpp"
 
+#include "attila.hpp"
 #include "stats.hpp"
 #include "str.hpp"              // str namespace
 
