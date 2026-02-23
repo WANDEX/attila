@@ -6,7 +6,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>         // fmt::join
 
-#include <algorithm>
+#include <algorithm>            // ranges::find
 #include <ctime>                // time_t, mktime, difftime
 #include <future>               // async
 #include <iomanip>              // put_time
@@ -16,6 +16,11 @@
 #include <thread>               // hardware_concurrency
 
 namespace wndx {
+
+auto difftime(std::time_t time1, std::time_t time0) -> std::time_t
+{
+    return static_cast<std::time_t>(std::difftime(time1, time0));
+}
 
 std::vector<int> split_vi(str_v s, ch_t delimiter)
 {
@@ -58,7 +63,7 @@ ss::hm_t calculate_time_spent(str_t d_fr, str_t d_to, str_t t_fr, str_t t_to)
     t2.tm_min  = to_res[1];
     std::time_t end = std::mktime(&t2);
 
-    std::time_t diff = std::difftime(end, beg);
+    std::time_t diff = difftime(end, beg);
     if (diff == 0) {
         return { t1, t2, beg, end, 0,
             d_fr, d_to, t_fr, t_to, "00:00"
@@ -69,7 +74,7 @@ ss::hm_t calculate_time_spent(str_t d_fr, str_t d_to, str_t t_fr, str_t t_to)
     if (diff < 1) {
         t2.tm_mday = t2.tm_mday + 1;
         end = std::mktime(&t2);
-        diff = std::difftime(end, beg);
+        diff = difftime(end, beg);
     }
     auto tmp{ str::sec_to_tstr(diff) }; // XXX
     return{ t1, t2, beg, end, diff, d_fr, d_to, t_fr, t_to, tmp };
@@ -91,7 +96,7 @@ ss::hm_t time_spent(str_v s)
     return calculate_time_spent(m[1], m[1], m[2], m[3]);
 }
 
-std::pair<str_t, str_t> dts_and_task(str_v s)
+auto dts_and_task(str_v s) -> std::pair<str_t, str_t>
 {
     std::smatch m;
     str_t const str(s.data(), s.size()); // XXX
@@ -168,12 +173,12 @@ ss::vtasks_t parse_tasks(str_v s)
  */
 ss::vtasks_t parse_tasks_parallel(str_v s)
 {
-    size_t nl = std::count(s.begin(), s.end(), '\n'); // new lines count
-    size_t threads_total = std::thread::hardware_concurrency();
+    size_t nl{ static_cast<size_t>(std::count(s.begin(), s.end(), '\n')) }; // new lines count
+    size_t threads_total{ std::thread::hardware_concurrency() };
     if (threads_total < 2 || nl < 101) { // simple single threaded mode
         return parse_tasks(s);
     }
-    size_t num_threads = threads_total - 1; // -1 thread is essential for the algorithm
+    size_t num_threads{ threads_total - 1 }; // -1 thread is essential for the algorithm
     // fill the lines vector
     str_t line;
     vec_str_t lines;
@@ -182,25 +187,26 @@ ss::vtasks_t parse_tasks_parallel(str_v s)
     while (std::getline(content, line))
         lines.push_back(line);
     // lines per thread (-1 thread) & remainder
-    size_t lpt = nl / num_threads;
-    double lpt_remainder = nl % num_threads;
+    size_t const lpt    { nl / num_threads };
+    size_t const lpt_rem{ nl % num_threads };
     // lambda function for feeding the tasks analyzer
     // with equally distributed chunks-lines of one large text
-    auto parse_tasks_lines = [&](size_t i, bool to_the_end=false) -> ss::vtasks_t {
-        if (to_the_end)
-            return parse_tasks(str::lines_between(lines, lpt*i, -1));
-        else
+    auto parse_tasks_lines = [&](size_t i, bool to_the_end) -> ss::vtasks_t {
+        if (to_the_end) {
+            return parse_tasks(str::lines_between(lines, lpt*i, 0));
+        } else {
             return parse_tasks(str::lines_between(lines, lpt*i, lpt*(i+1)));
+        }
     };
     // vector of futures which will contain vector of task structs
     std::vector<std::future<ss::vtasks_t>> futures;
     for (size_t i = 0; i < num_threads; i++) {
-        futures.insert(futures.begin() + i,
-                std::async(std::launch::async, parse_tasks_lines, i));
+        futures.insert(futures.begin() + static_cast<long>(i),
+                std::async(std::launch::async, parse_tasks_lines, i, false));
     }
     // if has remainder -> process leftover lines on additional (last thread)
-    if (lpt_remainder != 0) {
-        futures.insert(futures.begin() + num_threads,
+    if (lpt_rem != 0) {
+        futures.insert(futures.begin() + static_cast<long>(num_threads),
                 std::async(std::launch::async, parse_tasks_lines, num_threads, true));
     }
     // extend vector with tasks_t vectors got from vector of futures
@@ -218,9 +224,9 @@ auto get_all_files_recursive(fs::path const &path)
     for (const auto& p : fs::recursive_directory_iterator(path)) {
         if (!fs::is_directory(p)) {
 #if 1
-            fs::path path = p.path();
-            // fpaths.push_back(path.u8string());
-            fpaths.push_back(path.string());
+            fs::path fpath = p.path();
+            // fpaths.push_back(fpath.u8string());
+            fpaths.push_back(fpath.string());
 #else
             fpaths.push_back(p.path());
 #endif
@@ -279,7 +285,7 @@ str_t week_file_name(str_v date_str)
     ss >> std::get_time(&tm2, str::datef);
     const std::time_t t = std::mktime(&tm2);
     // if date str > date now => current week fname
-    if (std::difftime(now, t) < 0)
+    if (difftime(now, t) < 0)
         buf << std::put_time(&tm1, wfmt);
     else
         buf << std::put_time(&tm2, wfmt);
@@ -289,28 +295,27 @@ str_t week_file_name(str_v date_str)
 /**
  * vector slice by indexes, like the list slicing in python
  */
-vec_str_t vslice(vec_str_t const &v, int start=0, int end=-1)
+vec_str_t vslice(vec_str_t const &v, sz_t start, sz_t end)
 {
-    int oldlen = v.size();
-    int newlen;
-    if (end == -1 or end >= oldlen) {
+    sz_t oldlen{ v.size() };
+    sz_t newlen;
+    if (end == 0 or end >= oldlen) {
         newlen = oldlen - start;
     } else {
         newlen = end - start;
     }
     vec_str_t nv(newlen);
-    for (int i=0; i<newlen; i++) {
+    for (sz_t i = 0; i < newlen; i++) {
         nv[i] = v[start + i];
     }
     return nv;
 }
 
-int item_index(vec_str_t const &v, str_v item)
+sz_t item_index(vec_str_t const &v, str_v item)
 {
-    auto ret = std::find(v.begin(), v.end(), item);
-    if (ret != v.end())
-        return ret - v.begin();
-    return -1; // return the last element index
+    auto it{ std::ranges::find(v.begin(), v.end(), item) };
+    if (it != v.end()) return static_cast<sz_t>(it - v.begin());
+    return v.size() - 1; // return last element index
 }
 
 str_t find_week_file_by_date(str_v date_str)
@@ -339,7 +344,7 @@ str_t find_week_file_by_date(str_v date_str)
         std::cout << "fake_fname: " << fake_fname << '\n';
 #endif
         // find index of the fake entry & return next week file
-        int index = item_index(fnames, fake_fname);
+        sz_t const index{ item_index(fnames, fake_fname) };
         return fpaths[index];
     }
     return found[0];
@@ -407,10 +412,10 @@ bool remove_lines_before_date(str_t &s, str_v date_str)
     if (str::remove_lines_before(s, date_str, false))
         return true;
 
-    const vec_str_t dates = dates_of_week(date_str);
-    int index = item_index(dates, date_str);
+    vec_str_t const dates{ dates_of_week(date_str) };
+    sz_t const index{  item_index(dates, date_str) };
 
-    for (int i = index; i >= 0; i--) {
+    for (sz_t i = index; i >= 0; i--) {
         if (str::remove_lines_before(s, dates[i], true))
             return true;
     }
@@ -427,10 +432,10 @@ bool remove_lines_after_date(str_t &s, str_v date_str)
     if (str::remove_lines_after(s, date_str, true))
         return true;
 
-    const vec_str_t dates = dates_of_week(date_str);
-    int index = item_index(dates, date_str);
+    vec_str_t const dates{ dates_of_week(date_str) };
+    sz_t const index{  item_index(dates, date_str) };
 
-    for (int i = index; i < dates.size(); i++) {
+    for (sz_t i = index; i < dates.size(); i++) {
         if (str::remove_lines_after(s, dates[i], false))
             return true;
     }
@@ -455,7 +460,7 @@ str_t concat_week_files(vec_str_t &fpaths, str_v fr, str_v to)
     remove_lines_after_date(fcontent_last, to);
     std::ostringstream buf;
     buf << fcontent_first;
-    for (int i = 1; i < fpaths.size() - 1; i++)
+    for (sz_t i = 1; i < fpaths.size() - 1; i++)
         buf << str::file_content(fpaths[i]);
     buf << fcontent_last;
     return str::trim(buf.str());
@@ -463,9 +468,8 @@ str_t concat_week_files(vec_str_t &fpaths, str_v fr, str_v to)
 
 str_t concat_span(str_v fr, str_v to)
 {
-    // FIXME: find_week_files_in_span
-    vec_str_t fpaths = find_week_files_in_span(fr, to);
-    str_t content = concat_week_files(fpaths, fr, to);
+    vec_str_t fpaths{ find_week_files_in_span(fr, to) };
+    str_t  content{ concat_week_files(fpaths, fr, to) };
     return content;
 }
 

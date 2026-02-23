@@ -31,7 +31,7 @@ vector<string> split_on_words(sv_t s);
 
 string file_content(sv_t fpath);
 
-string lines_between(const vector<string> &lines, int beg_nl, int end_nl);
+string lines_between(const vector<string> &lines, sz_t beg_nl, sz_t end_nl);
 
 sz_t          fnl_substr(string &s, sv_t substr, bool including_last);
 bool remove_lines_before(string &s, sv_t substr, bool including_last);

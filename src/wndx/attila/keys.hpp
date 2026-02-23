@@ -36,9 +36,9 @@ private slots:
     void scroll();
 
 private:
+    QObject        *mw;
     Ui::MainWindow &ui;
     Action         *act;
-    QObject        *mw;
 
     QPlainTextEdit *sobj;
     QScrollBar     *vsbar;

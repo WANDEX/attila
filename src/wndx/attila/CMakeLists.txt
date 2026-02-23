@@ -11,12 +11,11 @@
 
 ## cmake-properties(7)
 ## cmake-qt(7): /AUTOUIC -- Multi-Config "include_<CONFIG>", otherwise "include".
-# set(ATTILA_INC_DIR_NAME $<IF:$<BOOL:$<CONFIG>>,include_${CMAKE_BUILD_TYPE},include>)
 # set(ATTILA_INC_DIR_NAME $<IF:$<BOOL:$<CONFIG>>,include_$<CONFIG>,include>)
 # set(ATTILA_AUTOGEN_INC  "${AUTOGEN_BUILD_DIR}/${ATTILA_INC_DIR_NAME}")
 
-# find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
-# find_package(QT NAMES Qt6) # => populate QT_VERSION variables!
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(QT NAMES Qt6) # => populate QT_VERSION variables!
 
 target_link_libraries(attila_deps PUBLIC Qt6::Core Qt6::Widgets)
 
@@ -64,7 +63,6 @@ set_target_properties(attila_wdgt PROPERTIES
 
 qt_add_executable(attila_app main.cpp)
 target_link_libraries(attila_app PRIVATE attila_wdgt attila_deps)
-# target_link_libraries(attila_app PRIVATE attila_dev) # uncomment & FIXME
 
 set_target_properties(attila_app PROPERTIES
   MACOSX_BUNDLE_GUI_IDENTIFIER org.wndx.attila

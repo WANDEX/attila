@@ -100,9 +100,9 @@ void MainWindow::setTxt(const QString &txt)
 /**
  * calculate stats & display in spent tab header
  */
-void MainWindow::updateStats(const ss::vtasks_t &vtt)
+void MainWindow::updateStats(const ss::vtasks_t &vt)
 {
-    const ss::stats_t     stats = calculate_stats(vtt);
+    const ss::stats_t     stats = calculate_stats(vt);
     const ss::stats_human_t hum = calculate_stats_human(stats);
     ui.statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
     ui.statsMax->setPlainText("max: " + QString::fromStdString(hum.max));

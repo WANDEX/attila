@@ -26,7 +26,7 @@ stats_t calculate_stats(const vtasks_t &vtt)
 
     std::size_t sec {0}; // total spent on task in seconds
     for (const auto &t : vtt) {
-        sec = t.hm.diff;
+        sec = static_cast<std::size_t>(t.hm.diff);
         sum += sec;
         if (max < sec)
             max = sec;
@@ -71,7 +71,7 @@ merge_tasks(const vtasks_t &vtt, const str_t &mulstr)
             if (same_text) {
                 // NOTE: set -> since we do not want to insert the same thing more than once
                 subt_t.insert(v[j]);
-                v.erase(v.begin() + j--); // remove by index & decrement index afterwards
+                v.erase(v.begin() + static_cast<long>(j--)); // remove by index & decrement index afterwards
             }
         }
         v.at(i).subt_t.insert(subt_t.begin(), subt_t.end()); // put set of sub tasks as child's

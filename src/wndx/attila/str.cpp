@@ -53,7 +53,7 @@ string sane_getenv(sv_t envar)
         exit(75); // XXX
     }
     // env variable value sanitization
-    int pos = env_var.find(' ');
+    auto const pos{ env_var.find(' ') };
     if (pos != string::npos)
         env_var = env_var.substr(0, pos);
     return env_var;
@@ -92,14 +92,12 @@ string file_content(sv_t fpath)
 /**
  * get slice of multiline string between line numbers
  */
-string lines_between(const vector<string> &lines, int beg_nl=0, int end_nl=-1)
+string lines_between(const vector<string> &lines, sz_t beg_nl, sz_t end_nl)
 {
-    if (beg_nl < 0)
-        beg_nl = 0;
-    if (end_nl == -1 || end_nl > lines.size())
+    if (end_nl == 0 || end_nl > lines.size())
         end_nl = lines.size();
     ostringstream buf;
-    for (int i = beg_nl; i < end_nl; i++)
+    for (sz_t i = beg_nl; i < end_nl; i++)
         buf << lines[i] << '\n';
     return buf.str();
 }
