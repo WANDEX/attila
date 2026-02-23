@@ -5,6 +5,7 @@
 #include <algorithm>            // remove_if etc
 #include <cstdlib>              // getenv
 #include <fstream>
+#include <sstream>              // ostringstream
 
 namespace wndx::str {
 
@@ -13,7 +14,7 @@ using namespace std;
 /**
  * trim whitespace characters from right (also removes blank lines)
  */
-string trim_right(sv_t s)
+str_t trim_right(sv_t s)
 {
     return std::regex_replace(s.data(), regex("\\s+$"), "");
 }
@@ -21,7 +22,7 @@ string trim_right(sv_t s)
 /**
  * trim whitespace characters from left
  */
-string trim_left(sv_t s)
+str_t trim_left(sv_t s)
 {
     return std::regex_replace(s.data(), regex("^\\s+"), "");
 }
@@ -29,14 +30,14 @@ string trim_left(sv_t s)
 /**
  * trim whitespace characters from left & right (also removes blank lines)
  */
-string trim(sv_t s)
+str_t trim(sv_t s)
 {
     return trim_left(trim_right(s));
 }
 
 bool has_substr(sv_t s, sv_t substr)
 {
-    return (s.find(substr) == string::npos) ? false : true;
+    return (s.find(substr) == str_t::npos) ? false : true;
 }
 
 /**
@@ -44,59 +45,57 @@ bool has_substr(sv_t s, sv_t substr)
  *
  * details: https://www.delftstack.com/howto/cpp/cpp-get-environment-variables/
  */
-string sane_getenv(sv_t envar)
+str_t sane_getenv(sv_t envar)
 {
     const char *tmp = getenv(envar.data());
-    string env_var(tmp ? tmp : "");
+    str_t env_var(tmp ? tmp : "");
     if (env_var.empty()) {
         WNDX_LOG(LL::ERRO, "'${}' ENV VAR not found or empty.\n", envar);
         exit(75); // XXX
     }
     // env variable value sanitization
     auto const pos{ env_var.find(' ') };
-    if (pos != string::npos)
+    if (pos != str_t::npos)
         env_var = env_var.substr(0, pos);
     return env_var;
 }
 
 /**
- * split string by regex
+ * split str_t by regex
  */
-vector<string> resplit(sv_t s, const regex &re = regex{"\\s+"})
+vec_str_t resplit(sv_t s, regex const &re = regex{"\\s+"})
 {
     regex_token_iterator iter(s.begin(), s.end(), re, -1);
     // sregex_token_iterator end;
-    // vector<string> v = {iter, end};
-    vector<string> v({ iter, {} });
+    vec_str_t v({ iter, {} });
     auto isEmptyOrBlank = [](sv_t tmps) {
-        return tmps.find_first_not_of(" \t") == string::npos;
-    }; // remove blank string elements from the vector
+        return tmps.find_first_not_of(" \t") == str_t::npos;
+    }; // remove blank str_t elements from the vector
     v.erase(remove_if(v.begin(), v.end(), isEmptyOrBlank), v.end());
     return v;
 }
 
-vector<string> split_on_words(sv_t s)
+vec_str_t split_on_words(sv_t s)
 {
-    regex sep_regex("[ [:punct:]]+", regex::extended);
+    regex sep_regex("[[:punct:]]+", regex::extended);
     return resplit(s, sep_regex);
 }
 
-string file_content(sv_t fpath)
+str_t file_content(sv_t fpath)
 {
     ifstream rfile(fpath.data(), ios::in);
-    string  content((istreambuf_iterator<char>(rfile)),
-                    (istreambuf_iterator<char>()    ));
+    str_t content((istreambuf_iterator<ch_t>(rfile)), (istreambuf_iterator<ch_t>()));
     return content;
 }
 
 /**
- * get slice of multiline string between line numbers
+ * get slice of multiline str_t between line numbers
  */
-string lines_between(const vector<string> &lines, sz_t beg_nl, sz_t end_nl)
+str_t lines_between(vec_str_t const &lines, sz_t beg_nl, sz_t end_nl)
 {
     if (end_nl == 0 || end_nl > lines.size())
         end_nl = lines.size();
-    ostringstream buf;
+    std::ostringstream buf;
     for (sz_t i = beg_nl; i < end_nl; i++)
         buf << lines[i] << '\n';
     return buf.str();
@@ -104,14 +103,14 @@ string lines_between(const vector<string> &lines, sz_t beg_nl, sz_t end_nl)
 
 /**
  * find position of nearest newline in multiline str by substring
- * return str_t::npos if substring not found!
+ * return str_t::npos if substr_t not found!
  */
-size_t fnl_substr(string &s, sv_t substr, bool including_last=false)
+size_t fnl_substr(str_t &s, sv_t substr, bool including_last=false)
 {
     size_t pos;
     (including_last) ? pos = s.rfind(substr) : pos = s.find(substr);
-    if (pos == string::npos)
-        return string::npos; // substr not found!
+    if (pos == str_t::npos)
+        return str_t::npos; // substr not found!
     if (including_last) {
         // including LAST FOUND line with substring
         for (; pos < s.size(); pos++)
@@ -126,34 +125,34 @@ size_t fnl_substr(string &s, sv_t substr, bool including_last=false)
 
 /**
  * remove lines before line with substring
- * return false if substring not found, true on success.
+ * return false if substr_t not found, true on success.
  */
-bool remove_lines_before(string &s, sv_t substr, bool including_last=false)
+bool remove_lines_before(str_t &s, sv_t substr, bool including_last=false)
 {
     const size_t pos = fnl_substr(s, substr, including_last);
-    if (pos == string::npos) return false; // substr not found
+    if (pos == str_t::npos) return false; // substr not found
     s.replace(0, pos, "");
     return true;
 }
 
 /**
  * remove lines after line with substring
- * return false if substring not found, true on success.
+ * return false if substr_t not found, true on success.
  */
-bool remove_lines_after(string &s, sv_t substr, bool including_last=true)
+bool remove_lines_after(str_t &s, sv_t substr, bool including_last=true)
 {
     const size_t pos = fnl_substr(s, substr, including_last);
-    if (pos == string::npos) return false; // substr not found
-    s.replace(pos, string::npos, "");
+    if (pos == str_t::npos) return false; // substr not found
+    s.replace(pos, str_t::npos, "");
     return true;
 }
 
-string sec_to_tstr(const std::time_t &sec)
+str_t sec_to_tstr(std::time_t const &sec)
 {
     return fmt::format("{:02}:{:02}", sec / 3600, sec % 3600 / 60);
 }
 
-string tasks_to_mulstr(ss::vtasks_t &tasks)
+str_t tasks_to_mulstr(ss::vtasks_t &tasks)
 {
     std::ostringstream out;
     for (const auto &t : tasks) {
