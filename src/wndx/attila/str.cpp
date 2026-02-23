@@ -7,7 +7,7 @@
 #include <fstream>
 #include <sstream>              // ostringstream
 
-namespace wndx::str {
+namespace wndx::attila::str {
 
 using namespace std;
 
@@ -161,4 +161,4 @@ str_t tasks_to_mulstr(ss::vtasks_t &tasks)
     return out.str();
 }
 
-} // namespace wndx::str
+} // namespace wndx::attila::str

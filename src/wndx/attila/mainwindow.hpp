@@ -17,7 +17,7 @@
 #include <QScopedPointer>
 #include <QTimer>
 
-namespace wndx {
+namespace wndx::attila {
 
 class Keys;
 
@@ -73,4 +73,4 @@ private:
     QFutureWatcher<ss::vtasks_t> vtt_watcher;
 };
 
-} // namespace wndx
+} // namespace wndx::attila

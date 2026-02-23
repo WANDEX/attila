@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace wndx::ss {
+namespace wndx::attila::ss {
 
 stats_t calculate_stats(const vtasks_t &vtt)
 {
@@ -160,4 +160,4 @@ sgroups_t auto_proj_groups(const vtasks_t &vtt)
     return groups;
 }
 
-} // namespace wndx::ss
+} // namespace wndx::attila::ss

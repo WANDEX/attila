@@ -6,7 +6,7 @@
 
 #include <QObject>
 
-namespace wndx {
+namespace wndx::attila {
 
 class Action : public QObject
 {
@@ -31,4 +31,4 @@ private:
     Ui::MainWindow &ui;
 };
 
-} // namespace wndx
+} // namespace wndx::attila

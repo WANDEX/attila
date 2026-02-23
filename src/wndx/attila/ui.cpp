@@ -4,7 +4,7 @@
 
 #include "ui_mainwindow.h"      // generated header for Ui::MainWindow
 
-namespace wndx::ui {
+namespace wndx::attila::ui {
 
 MainWindow::MainWindow(QObject *window)
     : m_self(self_t())
@@ -32,4 +32,4 @@ void MainWindow::cleanup()
     if (  ui_ptr) delete   ui_ptr;
 }
 
-} // namespace wndx::ui
+} // namespace wndx::attila::ui

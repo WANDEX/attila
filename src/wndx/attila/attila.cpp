@@ -15,7 +15,7 @@
 #include <sstream>
 #include <thread>               // hardware_concurrency
 
-namespace wndx {
+namespace wndx::attila {
 
 auto difftime(std::time_t time1, std::time_t time0) -> std::time_t
 {
@@ -491,4 +491,4 @@ str_t filter_find(str_v s, str_v reinput)
     return oss.str();
 }
 
-} // namespace wndx
+} // namespace wndx::attila

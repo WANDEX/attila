@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 
-namespace wndx::ss {
+namespace wndx::attila::ss {
 
 inline s32 getID() {
     static std::atomic<s32> uid{ 0 };
@@ -84,5 +84,5 @@ using vtasks_t  = std::vector<task_t>;
 using stasks_t  = std::set<task_t>;
 using sgroups_t = std::set<group_t>;
 
-} // namespace wndx::ss
+} // namespace wndx::attila::ss
 

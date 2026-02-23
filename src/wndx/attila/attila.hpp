@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace wndx {
+namespace wndx::attila {
 
 std::vector<int> split_vi(str_v s, ch_t delimiter);
 sz_t  item_index(vec_str_t const &v, str_v item);
@@ -38,4 +38,4 @@ str_t find_last_week_file();
 bool remove_lines_after_date (str_t &s, str_v date_str);
 bool remove_lines_before_date(str_t &s, str_v date_str);
 
-} // namespace wndx
+} // namespace wndx::attila

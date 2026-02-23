@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-namespace wndx {
+namespace wndx::attila {
 
 Keys::Keys(QObject *window, Ui::MainWindow &ui)
     : QObject(window)
@@ -156,4 +156,4 @@ void Keys::hotkeys()
     sact(tr("Ctrl+m"), &Action::toggle_merge);
 }
 
-} // namespace wndx
+} // namespace wndx::attila

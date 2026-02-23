@@ -8,7 +8,7 @@
 #include <regex>
 #include <vector>
 
-namespace wndx::str {
+namespace wndx::attila::str {
 
 using namespace std;
 
@@ -40,4 +40,4 @@ bool remove_lines_after (str_t &s, sv_t substr, bool including_last);
 str_t sec_to_tstr(std::time_t const &sec);
 str_t tasks_to_mulstr(ss::vtasks_t &tasks);
 
-} // namespace wndx::str
+} // namespace wndx::attila::str

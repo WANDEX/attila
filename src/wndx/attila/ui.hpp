@@ -6,7 +6,7 @@ namespace Ui { // forward declare the Qt-generated class
     class MainWindow;
 }
 
-namespace wndx {
+namespace wndx::attila {
 
 class Keys;
 
@@ -44,4 +44,4 @@ private:
 };
 
 } // namespace ui
-} // namespace wndx
+} // namespace wndx::attila

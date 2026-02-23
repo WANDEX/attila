@@ -12,7 +12,7 @@
 #include <QShortcut>
 #include <QTabWidget>
 
-namespace wndx {
+namespace wndx::attila {
 
 class Action;
 
@@ -45,4 +45,4 @@ private:
     QScrollBar     *hsbar;
 };
 
-} // namespace wndx
+} // namespace wndx::attila

@@ -4,7 +4,7 @@
 
 #include <QDebug>
 
-namespace wndx {
+namespace wndx::attila {
 
 Action::Action(QObject *window, Ui::MainWindow &ui)
     : QObject(window)
@@ -69,4 +69,4 @@ void Action::toggle_merge()
     ui.checkBoxMerge->click();
 }
 
-} // namespace wndx
+} // namespace wndx::attila

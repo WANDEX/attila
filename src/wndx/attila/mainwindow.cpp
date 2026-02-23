@@ -8,7 +8,7 @@
 
 #include <QtConcurrent/QtConcurrent>
 
-namespace wndx {
+namespace wndx::attila {
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -215,4 +215,4 @@ void MainWindow::filterChanged()
     setTxt(TXT_FILTERED);
 }
 
-} // namespace wndx
+} // namespace wndx::attila
