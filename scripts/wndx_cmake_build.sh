@@ -31,8 +31,8 @@ at_path() { hash "$1" >/dev/null 2>&1 ;} # if $1 is found at $PATH -> return 0
 ## "OPTION DEFAULTS" - project specific, they may be changed between the projects freely.
 ## In other cases, version should be bumped, then updated script must be propagated
 ## to older versions of the script and changes must be merged except "OPTION DEFAULTS".
-VERSION="1.2.0"
-VERSION_DATE="2026-02-22" # update at each VERSION bump
+VERSION="1.3.0"
+VERSION_DATE="2026-02-26" # update at each VERSION bump
 
 bname="wndx_cmake_build.sh"; at_path basename && bname=$(basename "$0")
 USAGE="\
@@ -68,7 +68,9 @@ EXAMPLES
 ./scripts/$bname ctest .*regex.*
 # ====== or
 ./scripts/$bname gtest *wildcard*
-# ======
+# ====== override default env vars
+CC=clang CXX=clang++ BUILD_TYPE=Release COPTS='-Wno-dev -Wno-error=dev' ./scripts/$bname x
+# ====== or export modified env vars
 export CC=cl CXX=cl VERBOSE=1 DEPLOY=1 BUILD_TYPE=Debug GENERATOR='Visual Studio 17 2022'
 ./scripts/$bname c ct
 "
@@ -373,6 +375,29 @@ get_opt() {
   fi
 }
 
+## https://cmake.org/cmake/help/latest/variable/CMAKE_LINKER_TYPE.html
+use_linker_mold() {
+  case "$COPTS" in # if explicitly provided - do not override
+  *"CMAKE_LINKER_TYPE"*) return ;;
+  esac
+  if ! at_path mold; then
+    printe "%b%s%b\n" "${YEL}" "mold linker not fount at \$PATH!" "${END}"
+    return
+  fi
+  pl=$(uname)
+  if [ "$pl" = Darwin ]; then
+    case "$CC" in *"clang"*)
+      COPTS="$COPTS -D CMAKE_LINKER_TYPE=MOLD"
+    ;;
+    esac
+  elif [ "$pl" = Linux ]; then
+    case "$CC" in *"clang"*|*"gcc"*)
+      COPTS="$COPTS -D CMAKE_LINKER_TYPE=MOLD"
+    ;;
+    esac
+  fi
+}
+
 ## on win10 in MINGW64:/git-bash shell trailing args via '$*' - works; '$@' - NOT works;
 ## ^ apparently in this environment - this function is still not always finds tests...
 # shellcheck disable=SC2048,SC2068,SC2086 # intentional - re-split trailing arguments.
@@ -387,6 +412,7 @@ vsep() { printf "\n%b%.78s%b\n\n" "${2}" "[${1}]${SEP}" "${END}" ;}
 
 ## MAIN
 get_opt "$@"
+use_linker_mold
 pre_configure
 
 vsep "CONFIGURE" "${BLU}"
