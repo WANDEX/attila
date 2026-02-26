@@ -1,5 +1,6 @@
 #include "stats.hpp"
 
+#include "attila.hpp"
 #include "str.hpp"              // str namespace
 #include "structs.hpp"          // ss  namespace with struct defs
 
@@ -109,7 +110,7 @@ merge_tasks(const vtasks_t &vtt, const str_t &mulstr)
         main_task.dts = out.str();
     }
 
-    return std::make_pair(v, str::tasks_to_mulstr(v));
+    return std::make_pair(v, tasks_to_mulstr(v));
 }
 
 /**

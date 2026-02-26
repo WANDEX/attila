@@ -2,7 +2,6 @@
 
 #include "attila.hpp"
 #include "stats.hpp"
-#include "str.hpp"              // str namespace
 
 #include "ui_mainwindow.h"      // generated header for Ui::MainWindow
 
@@ -102,8 +101,8 @@ void MainWindow::setTxt(const QString &txt)
  */
 void MainWindow::updateStats(const ss::vtasks_t &vt)
 {
-    const ss::stats_t     stats = calculate_stats(vt);
-    const ss::stats_human_t hum = calculate_stats_human(stats);
+    const ss::stats_t     stats = calculate_stats(vt);          // XXX: undefined reference
+    const ss::stats_human_t hum = calculate_stats_human(stats); // XXX: undefined reference
     ui.statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
     ui.statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
     ui.statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
@@ -134,8 +133,7 @@ void MainWindow::merge()
         return;
     }
     pts("[TASKS ANALYZING] before merge_tasks() call");
-    std::pair<const ss::vtasks_t, const str_t>
-        merged = ss::merge_tasks(vtt, TXT_SPENT.toStdString());
+    auto merged{ ss::merge_tasks(vtt, TXT_SPENT.toStdString()) }; // XXX: undefined reference
     vtt_merged = merged.first;
     TXT_MERGED = QString::fromStdString(merged.second);
     pts("[TASKS ANALYZING] merge finished!");
@@ -155,7 +153,7 @@ void MainWindow::analyzeTasksFinished()
 {
     pts("[TASKS ANALYZING] finished");
     vtt = vtt_watcher.result();
-    TXT_SPENT = QString::fromStdString(str::tasks_to_mulstr(vtt));
+    TXT_SPENT = QString::fromStdString(tasks_to_mulstr(vtt)); // XXX: undefined reference
     ui.spentText->setPlainText(TXT_SPENT);
     pts("[TASKS ANALYZING] spent text is set!");
     MainWindow::merge();

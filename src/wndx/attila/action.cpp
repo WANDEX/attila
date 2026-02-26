@@ -6,9 +6,9 @@
 
 namespace wndx::attila {
 
-Action::Action(QObject *window, Ui::MainWindow &ui)
+Action::Action(QObject *window, Ui::MainWindow &ui_)
     : QObject(window)
-    , ui(ui)
+    , ui(ui_)
 {
 }
 

@@ -22,6 +22,8 @@ vec_str_t projects_of_task(str_v s);
 ss::vtasks_t parse_tasks(str_v s);
 ss::vtasks_t parse_tasks_parallel(str_v s);
 
+str_t tasks_to_mulstr(ss::vtasks_t &tasks);
+
 str_t concat_span(str_v fr, str_v to);
 str_t concat_week_files(vec_str_t &fpaths, str_v fr, str_v to);
 vec_str_t dates_of_week(str_v date_str);
@@ -37,5 +39,6 @@ str_t find_last_week_file();
 
 bool remove_lines_after_date (str_t &s, str_v date_str);
 bool remove_lines_before_date(str_t &s, str_v date_str);
+
 
 } // namespace wndx::attila

@@ -218,6 +218,15 @@ ss::vtasks_t parse_tasks_parallel(str_v s)
     return vtt;
 }
 
+str_t tasks_to_mulstr(ss::vtasks_t &tasks)
+{
+    std::ostringstream out;
+    for (const auto &t : tasks) {
+        out << t.dts << " <" << t.hm.time_spent << "> " << t.text << '\n';
+    }
+    return out.str();
+}
+
 auto get_all_files_recursive(fs::path const &path)
 {
     vec_str_t fpaths;
@@ -415,7 +424,7 @@ bool remove_lines_before_date(str_t &s, str_v date_str)
     vec_str_t const dates{ dates_of_week(date_str) };
     sz_t const index{  item_index(dates, date_str) };
 
-    for (sz_t i = index; i >= 0; i--) {
+    for (sz_t i = index; i > 0; i--) {
         if (str::remove_lines_before(s, dates[i], true))
             return true;
     }

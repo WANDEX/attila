@@ -152,13 +152,4 @@ str_t sec_to_tstr(std::time_t const &sec)
     return fmt::format("{:02}:{:02}", sec / 3600, sec % 3600 / 60);
 }
 
-str_t tasks_to_mulstr(ss::vtasks_t &tasks)
-{
-    std::ostringstream out;
-    for (const auto &t : tasks) {
-        out << t.dts << " <" << t.hm.time_spent << "> " << t.text << '\n';
-    }
-    return out.str();
-}
-
 } // namespace wndx::attila::str

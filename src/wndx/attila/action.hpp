@@ -12,7 +12,7 @@ class Action : public QObject
 {
     Q_OBJECT
 public:
-    explicit Action(QObject *mwi, Ui::MainWindow &mwui);
+    explicit Action(QObject *window, Ui::MainWindow &ui_);
     virtual ~Action();
 
 private:

@@ -20,7 +20,7 @@ class Keys : public QObject
 {
     Q_OBJECT
 public:
-    explicit Keys(QObject *mwi, Ui::MainWindow &mwui);
+    explicit Keys(QObject *window, Ui::MainWindow &ui_);
     virtual ~Keys();
 
 private:

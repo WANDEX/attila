@@ -8,10 +8,10 @@
 
 namespace wndx::attila {
 
-Keys::Keys(QObject *window, Ui::MainWindow &ui)
+Keys::Keys(QObject *window, Ui::MainWindow &ui_)
     : QObject(window)
     , mw(window)
-    , ui(ui)
+    , ui(ui_)
     , act(new Action(this, ui))
 {
     this->hotkeys(); // bind hotkeys
