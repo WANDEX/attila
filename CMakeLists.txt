@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 3.29..4.1)
 
+## Disable modules support, this is broken with clang-tidy at the moment
+## github.com/cpp-best-practices/cmake_template/blob/main/CMakeLists.txt
+cmake_policy(SET CMP0155 OLD)
+
+## https://cmake.org/cmake/help/latest/policy/CMP0156.html
 SET(QT_FORCE_CMP0156_TO_VALUE NEW)
-cmake_policy(SET CMP0156 NEW) # https://cmake.org/cmake/help/latest/policy/CMP0156.html
+cmake_policy(SET CMP0156 NEW)
 
 ## ^ POLICIES
 project(
@@ -12,8 +17,10 @@ project(
   HOMEPAGE_URL  "https://github.com/WANDEX/attila"
 )
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(ATTILA_DISABLE_TOP_PROJECT OFF)
@@ -35,15 +42,15 @@ macro(targets_and_linking)
   include(wndx_sane_create_targets)
   ## library targets & compilation options/flags
   wndx_sane_create_targets(PFX wndx LIB attila
-    CXX_STD cxx_std_20
+    CXX_STD cxx_std_${CMAKE_CXX_STANDARD}
     PHD "include/wndx/attila"
   )
 
   ## inherit from wndx::sane targets
-  target_link_libraries(attila_core INTERFACE wndx::sane::core) # inherit core
-  target_link_libraries(attila_dev  INTERFACE wndx::sane::dev ) # inherit dev
-  target_link_libraries(attila_deps    PUBLIC wndx::sane::deps) # inherit deps
-  target_link_libraries(attila_src     PUBLIC wndx::sane::src ) # inherit src
+  target_link_libraries(attila_core INTERFACE wndx::sane::core)
+  target_link_libraries(attila_dev  INTERFACE wndx::sane::dev )
+  target_link_libraries(attila_deps    PUBLIC wndx::sane::deps)
+  target_link_libraries(attila_src     PUBLIC wndx::sane::src )
 
   ## link sources with project dependencies from the core library target
   target_link_libraries(attila_src INTERFACE wndx::attila::core)
@@ -80,7 +87,7 @@ option(ATTILA_BUILD_PACKAGE    "whether or not the package should be built"  ON)
 option(ATTILA_COVERAGE_ENABLE  "whether or not to enable the tests coverage" OFF)
 option(ATTILA_COVERAGE_CLEAN   "clean coverage data before taking new"       ON)
 option(ATTILA_INSTALL_ENABLE   "whether or not to enable the install rule"   ON)
-option(ATTILA_MEMCHECK_ENABLE  "detect leaks via valgrind memcheck tool"     OFF)
+option(ATTILA_MEMCHECK_ENABLE  "detect leaks via memcheck tool"              OFF)
 
 ## for the list of supported compilers visit:
 ## https://cmake.org/cmake/help/latest/prop_tgt/COMPILE_WARNING_AS_ERROR.html

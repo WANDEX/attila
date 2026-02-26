@@ -1,4 +1,4 @@
-# unit tests
+## tests/units
 
 find_package(gtest REQUIRED)
 
