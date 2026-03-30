@@ -335,8 +335,9 @@ str_t find_week_file_by_date(str_v date_str)
         const str_t fake_fname = week_file_name(date_str);
         vec_str_t fnames;
         fnames.push_back(fake_fname); // add fake entry week fname
-        for (const fs::path p : fpaths)
-            fnames.push_back(p.filename());
+        for (const fs::path p : fpaths) {
+            fnames.push_back(p.filename().string());
+        }
         // fname example: week-05-2022.txt
         // substr(8, 4) = year; substr(5, 2) = week_num
         std::sort(fnames.begin(), fnames.end(),
