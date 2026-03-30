@@ -1,12 +1,14 @@
 #pragma once
+/// project-wide type aliases
 
 #include "wndx/sane/aliases.hpp"
-#include "wndx/sane/log.hpp"
 
 #include <string_view>
 #include <vector>
 
 namespace wndx::attila {
+
+using namespace wndx::sane;
 
 #if 1
 using ch_t = char;

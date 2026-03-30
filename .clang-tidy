@@ -1,0 +1,25 @@
+---
+Checks: "*,
+        -abseil-*,
+        -altera-*,
+        -android-*,
+        -fuchsia-*,
+        -google-*,
+        -llvm*,
+        -misc-no-recursion,
+        -misc-use-anonymous-namespace,
+        -misc-use-internal-linkage,
+        -modernize-use-trailing-return-type,
+        -readability-avoid-const-params-in-decls,
+        -readability-avoid-unconditional-preprocessor-if,
+        -readability-else-after-return,
+        -readability-identifier-length,
+        -readability-implicit-bool-conversion,
+        -readability-redundant-member-init,
+        -readability-static-accessed-through-instance,
+        -zircon-*,
+"
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+FormatStyle: none
+

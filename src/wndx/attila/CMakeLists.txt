@@ -52,6 +52,7 @@ target_sources(attila_wdgt
     mainwindow.cpp
 )
 target_link_libraries(attila_wdgt PRIVATE attila_common attila_deps)
+target_link_libraries(attila_wdgt INTERFACE attila_dev)
 
 set_target_properties(attila_wdgt PROPERTIES
   AUTOMOC ON # => Q_OBJECT

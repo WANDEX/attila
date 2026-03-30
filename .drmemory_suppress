@@ -50,4 +50,18 @@ name=bug #1001 (I HATE MSBuild/MSVC! false positive - STL implementation)
 *!__std_find_trivial_*
 *!std::_Find_vectorized<>
 
+## win10_cl_Debug | CC=cl CXX=cl | windows-2022
+## CUSTOMBUILD : ~~Dr.M~~ error #1: UNINITIALIZED READ: reading 0x000001bcf9d732a0-0x000001bcf9d732a2 2 byte(s) within 0x000001bcf9d73270-0x000001bcf9d732a2 [D:\a\wndx_sane\wndx_sane\build_wndx_sane_win10_cl_Debug\memcheck.vcxproj]
+##  ~~Dr.M~~ # 0 system call NtDeviceIoControlFile InputBuffer
+##  ~~Dr.M~~ # 1 KERNELBASE.dll!DeviceIoControl                                        +0x6a     (0x00007fff826d408b <KERNELBASE.dll+0x4408b>)
+##  ~~Dr.M~~ # 2 KERNELBASE.dll!GetFinalPathNameByHandleW                              +0x5e8    (0x00007fff827040f9 <KERNELBASE.dll+0x740f9>)
+##  ~~Dr.M~~ # 3 KERNELBASE.dll!GetFinalPathNameByHandleW                              +0x139    (0x00007fff82703c4a <KERNELBASE.dll+0x73c4a>)
+##  ~~Dr.M~~ # 4 __std_fs_get_final_path_name_by_handle                                 [D:\a\_work\1\s\src\vctools\crt\github\stl\src\filesystem.cpp:234]
+##  ~~Dr.M~~ # 5 std::filesystem::_Canonical                                            [C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\filesystem:3060]
+##  ~~Dr.M~~ # 6 std::filesystem::canonical                                             [C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\include\filesystem:3100]
+UNINITIALIZED READ
+name=bug #1002 (I HATE MSBuild/MSVC! false positive - STL implementation)
+*
+KERNELBASE.dll!*
+
 # vim:set ft=gdb:nowrap:

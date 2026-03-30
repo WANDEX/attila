@@ -1,0 +1,82 @@
+## AUTHOR: WANDEX
+## https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+## https://llvm.org/docs/CodingStandards.html
+## https://google.github.io/styleguide/cppguide.html
+---
+BasedOnStyle: LLVM
+
+Language: Cpp
+Standard: c++20
+
+IncludeBlocks: Preserve
+SortIncludes: true
+
+BreakConstructorInitializers: BeforeComma
+BreakTemplateDeclarations: Yes
+ColumnLimit: 80
+FixNamespaceComments: true
+IndentCaseLabels: false
+IndentPPDirectives: AfterHash
+IndentRequiresClause: false
+IndentWidth: 2
+InsertNewlineAtEOF: true
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: None
+PPIndentWidth: 0
+PackConstructorInitializers: Never
+PointerAlignment: Left
+QualifierAlignment: Custom
+QualifierOrder: [friend, inline, static, constexpr, volatile, restrict, type, const]
+ReflowComments: Always
+SkipMacroDefinitionBody: true
+WrapNamespaceBodyWithEmptyLines: Always
+
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments:  Consecutive
+AlignConsecutiveBitFields:    Consecutive
+AlignConsecutiveDeclarations: Consecutive
+AlignConsecutiveMacros:       Consecutive
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCaseColons: true
+AlignEscapedNewlines: Right
+AlignOperands: AlignAfterOperator
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+Cpp11BracedListStyle: false
+SpaceBeforeCpp11BracedList: false
+BreakBeforeBraces: Custom
+BraceWrapping: ## BreakBeforeBraces: Linux - Cpp Extended
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: MultiLine
+  AfterEnum: true
+  AfterExternBlock: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyNamespace: true
+  SplitEmptyRecord: true
+
+## clang-format 22
+# NumericLiteralCase:
+#   ExponentLetter: Lower
+#   HexDigit: Upper
+#   Prefix: Lower
+#   Suffix: Lower
+
