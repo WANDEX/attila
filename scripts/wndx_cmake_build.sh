@@ -31,8 +31,8 @@ at_path() { hash "$1" >/dev/null 2>&1 ;} # if $1 is found at $PATH -> return 0
 ## "OPTION DEFAULTS" - project specific, they may be changed between the projects freely.
 ## In other cases, version should be bumped, then updated script must be propagated
 ## to older versions of the script and changes must be merged except "OPTION DEFAULTS".
-VERSION="1.3.0"
-VERSION_DATE="2026-02-26" # update at each VERSION bump
+VERSION="1.3.2"
+VERSION_DATE="2026-03-17" # update at each VERSION bump
 
 bname="wndx_cmake_build.sh"; at_path basename && bname=$(basename "$0")
 USAGE="\
@@ -112,13 +112,18 @@ check_prerequisites() {
 
 check_prerequisites
 
+## do not override, on win10 in MINGW64:/git-bash shell
+## $(uname -s)="MINGW64_NT-10.0-19045"
+## overriding time() as time() leads to weird error!
+## unset -f time # does not work as it is hardcoded built-in!
+time_() { "$CMAKE" -E time "$@"           ;}
+
 echo()  { "$CMAKE" -E echo_append "$*"    ;}
 echon() { "$CMAKE" -E echo "$*"           ;}
 false() { "$CMAKE" -E false               ;}
 mkdir() { "$CMAKE" -E make_directory "$1" ;}
 rm_f()  { "$CMAKE" -E rm  -f "$1"         ;}
 rm_rf() { "$CMAKE" -E rm -rf "$1"         ;}
-time()  { "$CMAKE" -E time "$@"           ;}
 true()  { "$CMAKE" -E true                ;}
 
 get_prj_name() {
@@ -307,11 +312,10 @@ get_opt() {
 "-D CMAKE_C_COMPILER='$CC'
  -D CMAKE_CXX_COMPILER='$CXX'
  -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+ -D $PRJ_BUILD_TESTS=ON
+ -D $PRJ_MEMCHECK_EN=ON
  $COPTS
 " ## <- default cmake configure options
- # -D $PRJ_BUILD_TESTS=ON
- # -D $PRJ_MEMCHECK_EN=ON
-
   BOPTS=\
 "$BOPTS
 " ## <- default cmake build options
@@ -381,7 +385,7 @@ use_linker_mold() {
   *"CMAKE_LINKER_TYPE"*) return ;;
   esac
   if ! at_path mold; then
-    printe "%b%s%b\n" "${YEL}" "mold linker not fount at \$PATH!" "${END}"
+    printe "%b%s%b\n" "${YEL}" "mold linker not found at \$PATH!" "${END}"
     return
   fi
   pl=$(uname)
@@ -402,7 +406,7 @@ use_linker_mold() {
 ## ^ apparently in this environment - this function is still not always finds tests...
 # shellcheck disable=SC2048,SC2068,SC2086 # intentional - re-split trailing arguments.
 run_ctest() {
-  time "$CTEST" --build-config "$BUILD_TYPE" --test-dir "$_bdir/$TESTS_DIR" \
+  time_ "$CTEST" --build-config "$BUILD_TYPE" --test-dir "$_bdir/$TESTS_DIR" \
 --output-on-failure "$@" \
 || { notify ERROR "RUN CTEST ERROR"; exit "$EC" ;}
 }
@@ -417,13 +421,13 @@ pre_configure
 
 vsep "CONFIGURE" "${BLU}"
 # shellcheck disable=SC2086 # intentional - re-split OPTIONS CONFIGURE
-time "$CMAKE" -S "$_sdir" -B "$_bdir" -G "$GENERATOR" -Wdev -Werror=dev \
+time_ "$CMAKE" -S "$_sdir" -B "$_bdir" -G "$GENERATOR" -Wdev -Werror=dev \
 ${_fresh} ${_cmake_log_level} ${COPTS} \
 || { notify ERROR "CMAKE CONFIGURE ERROR"; exit "$EC" ;}
 
 vsep "BUILD" "${CYN}"
 # shellcheck disable=SC2086 # intentional - re-split OPTIONS BUILD
-time "$CMAKE" --build "$_bdir" --config "$BUILD_TYPE" ${_clean_first} ${_verbose} ${BOPTS} \
+time_ "$CMAKE" --build "$_bdir" --config "$BUILD_TYPE" ${_clean_first} ${_verbose} ${BOPTS} \
 || { notify ERROR "CMAKE BUILD ERROR"; exit "$EC" ;}
 
 if [ "$RUN_TESTS" = 1 ]; then
@@ -457,13 +461,13 @@ fi
 
 if [ "$MEMCHECK" = 1 ] && [ "$has_debug_info" = 1 ]; then
   vsep "MEMCHECK" "${YEL}"
-  time "$CMAKE" --build "$_bdir" --config "$BUILD_TYPE" --target memcheck
+  time_ "$CMAKE" --build "$_bdir" --config "$BUILD_TYPE" --target memcheck
 fi
 
 if [ "$DEPLOY" = 1 ]; then
   vsep "DEPLOY" "${MAG}"
   printe "%s %s\n" "--prefix" "$prefix_deploy"
-  time "$CMAKE" --install "$_bdir" --config "$BUILD_TYPE" --prefix "$prefix_deploy"
+  time_ "$CMAKE" --install "$_bdir" --config "$BUILD_TYPE" --prefix "$prefix_deploy"
 fi
 
 vsep   "COMPLETED" "${GRN}"
