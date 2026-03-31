@@ -6,6 +6,7 @@
 #include "ui_mainwindow.h"      // generated header for Ui::MainWindow
 
 #include <QtConcurrent/QtConcurrent>
+#include <QtGlobal>             // QT_VERSION_CHECK
 
 namespace wndx::attila {
 
@@ -28,7 +29,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui.dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
     connect(ui.dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     connect(ui.checkBoxMerge, &QCheckBox::checkStateChanged, this, &MainWindow::mergeToggle);
+#else
+    connect(ui.checkBoxMerge, &QCheckBox::stateChanged, this, &MainWindow::mergeToggle);
+#endif
 
     // parallel analysis of tasks in the background (non-blocking behavior)
     connect(this,         &MainWindow::analyzeTasksSignal,         this, &MainWindow::analyzeTasksStarted);
