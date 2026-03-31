@@ -94,7 +94,7 @@ option(ATTILA_MEMCHECK_ENABLE  "detect leaks via memcheck tool"              OFF
 option(CMAKE_COMPILE_WARNING_AS_ERROR "treat compilation warnings as errors" OFF)
 
 ## BUG? - does not work if set via option()
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP FALSE)
 
 ## QT_DEPLOY_LIB_DIR defaults to the value of
 ## ${CMAKE_INSTALL_LIBDIR} (usually lib or lib64),
@@ -163,7 +163,7 @@ if(ATTILA_INSTALL_ENABLE)
     PHD "include/wndx/attila"
     PATTERNS "*.hpp"
     NAMESPACE wndx::
-    RUNTIME_DEPENDENCIES
+    # RUNTIME_DEPENDENCIES # if uncommented on WIN32 leads to error api-ms-win-* ext-ms-win-*
   ) # ^--install required set of libs vs v--install max amount of system libs.
   if(DEFINED CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP AND
          NOT CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP)
