@@ -3,69 +3,80 @@
 #include "attila.hpp"
 #include "stats.hpp"
 
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+#include "ui_mainwindow.h" // generated header for Ui::MainWindow
 
 #include <QtConcurrent/QtConcurrent>
-#include <QtGlobal>             // QT_VERSION_CHECK
+#include <QtGlobal> // QT_VERSION_CHECK
 
 namespace wndx::attila {
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui_self(ui::MainWindow(this).self_r())
     , ui(ui_self.ref())
 {
-    ui.setupUi(this);
-    // before signal/slot connections
-    setLastWeekSpan();
+  ui.setupUi(this);
+  // before signal/slot connections
+  setLastWeekSpan();
 
-    typingTimer = new QTimer(this);
-    typingTimer->setSingleShot(true); // timer will fire only once after it was started
+  typingTimer = new QTimer(this);
+  typingTimer->setSingleShot(
+      true); // timer will fire only once after it was started
 
-    // filter only after the user has stopped typing for at least a short time (filter as you type)
-    connect(ui.filterInput, &QLineEdit::textChanged, this, [&](){ typingTimer->start(300); });
-    connect(typingTimer,    &QTimer::timeout,        this, &MainWindow::filterChanged);
+  // filter only after the user has stopped typing for at least a short time
+  // (filter as you type)
+  connect(ui.filterInput, &QLineEdit::textChanged, this,
+          [&]() { typingTimer->start(300); });
+  connect(typingTimer, &QTimer::timeout, this, &MainWindow::filterChanged);
 
-    connect(ui.dateFr, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
-    connect(ui.dateTo, &QDateEdit::dateChanged, this, &MainWindow::dateSpanChanged);
+  connect(ui.dateFr, &QDateEdit::dateChanged, this,
+          &MainWindow::dateSpanChanged);
+  connect(ui.dateTo, &QDateEdit::dateChanged, this,
+          &MainWindow::dateSpanChanged);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-    connect(ui.checkBoxMerge, &QCheckBox::checkStateChanged, this, &MainWindow::mergeToggle);
+  connect(ui.checkBoxMerge, &QCheckBox::checkStateChanged, this,
+          &MainWindow::mergeToggle);
 #else
-    connect(ui.checkBoxMerge, &QCheckBox::stateChanged, this, &MainWindow::mergeToggle);
+  connect(ui.checkBoxMerge, &QCheckBox::stateChanged, this,
+          &MainWindow::mergeToggle);
 #endif
 
-    // parallel analysis of tasks in the background (non-blocking behavior)
-    connect(this,         &MainWindow::analyzeTasksSignal,         this, &MainWindow::analyzeTasksStarted);
-    connect(&vtt_watcher, &QFutureWatcher<ss::vtasks_t>::finished, this, &MainWindow::analyzeTasksFinished);
+  // parallel analysis of tasks in the background (non-blocking behavior)
+  connect(this, &MainWindow::analyzeTasksSignal, this,
+          &MainWindow::analyzeTasksStarted);
+  connect(&vtt_watcher, &QFutureWatcher<ss::vtasks_t>::finished, this,
+          &MainWindow::analyzeTasksFinished);
 
-    // at the end - after signal/slot connections
-    MainWindow::startup();
+  // at the end - after signal/slot connections
+  MainWindow::startup();
 }
 
 MainWindow::~MainWindow()
 {
-    delete typingTimer;
-    // ui_self.cleanup(); // FIXME: causes Segmentation fault at exit!
+  delete typingTimer;
+  // ui_self.cleanup(); // FIXME: causes Segmentation fault at exit!
 }
 
 /**
  * print timestamp into debug output (used to measure speed between calls)
  */
-void MainWindow::pts(const QString msg="")
+void MainWindow::pts(QString const msg = "")
 {
-    if (msg.isEmpty()) {
-        qDebug() << QDateTime::currentDateTime().toString("[hh:mm]:ss.zzz");
-    } else {
-        qDebug() << QDateTime::currentDateTime().toString("[hh:mm]:ss.zzz") << ":" << msg;
-    }
+  if (msg.isEmpty()) {
+    qDebug() << QDateTime::currentDateTime().toString("[hh:mm]:ss.zzz");
+  } else {
+    qDebug() << QDateTime::currentDateTime().toString("[hh:mm]:ss.zzz") << ":"
+             << msg;
+  }
 }
 
 void MainWindow::stylesDefaults()
 {
-    fin = ui.filterInput;
-    fin_ss_def = "QLineEdit{ color: white; }\nQLineEdit[text=\"\"]{ color: gray; }";
-    fin->setStyleSheet(fin_ss_def); // fix: override placeholderText color by gray
+  fin = ui.filterInput;
+  fin_ss_def =
+      "QLineEdit{ color: white; }\nQLineEdit[text=\"\"]{ color: gray; }";
+  fin->setStyleSheet(fin_ss_def); // fix: override placeholderText color by gray
 }
 
 /**
@@ -73,149 +84,156 @@ void MainWindow::stylesDefaults()
  */
 void MainWindow::setTabbingOrder()
 {
-    QWidget::setTabOrder(fin, ui.dateFr);
-    QWidget::setTabOrder(ui.dateFr, ui.dateTo);
-    QWidget::setTabOrder(ui.dateTo, ui.scrollArea);
-    QWidget::setTabOrder(ui.scrollArea, ui.scrollAreaWidgetContents);
+  QWidget::setTabOrder(fin, ui.dateFr);
+  QWidget::setTabOrder(ui.dateFr, ui.dateTo);
+  QWidget::setTabOrder(ui.dateTo, ui.scrollArea);
+  QWidget::setTabOrder(ui.scrollArea, ui.scrollAreaWidgetContents);
 }
 
 void MainWindow::setLastWeekSpan()
 {
-    date_to = QDate::currentDate();
-    date_fr = date_to.addDays(1-date_to.dayOfWeek()); // monday
-    ui.dateFr->setDate(date_fr);
-    ui.dateTo->setDate(date_to);
+  date_to = QDate::currentDate();
+  date_fr = date_to.addDays(1 - date_to.dayOfWeek()); // monday
+  ui.dateFr->setDate(date_fr);
+  ui.dateTo->setDate(date_to);
 }
 
 void MainWindow::startup()
 {
-    stylesDefaults();
-    setTabbingOrder();
-    dateSpanChanged();
+  stylesDefaults();
+  setTabbingOrder();
+  dateSpanChanged();
 }
 
-void MainWindow::setTxt(const QString &txt)
+void MainWindow::setTxt(QString const& txt)
 {
-    ui.previewText->setPlainText(txt);
-    qDebug() << "New text was set!";
-    emit analyzeTasksSignal(txt);
+  ui.previewText->setPlainText(txt);
+  qDebug() << "New text was set!";
+  emit analyzeTasksSignal(txt);
 }
 
 /**
  * calculate stats & display in spent tab header
  */
-void MainWindow::updateStats(const ss::vtasks_t &vt)
+void MainWindow::updateStats(ss::vtasks_t const& vt)
 {
-    const ss::stats_t     stats = calculate_stats(vt);          // XXX: undefined reference
-    const ss::stats_human_t hum = calculate_stats_human(stats); // XXX: undefined reference
-    ui.statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
-    ui.statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
-    ui.statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
-    ui.statsSum->setPlainText("sum: " + QString::fromStdString(hum.sum));
-    ui.statsRec->setPlainText("rec: " + QString::number(hum.nrecords));
-    pts("[TASKS ANALYZING] stats are set!");
+  ss::stats_t const stats = calculate_stats(vt); // XXX: undefined reference
+  ss::stats_human_t const hum =
+      calculate_stats_human(stats);              // XXX: undefined reference
+  ui.statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
+  ui.statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
+  ui.statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
+  ui.statsSum->setPlainText("sum: " + QString::fromStdString(hum.sum));
+  ui.statsRec->setPlainText("rec: " + QString::number(hum.nrecords));
+  pts("[TASKS ANALYZING] stats are set!");
 }
 
 void MainWindow::mergeToggle(int state)
 {
-    if (TXT_SPENT.isEmpty()) {
-        qDebug() << "Empty TXT_SPENT -> do nothing.";
-        return;
-    }
-    if (state) {
-        ui.spentText->setPlainText(TXT_MERGED);
-        MainWindow::updateStats(vtt_merged);
-    } else {
-        ui.spentText->setPlainText(TXT_SPENT);
-        MainWindow::updateStats(vtt);
-    }
+  if (TXT_SPENT.isEmpty()) {
+    qDebug() << "Empty TXT_SPENT -> do nothing.";
+    return;
+  }
+  if (state) {
+    ui.spentText->setPlainText(TXT_MERGED);
+    MainWindow::updateStats(vtt_merged);
+  } else {
+    ui.spentText->setPlainText(TXT_SPENT);
+    MainWindow::updateStats(vtt);
+  }
 }
 
 void MainWindow::merge()
 {
-    if (TXT_SPENT.isEmpty()) {
-        qDebug() << "Empty TXT_SPENT -> do nothing.";
-        return;
-    }
-    pts("[TASKS ANALYZING] before merge_tasks() call");
-    auto merged{ ss::merge_tasks(vtt, TXT_SPENT.toStdString()) }; // XXX: undefined reference
-    vtt_merged = merged.first;
-    TXT_MERGED = QString::fromStdString(merged.second);
-    pts("[TASKS ANALYZING] merge finished!");
-    // update stats & spent text according to the state of the checkbox
-    MainWindow::mergeToggle(ui.checkBoxMerge->isChecked());
+  if (TXT_SPENT.isEmpty()) {
+    qDebug() << "Empty TXT_SPENT -> do nothing.";
+    return;
+  }
+  pts("[TASKS ANALYZING] before merge_tasks() call");
+  auto merged{ ss::merge_tasks(
+      vtt, TXT_SPENT.toStdString()) }; // XXX: undefined reference
+  vtt_merged = merged.first;
+  TXT_MERGED = QString::fromStdString(merged.second);
+  pts("[TASKS ANALYZING] merge finished!");
+  // update stats & spent text according to the state of the checkbox
+  MainWindow::mergeToggle(ui.checkBoxMerge->isChecked());
 }
 
-void MainWindow::analyzeTasksStarted(const QString &txt)
+void MainWindow::analyzeTasksStarted(QString const& txt)
 {
-    pts("[TASKS ANALYZING] started");
-    str_t const stdstr = txt.toStdString();
-    QFuture<ss::vtasks_t> future = QtConcurrent::run(parse_tasks_parallel, stdstr);
-    vtt_watcher.setFuture(future); // when computation is finished -> emit finished
+  pts("[TASKS ANALYZING] started");
+  str_t const           stdstr = txt.toStdString();
+  QFuture<ss::vtasks_t> future =
+      QtConcurrent::run(parse_tasks_parallel, stdstr);
+  vtt_watcher.setFuture(
+      future); // when computation is finished -> emit finished
 }
 
 void MainWindow::analyzeTasksFinished()
 {
-    pts("[TASKS ANALYZING] finished");
-    vtt = vtt_watcher.result();
-    TXT_SPENT = QString::fromStdString(tasks_to_mulstr(vtt)); // XXX: undefined reference
-    ui.spentText->setPlainText(TXT_SPENT);
-    pts("[TASKS ANALYZING] spent text is set!");
-    MainWindow::merge();
+  pts("[TASKS ANALYZING] finished");
+  vtt = vtt_watcher.result();
+  TXT_SPENT =
+      QString::fromStdString(tasks_to_mulstr(vtt)); // XXX: undefined reference
+  ui.spentText->setPlainText(TXT_SPENT);
+  pts("[TASKS ANALYZING] spent text is set!");
+  MainWindow::merge();
 }
 
 void MainWindow::dateSpanChanged()
 {
-    date_fr = ui.dateFr->date();
-    date_to = ui.dateTo->date();
-    if (!date_fr.isValid() || !date_to.isValid()) {
-        qDebug() << "Not valid date, processing was skipped.";
-        return;
-    }
-    // allow fr-to dates exchange - swap variables
-    if (date_to < date_fr) {
-        QDate tmpdate = date_fr;
-        date_fr = date_to;
-        date_to = tmpdate;
-    }
+  date_fr = ui.dateFr->date();
+  date_to = ui.dateTo->date();
+  if (!date_fr.isValid() || !date_to.isValid()) {
+    qDebug() << "Not valid date, processing was skipped.";
+    return;
+  }
+  // allow fr-to dates exchange - swap variables
+  if (date_to < date_fr) {
+    QDate tmpdate = date_fr;
+    date_fr       = date_to;
+    date_to       = tmpdate;
+  }
 
-    str_t fr = date_fr.toString("yyyy-MM-dd").toStdString();
-    str_t to = date_to.toString("yyyy-MM-dd").toStdString();
-    str_t content = concat_span(fr, to);
-    TXT_RAW = QString::fromStdString(content);
-    setTxt(TXT_RAW);
-    // try to apply filter back after changing the date span
-    if (!fin->text().isEmpty())
-        filterChanged();
+  str_t fr      = date_fr.toString("yyyy-MM-dd").toStdString();
+  str_t to      = date_to.toString("yyyy-MM-dd").toStdString();
+  str_t content = concat_span(fr, to);
+  TXT_RAW       = QString::fromStdString(content);
+  setTxt(TXT_RAW);
+  // try to apply filter back after changing the date span
+  if (!fin->text().isEmpty())
+    filterChanged();
 }
 
 void MainWindow::filterChanged()
 {
-    const QString pattern = fin->text();
-    if (pattern.isEmpty()) {
-        setTxt(TXT_RAW); // set back not filtered text after clearing filter pattern
-        fin->setStyleSheet(fin_ss_def);
-        return;
-    }
+  QString const pattern = fin->text();
+  if (pattern.isEmpty()) {
+    setTxt(TXT_RAW); // set back not filtered text after clearing filter pattern
+    fin->setStyleSheet(fin_ss_def);
+    return;
+  }
 
-    re_filter = QRegularExpression(pattern);
-    if (!re_filter.isValid()) {
-        fin->setStyleSheet("color: red"); // indicate not valid regex by the text color
-        qDebug() << "Not valid filter regex";
-        return;
-    } else {
-        fin->setStyleSheet(fin_ss_def);
-    }
+  re_filter = QRegularExpression(pattern);
+  if (!re_filter.isValid()) {
+    fin->setStyleSheet(
+        "color: red"); // indicate not valid regex by the text color
+    qDebug() << "Not valid filter regex";
+    return;
+  } else {
+    fin->setStyleSheet(fin_ss_def);
+  }
 
-    str_t const filtered = filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
-    if (filtered.empty()) {
-        fin->setStyleSheet("color: magenta");
-        qDebug() << "No matches to the filter regex";
-        return;
-    }
+  str_t const filtered =
+      filter_find(TXT_RAW.toStdString(), re_filter.pattern().toStdString());
+  if (filtered.empty()) {
+    fin->setStyleSheet("color: magenta");
+    qDebug() << "No matches to the filter regex";
+    return;
+  }
 
-    TXT_FILTERED = QString::fromStdString(filtered);
-    setTxt(TXT_FILTERED);
+  TXT_FILTERED = QString::fromStdString(filtered);
+  setTxt(TXT_FILTERED);
 }
 
 } // namespace wndx::attila

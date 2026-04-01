@@ -1,27 +1,25 @@
 #include "action.hpp"
 
-#include "ui_mainwindow.h"      // generated header for Ui::MainWindow
+#include "ui_mainwindow.h" // generated header for Ui::MainWindow
 
 #include <QDebug>
 
 namespace wndx::attila {
 
-Action::Action(QObject *window, Ui::MainWindow &ui_)
+Action::Action(QObject* window, Ui::MainWindow& ui_)
     : QObject(window)
     , ui(ui_)
 {
 }
 
-Action::~Action()
-{
-}
+Action::~Action() {}
 
 void Action::goto_tab(int index)
 {
-    // check that tab with index exist
-    if (!(index < ui.tabWidget->count()))
-        return;
-    ui.tabWidget->setCurrentIndex(index);
+  // check that tab with index exist
+  if (!(index < ui.tabWidget->count()))
+    return;
+  ui.tabWidget->setCurrentIndex(index);
 }
 
 void Action::goto_tab1() { Action::goto_tab(0); }
@@ -29,44 +27,40 @@ void Action::goto_tab2() { Action::goto_tab(1); }
 
 void Action::goto_filter()
 {
-    Action::goto_tab1();
-    ui.filterInput->setFocus(Qt::ShortcutFocusReason);
-    ui.filterInput->deselect();
+  Action::goto_tab1();
+  ui.filterInput->setFocus(Qt::ShortcutFocusReason);
+  ui.filterInput->deselect();
 }
 
 void Action::goto_date_fr()
 {
-    Action::goto_tab1();
-    ui.dateFr->setFocus(Qt::ShortcutFocusReason);
+  Action::goto_tab1();
+  ui.dateFr->setFocus(Qt::ShortcutFocusReason);
 }
 
 void Action::goto_date_to()
 {
-    Action::goto_tab1();
-    ui.dateTo->setFocus(Qt::ShortcutFocusReason);
+  Action::goto_tab1();
+  ui.dateTo->setFocus(Qt::ShortcutFocusReason);
 }
 
 void Action::goto_text()
 {
-    switch (ui.tabWidget->currentIndex()) {
-    case 0:
-        ui.previewText->setFocus(Qt::ShortcutFocusReason);
-        break;
-    case 1:
-        ui.spentText->setFocus(Qt::ShortcutFocusReason);
-        break;
-    default:
-        qDebug() << "Tab without Ctrl+t shortcut! index:"
-                 << ui.tabWidget->currentIndex();
-        break;
-    }
+  switch (ui.tabWidget->currentIndex()) {
+  case 0: ui.previewText->setFocus(Qt::ShortcutFocusReason); break;
+  case 1: ui.spentText->setFocus(Qt::ShortcutFocusReason); break;
+  default:
+    qDebug() << "Tab without Ctrl+t shortcut! index:"
+             << ui.tabWidget->currentIndex();
+    break;
+  }
 }
 
 void Action::toggle_merge()
 {
-    if (ui.tabWidget->currentIndex() != 1)
-        return;
-    ui.checkBoxMerge->click();
+  if (ui.tabWidget->currentIndex() != 1)
+    return;
+  ui.checkBoxMerge->click();
 }
 
 } // namespace wndx::attila

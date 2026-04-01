@@ -2,16 +2,16 @@
 
 #include "wndx/attila/aliases.hpp"
 
-#include "structs.hpp"          // ss namespace with struct defs
+#include "structs.hpp" // ss namespace with struct defs
 
 namespace wndx::attila::ss {
 
-stats_t       calculate_stats(const vtasks_t &vtt);
-stats_human_t calculate_stats_human(const stats_t &stats_t);
+stats_t       calculate_stats(vtasks_t const& vtt);
+stats_human_t calculate_stats_human(stats_t const& stats_t);
 
-std::pair<const vtasks_t, str_t>
-merge_tasks(const vtasks_t &vtt, const str_t &mulstr);
+std::pair<vtasks_t const, str_t> merge_tasks(vtasks_t const& vtt,
+                                             str_t const&    mulstr);
 
-sgroups_t auto_proj_groups(const vtasks_t &vtt);
+sgroups_t auto_proj_groups(vtasks_t const& vtt);
 
 } // namespace wndx::attila::ss

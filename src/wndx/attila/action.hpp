@@ -10,25 +10,25 @@ namespace wndx::attila {
 
 class Action : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit Action(QObject *window, Ui::MainWindow &ui_);
-    virtual ~Action();
+  explicit Action(QObject* window, Ui::MainWindow& ui_);
+  virtual ~Action();
 
 private:
-    void goto_tab(int index);
+  void goto_tab(int index);
 
 public slots:
-    void goto_tab1();
-    void goto_tab2();
-    void goto_filter();
-    void goto_date_fr();
-    void goto_date_to();
-    void goto_text();
-    void toggle_merge();
+  void goto_tab1();
+  void goto_tab2();
+  void goto_filter();
+  void goto_date_fr();
+  void goto_date_to();
+  void goto_text();
+  void toggle_merge();
 
 private:
-    Ui::MainWindow &ui;
+  Ui::MainWindow& ui;
 };
 
 } // namespace wndx::attila

@@ -18,31 +18,31 @@ class Action;
 
 class Keys : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit Keys(QObject *window, Ui::MainWindow &ui_);
-    virtual ~Keys();
+  explicit Keys(QObject* window, Ui::MainWindow& ui_);
+  virtual ~Keys();
 
 private:
-    void scrollkey(QKeySequence key);
-    void scrollkeys();
+  void scrollkey(QKeySequence key);
+  void scrollkeys();
 
-    template<typename Func2>
-    void sact(QKeySequence key, Func2 slot);
+  template <typename Func2>
+  void sact(QKeySequence key, Func2 slot);
 
-    void hotkeys();
+  void hotkeys();
 
 private slots:
-    void scroll();
+  void scroll();
 
 private:
-    QObject        *mw;
-    Ui::MainWindow &ui;
-    Action         *act;
+  QObject*        mw;
+  Ui::MainWindow& ui;
+  Action*         act;
 
-    QPlainTextEdit *sobj;
-    QScrollBar     *vsbar;
-    QScrollBar     *hsbar;
+  QPlainTextEdit* sobj;
+  QScrollBar*     vsbar;
+  QScrollBar*     hsbar;
 };
 
 } // namespace wndx::attila
