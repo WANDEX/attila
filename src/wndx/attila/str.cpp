@@ -11,25 +11,19 @@ namespace wndx::attila::str {
 
 using namespace std;
 
-/**
- * trim whitespace characters from right (also removes blank lines)
- */
+/// \brief trim whitespace characters from right (also removes blank lines).
 str_t trim_right(sv_t s)
 {
   return std::regex_replace(s.data(), regex("\\s+$"), "");
 }
 
-/**
- * trim whitespace characters from left
- */
+/// \brief trim whitespace characters from left.
 str_t trim_left(sv_t s)
 {
   return std::regex_replace(s.data(), regex("^\\s+"), "");
 }
 
-/**
- * trim whitespace characters from left & right (also removes blank lines)
- */
+/// \brief trim whitespace characters from left & right (also removes blank lines).
 str_t trim(sv_t s) { return trim_left(trim_right(s)); }
 
 bool has_substr(sv_t s, sv_t substr)
@@ -37,11 +31,9 @@ bool has_substr(sv_t s, sv_t substr)
   return (s.find(substr) == str_t::npos) ? false : true;
 }
 
-/**
- * wrapper around std::getenv() to make it more safer
- *
- * details: https://www.delftstack.com/howto/cpp/cpp-get-environment-variables/
- */
+/// \brief wrapper around std::getenv() to make it more safer.
+///
+/// \see https://www.delftstack.com/howto/cpp/cpp-get-environment-variables/
 str_t sane_getenv(sv_t envar)
 {
   char const* tmp = getenv(envar.data());
@@ -57,9 +49,7 @@ str_t sane_getenv(sv_t envar)
   return env_var;
 }
 
-/**
- * split str_t by regex
- */
+/// \brief split str_t by regex.
 vec_str_t resplit(sv_t s, regex const& re = regex{ "\\s+" })
 {
   regex_token_iterator iter(s.begin(), s.end(), re, -1);
@@ -86,9 +76,7 @@ str_t file_content(sv_t fpath)
   return content;
 }
 
-/**
- * get slice of multiline str_t between line numbers
- */
+/// \brief get slice of multiline str_t between line numbers.
 str_t lines_between(vec_str_t const& lines, sz_t beg_nl, sz_t end_nl)
 {
   if (end_nl == 0 || end_nl > lines.size())
@@ -99,10 +87,9 @@ str_t lines_between(vec_str_t const& lines, sz_t beg_nl, sz_t end_nl)
   return buf.str();
 }
 
-/**
- * find position of nearest newline in multiline str by substring
- * return str_t::npos if substr_t not found!
- */
+/// \brief find position of nearest newline in multiline str by substring.
+///
+/// \return str_t::npos if substr_t not found!
 size_t fnl_substr(str_t& s, sv_t substr, bool including_last = false)
 {
   size_t pos;
@@ -123,10 +110,9 @@ size_t fnl_substr(str_t& s, sv_t substr, bool including_last = false)
   return pos;
 }
 
-/**
- * remove lines before line with substring
- * return false if substr_t not found, true on success.
- */
+/// \brief remove lines before line with substring.
+///
+/// \return false if substr_t not found, true on success.
 bool remove_lines_before(str_t& s, sv_t substr, bool including_last = false)
 {
   size_t const pos = fnl_substr(s, substr, including_last);
@@ -136,10 +122,9 @@ bool remove_lines_before(str_t& s, sv_t substr, bool including_last = false)
   return true;
 }
 
-/**
- * remove lines after line with substring
- * return false if substr_t not found, true on success.
- */
+/// \brief remove lines after line with substring.
+///
+/// \return false if substr_t not found, true on success.
 bool remove_lines_after(str_t& s, sv_t substr, bool including_last = true)
 {
   size_t const pos = fnl_substr(s, substr, including_last);

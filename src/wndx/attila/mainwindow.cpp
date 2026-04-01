@@ -58,9 +58,7 @@ MainWindow::~MainWindow()
   // ui_self.cleanup(); // FIXME: causes Segmentation fault at exit!
 }
 
-/**
- * print timestamp into debug output (used to measure speed between calls)
- */
+/// \brief print timestamp into debug output (time between calls).
 void MainWindow::pts(QString const msg = "")
 {
   if (msg.isEmpty()) {
@@ -79,9 +77,7 @@ void MainWindow::stylesDefaults()
   fin->setStyleSheet(fin_ss_def); // fix: override placeholderText color by gray
 }
 
-/**
- * set order in which we switch between widgets by pressing Tab key
- */
+/// \brief set order in which we switch between widgets by pressing Tab key.
 void MainWindow::setTabbingOrder()
 {
   QWidget::setTabOrder(fin, ui.dateFr);
@@ -112,14 +108,11 @@ void MainWindow::setTxt(QString const& txt)
   emit analyzeTasksSignal(txt);
 }
 
-/**
- * calculate stats & display in spent tab header
- */
+/// \brief calculate stats & display in spent tab header.
 void MainWindow::updateStats(ss::vtasks_t const& vt)
 {
-  ss::stats_t const stats = calculate_stats(vt); // XXX: undefined reference
-  ss::stats_human_t const hum =
-      calculate_stats_human(stats);              // XXX: undefined reference
+  ss::stats_t const       stats = calculate_stats(vt);
+  ss::stats_human_t const hum   = calculate_stats_human(stats);
   ui.statsAvg->setPlainText("avg: " + QString::fromStdString(hum.avg));
   ui.statsMax->setPlainText("max: " + QString::fromStdString(hum.max));
   ui.statsMin->setPlainText("min: " + QString::fromStdString(hum.min));
@@ -150,8 +143,7 @@ void MainWindow::merge()
     return;
   }
   pts("[TASKS ANALYZING] before merge_tasks() call");
-  auto merged{ ss::merge_tasks(
-      vtt, TXT_SPENT.toStdString()) }; // XXX: undefined reference
+  auto merged{ ss::merge_tasks(vtt, TXT_SPENT.toStdString()) };
   vtt_merged = merged.first;
   TXT_MERGED = QString::fromStdString(merged.second);
   pts("[TASKS ANALYZING] merge finished!");
@@ -172,9 +164,8 @@ void MainWindow::analyzeTasksStarted(QString const& txt)
 void MainWindow::analyzeTasksFinished()
 {
   pts("[TASKS ANALYZING] finished");
-  vtt = vtt_watcher.result();
-  TXT_SPENT =
-      QString::fromStdString(tasks_to_mulstr(vtt)); // XXX: undefined reference
+  vtt       = vtt_watcher.result();
+  TXT_SPENT = QString::fromStdString(tasks_to_mulstr(vtt));
   ui.spentText->setPlainText(TXT_SPENT);
   pts("[TASKS ANALYZING] spent text is set!");
   MainWindow::merge();

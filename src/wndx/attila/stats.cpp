@@ -119,9 +119,7 @@ std::pair<vtasks_t const, str_t> merge_tasks(vtasks_t const& vtt,
   return std::make_pair(v, tasks_to_mulstr(v));
 }
 
-/**
- * auto create and populate groups by the tasks with unique project name
- */
+/// \brief auto create and populate groups by the tasks with unique project name.
 sgroups_t auto_proj_groups(vtasks_t const& vtt)
 {
   sgroups_t       groups{};

@@ -19,9 +19,7 @@ Keys::Keys(QObject* window, Ui::MainWindow& ui_)
 
 Keys::~Keys() {}
 
-/**
- * change scroll position based on active tab & scroll key
- */
+/// \brief change scroll position based on active tab & scroll key.
 void Keys::scroll()
 {
   switch (ui.tabWidget->currentIndex()) {
@@ -100,18 +98,14 @@ void Keys::scroll()
   }
 }
 
-/**
- * bind scroll key
- */
+/// \brief bind scroll key.
 void Keys::scrollkey(QKeySequence key)
 {
   QObject::connect(new QShortcut(key, mw), &QShortcut::activated, this,
                    &Keys::scroll);
 }
 
-/**
- * bind scroll keys
- */
+/// \brief bind scroll keys.
 void Keys::scrollkeys()
 {
   // hjkl scrolling of the text
@@ -135,18 +129,14 @@ void Keys::scrollkeys()
   scrollkey(Qt::SHIFT | Qt::Key_G);
 }
 
-/**
- * bind key shortcut to action from Action class
- */
+/// \brief bind key shortcut to action from Action class.
 template <typename Func2>
 void Keys::sact(QKeySequence key, Func2 slot)
 {
   QObject::connect(new QShortcut(key, mw), &QShortcut::activated, act, slot);
 }
 
-/**
- * bind hotkeys
- */
+/// \brief bind hotkeys.
 void Keys::hotkeys()
 {
   Keys::scrollkeys(); // bind scroll keys

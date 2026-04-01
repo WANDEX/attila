@@ -15,9 +15,7 @@ MainWindow::MainWindow(QObject* window)
 
 MainWindow::~MainWindow() {}
 
-/**
- * init Keys class & bind hotkeys.
- */
+/// \brief init Keys class & bind hotkeys.
 auto MainWindow::keys(QObject* window) -> Keys&
 {
   keys_ptr = new Keys(window, *ui_ptr);
